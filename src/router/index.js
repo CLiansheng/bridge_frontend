@@ -1,24 +1,59 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../components/Login.vue'
+
+// 导入所有视图组件
+import Login from '../views/Login.vue'
+import Home from '../views/Home.vue'
+import Detection from '../views/Detection.vue'
+import Algorithm from '../views/Algorithm.vue'
+import System from '../views/System.vue'
 
 const router = createRouter({
-  // 使用 HTML5 的 History 路由模式，URL 更加美观（没有 # 号）
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       // 访问根目录时，默认重定向到登录页
       path: '/',
-      name: 'home',
       redirect: '/login'
     },
     {
       path: '/login',
       name: 'login',
       component: Login,
-      meta: {
-        title: '系统登录 | NEXUS SYSTEM' // 可以在这里配置页面标题
-      }
-    }]
+      meta: { title: '系统登录 | NEXUS SYSTEM' }
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: Home,
+      meta: { title: '主页概览 | NEXUS SYSTEM' }
+    },
+    {
+      path: '/diagnose',
+      name: 'diagnose',
+      component: Detection,
+      meta: { title: '智能诊断 | NEXUS SYSTEM' }
+    },
+    {
+      path: '/history',
+      name: 'history',
+      component: Algorithm,
+      meta: { title: '历史档案 | NEXUS SYSTEM' }
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: System,
+      meta: { title: '系统配置 | NEXUS SYSTEM' }
+    }
+  ]
+})
+
+// 路由守卫：动态修改网页标题
+router.beforeEach((to, from, next) => {
+  if (to.meta.title) {
+    document.title = to.meta.title
+  }
+  next()
 })
 
 export default router

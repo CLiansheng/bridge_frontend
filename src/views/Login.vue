@@ -93,10 +93,7 @@ const handleLogin = () => {
 
 .glass-panel {
   background-color: var(--glass-bg);
-  border: 1px solid var(--glass-border);
   border-radius: 16px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: stretch;
   padding: 50px;
@@ -105,6 +102,8 @@ const handleLogin = () => {
   width: 100%;
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.01), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
+
+.glass-panel { border: 1px solid var(--glass-border); border-radius: 16px; padding: 40px; }
 
 .panel-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 .panel-content h1 { font-size: 54px; font-weight: 700; line-height: 1.1; letter-spacing: 2px; background: linear-gradient(to right, #fff, var(--accent-cyan)); background-clip: text; -webkit-text-fill-color: transparent; }

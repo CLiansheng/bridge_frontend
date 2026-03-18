@@ -1,27 +1,21 @@
 <template>
   <div class="bg-container">
     <div class="bg-base"></div>
-    
     <div class="data-particles"></div>
-
     <div class="radar-array">
       <div class="radar-ring outer"></div>
       <div class="radar-ring inner"></div>
       <div class="radar-sweep"></div>
     </div>
-
     <div class="grid-floor"></div>
-
     <div class="ambient-glow glow-1"></div>
     <div class="ambient-glow glow-2"></div>
     <div class="ambient-glow glow-3"></div>
-
     <div class="scan-line"></div>
-
     <div class="vignette-overlay"></div>
   </div>
 
-  <header class="hardcore-navbar">
+  <header class="hardcore-navbar" v-if="$route.path !== '/login'">
     <div class="nav-left">
       <div class="logo">
         <span class="bracket">[</span>
@@ -34,9 +28,9 @@
     <nav class="nav-center">
       <div 
         v-for="item in menu" 
-        :key="item.id"
-        :class="['nav-item', { active: currentView === item.id }]"
-        @click="currentView = item.id"
+        :key="item.path"
+        :class="['nav-item', { active: $route.path === item.path }]"
+        @click="navigateTo(item.path)"
       >
         <div class="nav-item-inner">
           <i :class="['bx', item.icon]"></i>
@@ -55,47 +49,44 @@
           <span class="user-role">ADMIN //</span>
           <span class="username">专家用户</span>
         </div>
-        <i class='bx bx-power-off logout-btn' title="退出系统"></i>
+        <i class='bx bx-power-off logout-btn' title="退出系统" @click="handleLogout"></i>
       </div>
     </div>
   </header>
 
-  <main class="main-content">
-    <transition name="glitch-slide" mode="out-in">
-      <component :is="views[currentView]" />
-    </transition>
+  <main :class="['main-content', { 'login-mode': $route.path === '/login' }]">
+    <router-view v-slot="{ Component }">
+      <transition name="glitch-slide" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
   </main>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
+<script setup>
+import { useRoute, useRouter } from 'vue-router'
 
-/**
- * 视图组件导入
- * 对应 views 目录下的功能模块
- */
-import Home from './views/Home.vue'         // 主页/概览
-import Diagnose from './views/Detection.vue' // 检测诊断
-import History from './views/Algorithm.vue'  // 历史记录/算法中心
-import Profile from './views/System.vue'     // 系统配置
+const route = useRoute()
+const router = useRouter()
 
-// 响应式状态：当前活跃的视图组件 ID
-const currentView = ref('Home')
-
-// 导航菜单配置项数组
+// 导航菜单配置项数组 (将 id 替换为路由的 path)
 const menu = [
-  { id: 'Home', name: '主页', icon: 'bx-data' },
-  { id: 'Diagnose', name: '诊断', icon: 'bx-radar' },
-  { id: 'History', name: '历史', icon: 'bx-history' },
-  { id: 'Profile', name: '系统', icon: 'bx-slider-alt' }
+  { path: '/dashboard', name: '主页', icon: 'bx-data' },
+  { path: '/diagnose', name: '诊断', icon: 'bx-radar' },
+  { path: '/history', name: '历史', icon: 'bx-history' },
+  { path: '/profile', name: '系统', icon: 'bx-slider-alt' }
 ]
 
-// 视图组件映射表
-const views: any = { 
-  Home, 
-  Diagnose, 
-  History, 
-  Profile 
+// 导航跳转方法
+const navigateTo = (path) => {
+  router.push(path)
+}
+
+// 退出登录逻辑
+const handleLogout = () => {
+  localStorage.removeItem('isLogin')
+  localStorage.removeItem('username')
+  router.push('/login') // 回到登录页
 }
 </script>
 
@@ -453,6 +444,21 @@ html,
   background: rgba(0, 229, 255, 0.05); 
 }
 
+.logout-btn {
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.logout-btn:hover {
+  color: var(--text-alert);
+  text-shadow: 0 0 8px var(--text-alert);
+}
+
+/* -----------------------------------------------------------
+   5. 主体内容样式
+----------------------------------------------------------- */
 .main-content {
   padding-top: 80px; 
   padding-left: 30px; 
@@ -463,10 +469,17 @@ html,
   overflow-y: auto;
   position: relative; 
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 当在登录页时，取消顶部的预留空间，保证居中 */
+.main-content.login-mode {
+  padding-top: 0;
 }
 
 /* -----------------------------------------------------------
-   5. 视图切换路由动画
+   6. 视图切换路由动画
 ----------------------------------------------------------- */
 .glitch-slide-enter-active, 
 .glitch-slide-leave-active { 
