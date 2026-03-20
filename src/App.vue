@@ -1,6 +1,8 @@
 <template>
+  <!-- 背景ui -->
   <div class="bg-container">
     <div class="bg-base"></div>
+    <ConstellationBg/>
     <div class="data-particles"></div>
     <div class="radar-array">
       <div class="radar-ring outer"></div>
@@ -18,9 +20,11 @@
   <header class="hardcore-navbar" v-if="$route.path !== '/login'">
     <div class="nav-left">
       <div class="logo">
+        <!-- 这里差一个logo -->
+        <!-- 这里差一个logo -->
+        <!-- 这里差一个logo -->
         <span class="bracket">[</span>
-        <i class='bx bx-hive tech-icon'></i>
-        <span class="sys-name">桥梁结构诊断系统</span>
+        <span class="sys-name">系统名称</span>
         <span class="bracket">]</span>
       </div>
     </div>
@@ -29,11 +33,10 @@
       <div 
         v-for="item in menu" 
         :key="item.path"
-        :class="['nav-item', { active: $route.path === item.path }]"
+        :class="['nav-item', { 'active': $route.path === item.path }]"
         @click="navigateTo(item.path)"
       >
         <div class="nav-item-inner">
-          <i :class="['bx', item.icon]"></i>
           <span>{{ item.name }}</span>
         </div>
         <div class="status-line"></div>
@@ -42,14 +45,8 @@
 
     <div class="nav-right">
       <div class="user-profile">
-        <div class="tech-avatar">
-          <i class='bx bx-user-pin'></i>
-        </div>
-        <div class="user-info">
-          <span class="user-role">ADMIN //</span>
-          <span class="username">专家用户</span>
-        </div>
-        <i class='bx bx-power-off logout-btn' title="退出系统" @click="handleLogout"></i>
+        <div class="tech-avatar"></div>
+        <span class="username">用户名称</span>
       </div>
     </div>
   </header>
@@ -65,11 +62,11 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
-
+import ConstellationBg from '@/components/ConstellationBg.vue'
 const route = useRoute()
 const router = useRouter()
 
-// 导航菜单配置项数组 (将 id 替换为路由的 path)
+// 导航菜单配置项数组
 const menu = [
   { path: '/dashboard', name: '主页', icon: 'bx-data' },
   { path: '/diagnose', name: '诊断', icon: 'bx-radar' },
@@ -81,37 +78,51 @@ const menu = [
 const navigateTo = (path) => {
   router.push(path)
 }
-
-// 退出登录逻辑
-const handleLogout = () => {
-  localStorage.removeItem('isLogin')
-  localStorage.removeItem('username')
-  router.push('/login') // 回到登录页
-}
 </script>
 
 <style>
 /* -----------------------------------------------------------
    1. 基础样式与全局变量定义
 ----------------------------------------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+@font-face {
+  font-family: 'Roboto Mono Local';
+  src: url('@/assets/fonts/RobotoMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; 
+}
+
+@font-face {
+  font-family: 'Roboto Mono Local';
+  src: url('@/assets/fonts/RobotoMono-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto Mono Local';
+  src: url('@/assets/fonts/RobotoMono-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 
 :root {
-  /* 品牌视觉色系 */
   --tech-cyan: #00e5ff;
   --tech-cyan-dim: rgba(0, 229, 255, 0.15);
   --tech-bg-dark: #010308;
   --tech-panel-bg: rgba(6, 9, 14, 0.65);
   --tech-border: rgba(0, 229, 255, 0.2);
   
-  /* 文本颜色系 */
   --text-main: #e2e8f0;
   --text-muted: #64748b;
   --text-alert: #ff2a2a;
   
-  /* 全局字体族 */
-  --font-mono: 'Roboto Mono', monospace;
-  --font-sans: 'Noto Sans SC', sans-serif;
+  --font-mono: 'Roboto Mono Local', 'Roboto Mono', monospace;
+  --font-sans: sans-serif;
 }
 
 body, 
@@ -172,9 +183,12 @@ html,
   left: -50%; 
   width: 200%; 
   height: 70%;
+  
+  transform-origin: center top; 
+  
   transform: perspective(800px) rotateX(75deg);
-  mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+  mask-image: radial-gradient(ellipse 50% 40% at center bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: radial-gradient(ellipse 50% 40% at center bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
   transform-style: preserve-3d;
 }
 
@@ -188,10 +202,11 @@ html,
   background-image: 
     linear-gradient(rgba(0, 229, 255, 0.4) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 229, 255, 0.4) 1px, transparent 1px);
-  background-size: 60px 60px;
+  background-size: 20px 20px;
+  
+  background-position: center top; 
+  
   transform: translateZ(0); 
-  will-change: background-position;
-  animation: gridMoveSmooth 3s linear infinite;
 }
 
 .radar-array {
@@ -363,7 +378,7 @@ html,
   backdrop-filter: blur(12px); 
   border-bottom: 1px solid var(--tech-border);
   display: flex; 
-  justify-content: space-between; 
+  justify-content: space-around; 
   align-items: center; 
   padding: 0 30px; 
   z-index: 100;
@@ -426,22 +441,31 @@ html,
   box-shadow: 0 -2px 12px var(--tech-cyan); 
 }
 
-.user-profile { 
-  display: flex; 
-  align-items: center; 
-  gap: 16px; 
-  font-family: var(--font-mono); 
+.nav-right {
+  display: flex;
+  align-items: center;
 }
 
-.tech-avatar { 
-  width: 32px; 
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px; 
+}
+
+.tech-avatar {
+  width: 32px;
   height: 32px;
   border: 1px solid var(--tech-border); 
-  display: flex; 
-  justify-content: center;
-  align-items: center; 
-  color: var(--tech-cyan); 
-  background: rgba(0, 229, 255, 0.05); 
+  background: rgba(0, 229, 255, 0.05);
+  flex-shrink: 0; 
+}
+
+.username {
+  font-size: 14px;
+  color: var(--text-main);
+  white-space: nowrap;
+  letter-spacing: 1px;
+  line-height: 1; 
 }
 
 .logout-btn {

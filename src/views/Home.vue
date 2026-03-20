@@ -35,7 +35,7 @@
 .page-container { height: 100%; display: flex; flex-direction: column; gap: 24px; animation: fadeIn 0.5s ease; }
 .glass-panel {   border: 1px solid var(--glass-border); border-radius: 16px; padding: 40px; }
 .hero-section { text-align: center; }
-.gradient-text { font-size: 36px; font-weight: 700; background: linear-gradient(to right, #fff, var(--neon-blue)); background-clip: text; color: transparent; margin-bottom: 10px; }
+.gradient-text { font-size: 36px; font-weight: 700; background: linear-gradient(to right, #fff, var(--neon-blue)); background-clip: text; margin-bottom: 10px; }
 .subtitle { color: var(--text-muted); font-size: 16px; letter-spacing: 2px; margin-bottom: 40px; }
 .stats-grid { display: flex; justify-content: center; gap: 30px; }
 .stat-box { display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.03); padding: 20px 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }

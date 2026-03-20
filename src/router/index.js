@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Home from '../views/Home.vue'
 import Detection from '../views/Detection.vue'
-import Algorithm from '../views/Algorithm.vue'
+import History from '../views/History.vue'
 import System from '../views/System.vue'
 
 const router = createRouter({
@@ -36,7 +36,7 @@ const router = createRouter({
     {
       path: '/history',
       name: 'history',
-      component: Algorithm,
+      component: History,
       meta: { title: '历史档案 | NEXUS SYSTEM' }
     },
     {
