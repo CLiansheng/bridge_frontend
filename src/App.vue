@@ -1,5 +1,4 @@
 <template>
-  <!-- 背景ui -->
   <div class="bg-container">
     <div class="bg-base"></div>
     <ConstellationBg/>
@@ -17,14 +16,38 @@
     <div class="vignette-overlay"></div>
   </div>
 
-  <header class="hardcore-navbar" v-if="$route.path !== '/login'">
+ <div class="global-hud-corners">
+    <div class="hud-corner top-left">
+      <div class="corner-dot"></div>
+      <div class="corner-inner"></div>
+      <div class="corner-tick-h"></div>
+      <div class="corner-tick-v"></div>
+    </div>
+    <div class="hud-corner top-right">
+      <div class="corner-dot"></div>
+      <div class="corner-inner"></div>
+      <div class="corner-tick-h"></div>
+      <div class="corner-tick-v"></div>
+    </div>
+    <div class="hud-corner bottom-left">
+      <div class="corner-dot"></div>
+      <div class="corner-inner"></div>
+      <div class="corner-tick-h"></div>
+      <div class="corner-tick-v"></div>
+    </div>
+    <div class="hud-corner bottom-right">
+      <div class="corner-dot"></div>
+      <div class="corner-inner"></div>
+      <div class="corner-tick-h"></div>
+      <div class="corner-tick-v"></div>
+    </div>
+  </div>
+
+  <header class="hardcore-navbar" v-if="!['/login', '/'].includes($route.path)">
     <div class="nav-left">
       <div class="logo">
-        <!-- 这里差一个logo -->
-        <!-- 这里差一个logo -->
-        <!-- 这里差一个logo -->
         <span class="bracket">[</span>
-        <span class="sys-name">系统名称</span>
+        <span class="sys-name">NEXUS SYSTEM</span>
         <span class="bracket">]</span>
       </div>
     </div>
@@ -46,12 +69,12 @@
     <div class="nav-right">
       <div class="user-profile">
         <div class="tech-avatar"></div>
-        <span class="username">用户名称</span>
+        <span class="username">专家用户</span>
       </div>
     </div>
   </header>
 
-  <main :class="['main-content', { 'login-mode': $route.path === '/login' }]">
+  <main :class="['main-content', { 'login-mode': ['/login', '/'].includes($route.path) }]">
     <router-view v-slot="{ Component }">
       <transition name="glitch-slide" mode="out-in">
         <component :is="Component" />
@@ -520,5 +543,110 @@ html,
   opacity: 0; 
   transform: translateY(-15px); 
   filter: brightness(0.5) blur(3px); 
+}
+
+.main-content.login-mode {
+  padding-top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ================= 极致精细：全局机甲边框样式 ================= */
+.global-hud-corners {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* 主干外框 (采用 border 实现，绝无重叠瑕疵) */
+.hud-corner {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-top: 2px solid rgba(0, 229, 255, 0.85);
+  border-left: 2px solid rgba(0, 229, 255, 0.85);
+  filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.4));
+  animation: hudCornerBreath 3s infinite alternate ease-in-out;
+}
+
+/* 顶点发光核心锚点 */
+.corner-dot {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 1), 0 0 5px rgba(0, 229, 255, 1);
+}
+
+/* 内侧辅助副瞄准线 (增加层次感) */
+.corner-inner {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 40px;
+  height: 40px;
+  border-top: 1px solid rgba(0, 229, 255, 0.35);
+  border-left: 1px solid rgba(0, 229, 255, 0.35);
+}
+
+/* 顶部横线末端的垂直收尾卡扣 */
+.corner-tick-h {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  width: 2px;
+  height: 10px;
+  background: rgba(0, 229, 255, 0.85);
+}
+
+/* 左侧竖线末端的水平收尾卡扣 */
+.corner-tick-v {
+  position: absolute;
+  bottom: 0;
+  left: -6px;
+  width: 10px;
+  height: 2px;
+  background: rgba(0, 229, 255, 0.85);
+}
+
+/* ================= 完美的四角镜像对称定位 ================= */
+.top-left {
+  top: 35px;
+  left: 35px;
+}
+
+.top-right {
+  top: 35px;
+  right: 35px;
+  transform: scaleX(-1);
+}
+
+.bottom-left {
+  bottom: 35px;
+  left: 35px;
+  transform: scaleY(-1);
+}
+
+.bottom-right {
+  bottom: 35px;
+  right: 35px;
+  transform: scaleX(-1) scaleY(-1);
+}
+
+/* 边框全局呼吸特效 */
+@keyframes hudCornerBreath {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>

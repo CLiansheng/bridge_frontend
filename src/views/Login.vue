@@ -1,5 +1,5 @@
 <template>
-  <main class="login-main">
+  <!-- <main class="login-main">
     <section id="login-section">
       <div class="glass-panel">
         
@@ -41,7 +41,7 @@
         </div>
       </div>
     </section>
-  </main>
+  </main> -->
 </template>
 
 <script setup>
