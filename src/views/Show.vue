@@ -639,6 +639,7 @@ const startEnterSystem = () => {
 /* ================= 中心文字排版 ================= */
 /* 整体居中排列，Z 轴悬浮突出层次感 */
 .center-content {
+  user-select: none;  
   position: absolute;
   top: 50%;
   left: 50%;
