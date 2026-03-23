@@ -10,19 +10,292 @@
         <i class='bx bxs-file-image upload-icon'></i>
         <h3>拖拽文件到此处，或 <span class="highlight">点击上传</span></h3>
         <p class="tips">支持 JPG, PNG, ZIP 格式 (最大 50MB)</p>
-        <input type="file" class="hidden-input" multiple>
+        <input 
+          type="file" 
+          class="hidden-input" 
+          multiple 
+          @change="handleFileUpload"
+        >
+      </div>
+
+      <!-- 已选择文件列表 -->
+      <div v-if="selectedFiles.length > 0" class="file-list">
+        <h3>已选择文件 ({{ selectedFiles.length }})</h3>
+        <ul>
+          <li v-for="(file, index) in selectedFiles" :key="index">
+            {{ file.name }}
+            <span class="file-size">{{ formatFileSize(file.size) }}</span>
+          </li>
+        </ul>
       </div>
 
       <div class="action-bar">
-        <button class="btn primary">开始 AI 诊断</button>
+        <button class="btn primary" @click="startDiagnosis" :disabled="!selectedFiles.length">
+          开始 AI 诊断
+        </button>
+      </div>
+    </div>
+
+    <!-- 诊断报告 -->
+    <div v-if="showReport" class="glass-panel report-section animate-fade-in">
+      <div class="header">
+        <h2><i class='bx bx-report'></i> 诊断报告</h2>
+      </div>
+
+      <div class="report-content">
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value">{{ reportData.task_summary.image_count }}</div>
+            <div class="stat-label">本次检测图片数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ reportData.task_summary.total_defect_count }}</div>
+            <div class="stat-label">总病害数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ reportData.average_area }}</div>
+            <div class="stat-label">平均病害面积</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ reportData.average_length }}</div>
+            <div class="stat-label">平均病害长度</div>
+          </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="charts-container">
+          <!-- 各类别数量图表 -->
+          <div class="chart-section">
+            <h3>各类别数量</h3>
+            <div class="chart-wrapper">
+              <canvas ref="classChart"></canvas>
+            </div>
+          </div>
+
+          <!-- 风险等级分布图表 -->
+          <div class="chart-section">
+            <h3>风险等级分布</h3>
+            <div class="chart-wrapper">
+              <canvas ref="riskChart"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
+<script setup>
+import { ref, onMounted, watch } from 'vue'
+import Chart from 'chart.js/auto'
+import { useUserStore } from '../stores/user'
+
+// 响应式状态
+const selectedFiles = ref([])
+const showReport = ref(false)
+const classChart = ref(null)
+const riskChart = ref(null)
+let classChartInstance = null
+let riskChartInstance = null
+
+// Pinia store
+const userStore = useUserStore()
+
+// 模拟报告数据
+const reportData = ref({
+  task_summary: {
+    image_count: 3,
+    total_defect_count: 8,
+    class_count: {
+      crack: 4,
+      rust: 2,
+      spalling: 2
+    },
+    risk_distribution: {
+      low: 3,
+      medium: 3,
+      high: 2
+    }
+  },
+  average_area: 1062, 
+  average_length: 139 
+})
+
+// 方法
+const handleFileUpload = (event) => {
+  selectedFiles.value = Array.from(event.target.files)
+}
+
+const startDiagnosis = () => {
+  // 模拟诊断过程
+  showReport.value = true
+  
+  // 保存到历史记录
+  saveToHistory()
+}
+
+// 保存到历史记录
+const saveToHistory = () => {
+  // 生成批次号
+  const date = new Date()
+  const batchId = `BATCH-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
+  
+  // 创建历史记录
+  const historyRecord = {
+    id: Date.now(),
+    batchId: batchId,
+    detectionTime: date.toLocaleString('zh-CN'),
+    uploadType: selectedFiles.value.length > 1 ? '批量 ZIP' : '单张图片',
+    defectCount: reportData.value.task_summary.total_defect_count,
+    reportData: { ...reportData.value } // 保存完整的报告数据
+  }
+  
+  // 添加到 Pinia store
+  userStore.addHistoryRecord(historyRecord)
+  
+  console.log('诊断结果已保存到历史记录')
+}
+
+const formatFileSize = (bytes) => {
+  if (bytes < 1024) return bytes + ' B'
+  else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB'
+  else return (bytes / 1048576).toFixed(2) + ' MB'
+}
+
+const getClassName = (className) => {
+  const classMap = {
+    crack: '裂缝',
+    rust: '锈蚀',
+    spalling: '剥落'
+  }
+  return classMap[className] || className
+}
+
+const getRiskLevel = (level) => {
+  const levelMap = {
+    low: '低风险',
+    medium: '中风险',
+    high: '高风险'
+  }
+  return levelMap[level] || level
+}
+
+// 初始化图表
+const initCharts = () => {
+  if (!showReport.value) return
+
+  // 销毁现有图表实例
+  if (classChartInstance) {
+    classChartInstance.destroy()
+  }
+  if (riskChartInstance) {
+    riskChartInstance.destroy()
+  }
+
+  // 准备类别数据
+  const classLabels = Object.keys(reportData.value.task_summary.class_count).map(getClassName)
+  const classData = Object.values(reportData.value.task_summary.class_count)
+  const classColors = ['#00e5ff', '#00b8d9', '#0091c2']
+
+  // 准备风险等级数据
+  const riskLabels = Object.keys(reportData.value.task_summary.risk_distribution).map(getRiskLevel)
+  const riskData = Object.values(reportData.value.task_summary.risk_distribution)
+  const riskColors = ['#00e5ff', '#00b8d9', '#0091c2']
+
+  // 创建类别图表
+  if (classChart.value) {
+    classChartInstance = new Chart(classChart.value, {
+      type: 'bar',
+      data: {
+        labels: classLabels,
+        datasets: [{
+          label: '病害数量',
+          data: classData,
+          backgroundColor: classColors,
+          borderColor: classColors,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 229, 255, 0.1)'
+            },
+            ticks: {
+              color: '#e2e8f0'
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(0, 229, 255, 0.1)'
+            },
+            ticks: {
+              color: '#e2e8f0'
+            }
+          }
+        }
+      }
+    })
+  }
+
+  // 创建风险等级图表
+  if (riskChart.value) {
+    riskChartInstance = new Chart(riskChart.value, {
+      type: 'pie',
+      data: {
+        labels: riskLabels,
+        datasets: [{
+          data: riskData,
+          backgroundColor: riskColors,
+          borderColor: riskColors,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#e2e8f0'
+            }
+          }
+        }
+      }
+    })
+  }
+}
+
+// 监听报告显示状态
+watch(() => showReport.value, (newValue) => {
+  if (newValue) {
+    // 延迟初始化图表，确保 DOM 已经渲染
+    setTimeout(initCharts, 100)
+  }
+})
+
+// 组件挂载后初始化
+onMounted(() => {
+  if (showReport.value) {
+    initCharts()
+  }
+})
+</script>
+
 <style scoped>
-.page-container { max-width: 800px; margin: 0 auto; animation: fadeIn 0.5s ease; }
-.glass-panel { border: 1px solid var(--glass-border); border-radius: 16px; padding: 40px; }
+.page-container { max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+.glass-panel { border: 1px solid var(--glass-border); border-radius: 16px; padding: 40px; margin-bottom: 30px; }
 .header { margin-bottom: 30px; text-align: center; }
 .header h2 { display: flex; align-items: center; justify-content: center; gap: 10px; color: #fff; margin-bottom: 8px; }
 .header p { color: var(--text-muted); font-size: 14px; }
@@ -36,5 +309,52 @@
 .action-bar { margin-top: 30px; display: flex; justify-content: center; }
 .btn.primary { background: linear-gradient(45deg, var(--neon-blue), #0072ff); border: none; padding: 12px 40px; color: white; font-weight: bold; border-radius: 8px; font-size: 16px; cursor: pointer; box-shadow: 0 5px 15px rgba(0, 242, 254, 0.3); transition: 0.3s; }
 .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 242, 254, 0.5); }
+.btn.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* 文件列表样式 */
+.file-list { margin: 20px 0; }
+.file-list h3 { color: #fff; margin-bottom: 10px; }
+.file-list ul { list-style: none; padding: 0; }
+.file-list li { background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.file-size { color: var(--text-muted); font-size: 12px; }
+
+/* 报告样式 */
+.report-content { margin-top: 30px; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+.stat-card { background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 12px; padding: 20px; text-align: center; transition: all 0.3s; }
+.stat-card:hover { box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); transform: translateY(-2px); }
+.stat-value { font-size: 32px; font-weight: bold; color: var(--neon-blue); margin-bottom: 8px; }
+.stat-label { color: var(--text-muted); font-size: 14px; }
+
+/* 图表容器 */
+.charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.chart-section { background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 12px; padding: 20px; }
+.chart-section h3 { color: #fff; margin-bottom: 20px; text-align: center; }
+.chart-wrapper { height: 300px; }
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .charts-container { grid-template-columns: 1fr; }
+  .page-container { max-width: 100%; padding: 0 20px; }
+}
+
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* 动画效果 */
+.animate-fade-in {
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>
