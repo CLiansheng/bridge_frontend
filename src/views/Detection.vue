@@ -37,7 +37,7 @@
     </div>
 
     <!-- 诊断报告 -->
-    <div v-if="showReport" class="glass-panel report-section animate-fade-in">
+    <div v-if="showReport" class="glass-panel  animate-fade-in">
       <div class="header">
         <h2><i class='bx bx-report'></i> 诊断报告</h2>
       </div>
@@ -63,6 +63,7 @@
           </div>
         </div>
 
+
         <!-- 图表区域 -->
         <div class="charts-container">
           <!-- 各类别数量图表 -->
@@ -81,6 +82,21 @@
             </div>
           </div>
         </div>
+                <!-- AI 总结按钮 -->
+        <div class="action-bar">
+          <button class="btn secondary" @click="toggleAiSummary">
+            {{ showAiSummary ? '隐藏 AI 总结' : '显示 AI 总结' }}
+          </button>
+        </div>
+
+        <!-- AI 总结内容 -->
+        <div v-if="showAiSummary" class="ai-summary animate-fade-in">
+          <div class="summary-header">
+            <h3><i class='bx bx-brain'></i> AI 诊断总结</h3>
+          </div>
+          <div class="summary-content" v-html="aiSummary"></div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -90,17 +106,19 @@
 import { ref, onMounted, watch } from 'vue'
 import Chart from 'chart.js/auto'
 import { useUserStore } from '../stores/user'
+import { useHistoryStore } from '../stores/history'
 
 // 响应式状态
 const selectedFiles = ref([])
 const showReport = ref(false)
+const showAiSummary = ref(false)
 const classChart = ref(null)
 const riskChart = ref(null)
 let classChartInstance = null
 let riskChartInstance = null
 
 // Pinia store
-const userStore = useUserStore()
+const historyStore = useHistoryStore()
 
 // 模拟报告数据
 const reportData = ref({
@@ -109,8 +127,9 @@ const reportData = ref({
     total_defect_count: 8,
     class_count: {
       crack: 4,
-      rust: 2,
-      spalling: 2
+      efflorescence: 2,
+      'exposed rebar': 1,
+      spalling: 1
     },
     risk_distribution: {
       low: 3,
@@ -122,6 +141,34 @@ const reportData = ref({
   average_length: 139 
 })
 
+// AI 总结数据
+const aiSummary = ref(`## AI 诊断总结
+
+### 病害分析
+- **主要病害类型**：裂缝（4处）、泛碱（2处）、钢筋裸露（1处）、剥落（1处）
+- **风险等级分布**：低风险3处，中风险3处，高风险2处
+- **平均病害面积**：1062平方毫米
+- **平均病害长度**：139毫米
+
+### 桥梁状态评估
+根据检测结果，桥梁整体状态为**中等风险**。建议进行以下维护措施：
+
+1. **裂缝处理**：对4处裂缝进行密封处理，防止水渗入导致钢筋锈蚀
+2. **泛碱处理**：对2处泛碱部位进行清洗和防护处理
+3. **钢筋裸露修复**：对1处钢筋裸露部位进行除锈和防腐处理
+4. **剥落修补**：对1处剥落部位进行修补，恢复混凝土保护层
+
+### 建议维护计划
+- **短期（1-3个月）**：优先处理高风险病害
+- **中期（3-6个月）**：完成所有病害的修复
+- **长期（6-12个月）**：进行全面的桥梁结构检查
+
+### 注意事项
+- 定期监测裂缝发展情况
+- 加强桥梁排水系统的维护
+- 定期进行防腐涂层的检查和更新
+- 注意混凝土表面的泛碱现象，及时处理`)
+
 // 方法
 const handleFileUpload = (event) => {
   selectedFiles.value = Array.from(event.target.files)
@@ -130,9 +177,14 @@ const handleFileUpload = (event) => {
 const startDiagnosis = () => {
   // 模拟诊断过程
   showReport.value = true
+  showAiSummary.value = false // 重置 AI 总结状态
   
   // 保存到历史记录
   saveToHistory()
+}
+
+const toggleAiSummary = () => {
+  showAiSummary.value = !showAiSummary.value
 }
 
 // 保存到历史记录
@@ -152,7 +204,7 @@ const saveToHistory = () => {
   }
   
   // 添加到 Pinia store
-  userStore.addHistoryRecord(historyRecord)
+  historyStore.addHistoryRecord(historyRecord)
   
   console.log('诊断结果已保存到历史记录')
 }
@@ -166,7 +218,8 @@ const formatFileSize = (bytes) => {
 const getClassName = (className) => {
   const classMap = {
     crack: '裂缝',
-    rust: '锈蚀',
+    efflorescence: '泛碱',
+    'exposed rebar': '钢筋裸露',
     spalling: '剥落'
   }
   return classMap[className] || className
@@ -311,6 +364,24 @@ onMounted(() => {
 .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 242, 254, 0.5); }
 .btn.primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  padding: 10px 30px;
+  color: var(--neon-blue);
+  font-weight: bold;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn.secondary:hover {
+  background: rgba(0, 242, 254, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 242, 254, 0.2);
+}
+
 /* 文件列表样式 */
 .file-list { margin: 20px 0; }
 .file-list h3 { color: #fff; margin-bottom: 10px; }
@@ -319,12 +390,56 @@ onMounted(() => {
 .file-size { color: var(--text-muted); font-size: 12px; }
 
 /* 报告样式 */
-.report-content { margin-top: 30px; }
+.report-content { margin-top: 30px;width: 1120px; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
 .stat-card { background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 12px; padding: 20px; text-align: center; transition: all 0.3s; }
 .stat-card:hover { box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); transform: translateY(-2px); }
 .stat-value { font-size: 32px; font-weight: bold; color: var(--neon-blue); margin-bottom: 8px; }
 .stat-label { color: var(--text-muted); font-size: 14px; }
+
+/* AI 总结样式 */
+.ai-summary {
+  background: rgba(0, 242, 254, 0.05);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.summary-content {
+  color: #e2e8f0;
+  line-height: 1.6;
+}
+
+.summary-content h3 {
+  color: var(--neon-blue);
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.summary-content h4 {
+  color: #fff;
+  margin-top: 15px;
+  margin-bottom: 8px;
+}
+
+.summary-content ul {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+.summary-content li {
+  margin-bottom: 5px;
+}
 
 /* 图表容器 */
 .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }

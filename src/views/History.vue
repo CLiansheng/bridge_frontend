@@ -14,7 +14,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="record in userStore.historyRecords" :key="record.id">
+          <tr v-for="record in historyStore.historyRecords" :key="record.id">
             <td class="id-col">{{ record.batchId }}</td>
             <td>{{ record.detectionTime }}</td>
             <td>{{ record.uploadType }}</td>
@@ -22,7 +22,7 @@
             <td><span class="status-tag success">已完成</span></td>
             <td><button class="link-btn" @click="viewReport(record)">查看报告</button></td>
           </tr>
-          <tr v-if="userStore.historyRecords.length === 0">
+          <tr v-if="historyStore.historyRecords.length === 0">
             <td colspan="6" class="empty-message">暂无历史记录</td>
           </tr>
         </tbody>
@@ -85,10 +85,10 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import Chart from 'chart.js/auto'
-import { useUserStore } from '../stores/user'
+import { useHistoryStore } from '../stores/history'
 
 // Pinia store
-const userStore = useUserStore()
+const historyStore = useHistoryStore()
 
 // 响应式状态
 const showReport = ref(false)
@@ -107,7 +107,8 @@ const viewReport = (record) => {
 const getClassName = (className) => {
   const classMap = {
     crack: '裂缝',
-    rust: '锈蚀',
+    efflorescence: '泛碱',
+    'exposed rebar': '钢筋裸露',
     spalling: '剥落'
   }
   return classMap[className] || className
@@ -231,8 +232,8 @@ watch(() => showReport.value, (newValue) => {
 
 // 组件挂载后加载数据
 onMounted(() => {
-  userStore.loadHistoryRecords()
-})
+    historyStore.loadHistoryRecords()
+  })
 </script>
 
 <style scoped>
@@ -275,4 +276,22 @@ onMounted(() => {
 }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* 动画效果 */
+.animate-fade-in {
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>
