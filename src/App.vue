@@ -428,6 +428,7 @@ html,
   gap: 10px; 
   height: 100%; 
   align-items: flex-end; 
+  margin-left: -100px;
 }
 
 .nav-item { 

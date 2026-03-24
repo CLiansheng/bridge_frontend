@@ -15,6 +15,7 @@
           class="hidden-input" 
           multiple 
           @change="handleFileUpload"
+          accept=".jpg,.jpeg,.png,.zip"
         >
       </div>
 
@@ -171,7 +172,22 @@ const aiSummary = ref(`## AI 诊断总结
 
 // 方法
 const handleFileUpload = (event) => {
-  selectedFiles.value = Array.from(event.target.files)
+  const files = Array.from(event.target.files)
+  
+  // 验证文件类型
+  const validFiles = files.filter(file => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/zip']
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.zip']
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase()
+    
+    return allowedTypes.includes(file.type) || allowedExtensions.includes(fileExtension)
+  })
+  
+  if (validFiles.length < files.length) {
+    alert('部分文件类型不支持，请只上传 JPG、PNG 图片或 ZIP 压缩包')
+  }
+  
+  selectedFiles.value = validFiles
 }
 
 const startDiagnosis = () => {
@@ -193,12 +209,20 @@ const saveToHistory = () => {
   const date = new Date()
   const batchId = `BATCH-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
   
+  // 确定上传类型
+  let uploadType = '单张图片'
+  if (selectedFiles.value.length > 1) {
+    uploadType = '多张图片'
+  } else if (selectedFiles.value.length === 1 && selectedFiles.value[0].name.toLowerCase().endsWith('.zip')) {
+    uploadType = 'ZIP 压缩包'
+  }
+  
   // 创建历史记录
   const historyRecord = {
     id: Date.now(),
     batchId: batchId,
     detectionTime: date.toLocaleString('zh-CN'),
-    uploadType: selectedFiles.value.length > 1 ? '批量 ZIP' : '单张图片',
+    uploadType: uploadType,
     defectCount: reportData.value.task_summary.total_defect_count,
     reportData: { ...reportData.value } // 保存完整的报告数据
   }
@@ -349,6 +373,7 @@ onMounted(() => {
 <style scoped>
 .page-container { max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease; }
 .glass-panel { border: 1px solid var(--glass-border); border-radius: 16px; padding: 40px; margin-bottom: 30px; }
+.upload-section{width: 1120px;}
 .header { margin-bottom: 30px; text-align: center; }
 .header h2 { display: flex; align-items: center; justify-content: center; gap: 10px; color: #fff; margin-bottom: 8px; }
 .header p { color: var(--text-muted); font-size: 14px; }
