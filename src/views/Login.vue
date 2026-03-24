@@ -1,11 +1,6 @@
 <template>
   <main class="login-main">
     
-    <div class="cyber-environment">
-      <div class="grid-layer"></div>
-      <div class="scan-radar"></div>
-    </div>
-
     <div class="terminal-deploy-wrapper">
       
       <section 
@@ -306,6 +301,22 @@ const handleSubmit = () => {
 </script>
 
 <style scoped>
+
+/* 彻底隐藏浏览器原生自带的密码小眼睛和清除按钮 */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+  width: 0;
+  height: 0;
+}
+
+/* 针对部分 WebKit 浏览器的额外重置 */
+input::-webkit-credentials-auto-fill-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* ================= 页面底层与扫描层 ================= */
 .login-main {
   position: absolute;
@@ -319,40 +330,6 @@ const handleSubmit = () => {
   background-color: transparent;
   z-index: 20;
   overflow: hidden;
-}
-
-.cyber-environment {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.grid-layer {
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: -50%;
-  left: -50%;
-  background-image: linear-gradient(rgba(0, 229, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  transform: perspective(500px) rotateX(60deg);
-  animation: gridMove 20s linear infinite;
-}
-
-.scan-radar {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 150vw;
-  height: 150vw;
-  transform: translate(-50%, -50%);
-  background: conic-gradient(from 0deg, transparent 70%, rgba(0, 229, 255, 0.1) 95%, rgba(0, 229, 255, 0.4) 100%);
-  border-radius: 50%;
-  animation: radarSpin 8s linear infinite;
 }
 
 /* ================= 核心认证终端面板 ================= */
@@ -734,6 +711,7 @@ const handleSubmit = () => {
 
 /* ================= 辅助选项链接 ================= */
 .form-actions {
+  user-select: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -765,6 +743,7 @@ const handleSubmit = () => {
 
 /* ================= 动作按钮 ================= */
 .cyber-submit-btn {
+  user-select: none;
   width: 100%;
   position: relative;
   background: rgba(0, 30, 45, 0.8);

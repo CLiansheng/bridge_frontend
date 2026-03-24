@@ -16,7 +16,7 @@
     <div class="vignette-overlay"></div>
   </div>
 
- <div class="global-hud-corners">
+  <div class="global-hud-corners">
     <div class="hud-corner top-left">
       <div class="corner-dot"></div>
       <div class="corner-inner"></div>
@@ -46,9 +46,10 @@
   <header class="hardcore-navbar" v-if="!['/login', '/'].includes($route.path)">
     <div class="nav-left">
       <div class="logo">
-        <span class="bracket">[</span>
-        <span class="sys-name">NEXUS SYSTEM</span>
-        <span class="bracket">]</span>
+        <span class="bracket">&lt;</span>
+        <span class="sys-name">SPANS</span>
+        <span class="sys-version">OS_v2.0</span>
+        <span class="bracket">/&gt;</span>
       </div>
     </div>
     
@@ -60,20 +61,27 @@
         @click="navigateTo(item.path)"
       >
         <div class="nav-item-inner">
+          <i class='bx' :class="item.icon"></i>
           <span>{{ item.name }}</span>
         </div>
         <div class="status-line"></div>
+        <div class="hover-glow"></div>
       </div>
     </nav>
 
     <div class="nav-right">
       <div class="user-profile">
-        <div class="tech-avatar"></div>
-        <span class="username">专家用户</span>
+        <div class="tech-avatar-wrapper">
+          <div class="tech-avatar"></div>
+          <div class="online-dot"></div>
+        </div>
+        <div class="user-info">
+          <span class="username">专家用户</span>
+          <span class="user-role">ID: ADMIN_01</span>
+        </div>
       </div>
     </div>
   </header>
-
   <main :class="['main-content', { 'login-mode': ['/login', '/'].includes($route.path) }]">
     <router-view v-slot="{ Component }">
       <transition name="glitch-slide" mode="out-in">
@@ -105,7 +113,7 @@ const navigateTo = (path) => {
 
 <style>
 /* -----------------------------------------------------------
-   1. 基础样式与全局变量定义
+   1. 基础样式与全局变量定义 (未修改)
 ----------------------------------------------------------- */
 @font-face {
   font-family: 'Roboto Mono Local';
@@ -130,8 +138,6 @@ const navigateTo = (path) => {
   font-style: normal;
   font-display: swap;
 }
-
-
 
 :root {
   --tech-cyan: #00e5ff;
@@ -161,7 +167,7 @@ html,
 }
 
 /* -----------------------------------------------------------
-   2. 核心背景特效样式定义
+   2. 核心背景特效样式定义 (未修改)
 ----------------------------------------------------------- */
 .bg-container { 
   position: fixed; 
@@ -206,9 +212,7 @@ html,
   left: -50%; 
   width: 200%; 
   height: 70%;
-  
   transform-origin: center top; 
-  
   transform: perspective(800px) rotateX(75deg);
   mask-image: radial-gradient(ellipse 50% 40% at center bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
   -webkit-mask-image: radial-gradient(ellipse 50% 40% at center bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
@@ -226,9 +230,7 @@ html,
     linear-gradient(rgba(0, 229, 255, 0.4) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 229, 255, 0.4) 1px, transparent 1px);
   background-size: 20px 20px;
-  
   background-position: center top; 
-  
   transform: translateZ(0); 
 }
 
@@ -337,174 +339,284 @@ html,
 }
 
 /* -----------------------------------------------------------
-   3. 动画关键帧声明
+   3. 动画关键帧声明 (未修改)
 ----------------------------------------------------------- */
 @keyframes particleDrift { 
-  100% { 
-    transform: translateY(-350px); 
-  } 
+  100% { transform: translateY(-350px); } 
 }
-
 @keyframes gridMoveSmooth { 
-  100% { 
-    background-position: 0 60px; 
-  } 
+  100% { background-position: 0 60px; } 
 }
-
 @keyframes spinWithCenter { 
-  0% { 
-    transform: translate(-50%, -50%) rotate(0deg); 
-  } 
-  100% { 
-    transform: translate(-50%, -50%) rotate(360deg); 
-  } 
+  0% { transform: translate(-50%, -50%) rotate(0deg); } 
+  100% { transform: translate(-50%, -50%) rotate(360deg); } 
 }
-
 @keyframes verticalScan { 
-  0% { 
-    top: -10%; 
-    opacity: 0; 
-  } 
-  10% { 
-    opacity: 0.8; 
-  } 
-  90% { 
-    opacity: 0.8; 
-  } 
-  100% { 
-    top: 110%; 
-    opacity: 0; 
-  } 
+  0% { top: -10%; opacity: 0; } 
+  10% { opacity: 0.8; } 
+  90% { opacity: 0.8; } 
+  100% { top: 110%; opacity: 0; } 
 }
-
 @keyframes pulseGlow { 
-  0% { 
-    transform: scale(0.8); 
-    opacity: 0.2; 
-  } 
-  100% { 
-    transform: scale(1.2); 
-    opacity: 0.5; 
-  } 
+  0% { transform: scale(0.8); opacity: 0.2; } 
+  100% { transform: scale(1.2); opacity: 0.5; } 
 }
 
 /* -----------------------------------------------------------
-   4. 导航栏与主内容布局
+   4. ⭐导航栏与主内容布局 (赛博重构版 - 已修复居中)⭐
 ----------------------------------------------------------- */
 .hardcore-navbar {
   position: fixed; 
   top: 0; 
   left: 0; 
   width: 100%; 
-  height: 64px;
+  height: 70px; 
   background: var(--tech-panel-bg); 
   backdrop-filter: blur(12px); 
-  border-bottom: 1px solid var(--tech-border);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.15); 
   display: flex; 
   justify-content: space-around; 
-  align-items: center; 
-  padding: 0 30px; 
+  align-items: center; /* 关键：垂直绝对居中 */
+  padding: 0 40px; 
   z-index: 100;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.8), inset 0 -1px 0 rgba(0, 229, 255, 0.15);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.8), inset 0 -2px 15px rgba(0, 229, 255, 0.05);
+  box-sizing: border-box; /* 防止 padding 撑破容器 */
 }
 
-.logo { 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  font-family: var(--font-mono); 
-  font-size: 18px; 
-  font-weight: 700; 
+/* 导航栏底部的全局激光线 */
+.hardcore-navbar::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--tech-cyan), transparent);
+  opacity: 0.6;
 }
 
-.tech-icon { 
-  color: var(--tech-cyan); 
-  font-size: 24px; 
-  text-shadow: 0 0 15px var(--tech-cyan); 
-}
-
-.nav-center { 
-  display: flex; 
-  gap: 10px; 
-  height: 100%; 
-  align-items: flex-end; 
-}
-
-.nav-item { 
-  position: relative; 
-  color: var(--text-muted); 
-  font-size: 15px; 
-  cursor: pointer; 
-  display: flex; 
-  flex-direction: column; 
-  justify-content: flex-end; 
-  height: 100%; 
-  padding: 0 20px 15px 20px; 
-  transition: 0.2s; 
-}
-
-.status-line { 
-  position: absolute; 
-  bottom: 0; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 0; 
-  height: 2px;
-  background: var(--tech-cyan); 
-  transition: width 0.3s; 
-}
-
-.nav-item.active { 
-  color: var(--tech-cyan); 
-  text-shadow: 0 0 10px var(--tech-cyan-dim); 
-}
-
-.nav-item.active .status-line { 
-  width: 100%; 
-  box-shadow: 0 -2px 12px var(--tech-cyan); 
+/* 强制让左右两边宽度相等，确保中间 nav-center 真正位于屏幕正中心 */
+.nav-left, 
+.nav-right {
+  flex: 1; /* 让左右两部分平分剩余空间 */
+  display: flex;
+  align-items: center;
 }
 
 .nav-right {
-  display: flex;
-  align-items: center;
+  justify-content: flex-end; /* 右侧内容靠右 */
 }
 
+/* ================= Logo 核心区域 ================= */
+.logo { 
+  display: flex; 
+  align-items: baseline; 
+  gap: 6px; 
+  cursor: default;
+  user-select: none;
+}
+
+.bracket {
+  color: var(--tech-cyan);
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 900;
+  opacity: 0.8;
+  animation: blink 2s infinite; 
+}
+
+.sys-name {
+  font-family: 'Orbitron', var(--font-sans); 
+  font-size: 28px; 
+  font-weight: 900; 
+  background: linear-gradient(to right, #ffffff 20%, #00e5ff 100%);
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 4px;
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5)); 
+}
+
+.sys-version {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--tech-cyan);
+  opacity: 0.7;
+  letter-spacing: 1px;
+  margin-left: 2px;
+}
+
+/* ================= 中间选项样式修复 ================= */
+.nav-center {
+  display: flex;
+  height: 100%;
+  align-items: center; /* 垂直居中所有选项 */
+  gap: 10px;
+  flex: 2; /* 给予中间区域更多宽度 */
+  justify-content: center; /* 确保选项在中间区域内水平居中 */
+}
+
+.nav-item {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center; /* 确保文字图标垂直居中 */
+  justify-content: center;
+  padding: 0 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-muted);
+  overflow: hidden;
+}
+
+.nav-item-inner {
+  display: flex;
+  align-items: center; /* 图标与文字垂直对齐 */
+  gap: 10px;
+  z-index: 2;
+  line-height: 1; /* 解决可能出现的文字偏下问题 */
+}
+
+.nav-item-inner i {
+  font-size: 18px;
+  transition: transform 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center; /* 确保图标不发生基线偏移 */
+}
+
+.nav-item-inner span {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* 底部状态线 */
+.status-line {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: var(--tech-cyan);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 3;
+  box-shadow: 0 0 10px var(--tech-cyan);
+}
+
+/* 悬停时的向上全息渐变光柱 */
+.hover-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%; /* 覆盖整个选项高度 */
+  background: linear-gradient(to top, rgba(0, 229, 255, 0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 悬停状态交互 */
+.nav-item:hover { color: #fff; }
+.nav-item:hover .hover-glow { opacity: 1; }
+.nav-item:hover .nav-item-inner i {
+  transform: translateY(-2px); 
+  color: var(--tech-cyan);
+}
+
+/* 激活状态展示 */
+.nav-item.active { 
+  color: #fff; 
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); 
+}
+.nav-item.active .nav-item-inner i {
+  color: var(--tech-cyan);
+  text-shadow: 0 0 15px var(--tech-cyan); 
+}
+.nav-item.active .status-line { 
+  width: 100%; 
+}
+
+/* ================= 右侧用户身份牌 ================= */
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 12px; 
+  gap: 15px; 
+  background: rgba(0, 229, 255, 0.03);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  padding: 6px 20px 6px 10px;
+  border-radius: 30px; 
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.user-profile:hover {
+  border-color: rgba(0, 229, 255, 0.4);
+  box-shadow: inset 0 0 15px rgba(0, 229, 255, 0.1);
+}
+
+.tech-avatar-wrapper {
+  position: relative;
 }
 
 .tech-avatar {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--tech-border); 
-  background: rgba(0, 229, 255, 0.05);
-  flex-shrink: 0; 
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 229, 255, 0.1);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  border: 2px solid var(--tech-cyan); 
+  box-sizing: border-box;
+  position: relative;
+}
+
+.tech-avatar::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--tech-cyan);
+  border-radius: 50%;
+}
+
+.online-dot {
+  position: absolute;
+  bottom: 0;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background: #00ffaa;
+  border-radius: 50%;
+  border: 2px solid var(--tech-bg-dark);
+  box-shadow: 0 0 8px #00ffaa;
+  animation: pulseGlow 2s infinite alternate;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .username {
-  font-size: 14px;
-  color: var(--text-main);
-  white-space: nowrap;
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
   letter-spacing: 1px;
-  line-height: 1; 
 }
 
-.logout-btn {
-  cursor: pointer;
-  transition: 0.3s;
-  font-size: 18px;
-  color: var(--text-muted);
-}
-
-.logout-btn:hover {
-  color: var(--text-alert);
-  text-shadow: 0 0 8px var(--text-alert);
+.user-role {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--tech-cyan);
+  opacity: 0.8;
+  letter-spacing: 0.5px;
 }
 
 /* -----------------------------------------------------------
-   5. 主体内容样式
+   5. 主体内容样式 (未修改)
 ----------------------------------------------------------- */
 .main-content {
   padding-top: 80px; 
@@ -520,25 +632,22 @@ html,
   flex-direction: column;
 }
 
-/* 当在登录页时，取消顶部的预留空间，保证居中 */
 .main-content.login-mode {
   padding-top: 0;
 }
 
 /* -----------------------------------------------------------
-   6. 视图切换路由动画
+   6. 视图切换路由动画 (未修改)
 ----------------------------------------------------------- */
 .glitch-slide-enter-active, 
 .glitch-slide-leave-active { 
   transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); 
 }
-
 .glitch-slide-enter-from { 
   opacity: 0; 
   transform: translateY(15px); 
   filter: brightness(1.5) blur(3px); 
 }
-
 .glitch-slide-leave-to { 
   opacity: 0; 
   transform: translateY(-15px); 
@@ -563,7 +672,6 @@ html,
   z-index: 9999;
 }
 
-/* 主干外框 (采用 border 实现，绝无重叠瑕疵) */
 .hud-corner {
   position: absolute;
   width: 120px;
@@ -574,7 +682,6 @@ html,
   animation: hudCornerBreath 3s infinite alternate ease-in-out;
 }
 
-/* 顶点发光核心锚点 */
 .corner-dot {
   position: absolute;
   top: -4px;
@@ -585,7 +692,6 @@ html,
   box-shadow: 0 0 10px rgba(0, 229, 255, 1), 0 0 5px rgba(0, 229, 255, 1);
 }
 
-/* 内侧辅助副瞄准线 (增加层次感) */
 .corner-inner {
   position: absolute;
   top: 8px;
@@ -596,7 +702,6 @@ html,
   border-left: 1px solid rgba(0, 229, 255, 0.35);
 }
 
-/* 顶部横线末端的垂直收尾卡扣 */
 .corner-tick-h {
   position: absolute;
   top: -6px;
@@ -606,7 +711,6 @@ html,
   background: rgba(0, 229, 255, 0.85);
 }
 
-/* 左侧竖线末端的水平收尾卡扣 */
 .corner-tick-v {
   position: absolute;
   bottom: 0;
@@ -616,37 +720,13 @@ html,
   background: rgba(0, 229, 255, 0.85);
 }
 
-/* ================= 完美的四角镜像对称定位 ================= */
-.top-left {
-  top: 35px;
-  left: 35px;
-}
+.top-left { top: 35px; left: 35px; }
+.top-right { top: 35px; right: 35px; transform: scaleX(-1); }
+.bottom-left { bottom: 35px; left: 35px; transform: scaleY(-1); }
+.bottom-right { bottom: 35px; right: 35px; transform: scaleX(-1) scaleY(-1); }
 
-.top-right {
-  top: 35px;
-  right: 35px;
-  transform: scaleX(-1);
-}
-
-.bottom-left {
-  bottom: 35px;
-  left: 35px;
-  transform: scaleY(-1);
-}
-
-.bottom-right {
-  bottom: 35px;
-  right: 35px;
-  transform: scaleX(-1) scaleY(-1);
-}
-
-/* 边框全局呼吸特效 */
 @keyframes hudCornerBreath {
-  0% {
-    opacity: 0.6;
-  }
-  100% {
-    opacity: 1;
-  }
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 </style>
