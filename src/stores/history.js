@@ -7,10 +7,6 @@ export const useHistoryStore = defineStore('history', () => {
   function addHistoryRecord(record) {
     // 添加新记录到开头
     historyRecords.value.unshift(record)
-    // 限制历史记录数量为10条
-    if (historyRecords.value.length > 10) {
-      historyRecords.value = historyRecords.value.slice(0, 10)
-    }
     // 保存到本地存储
     localStorage.setItem('bridgeHistoryRecords', JSON.stringify(historyRecords.value))
   }
@@ -23,7 +19,7 @@ export const useHistoryStore = defineStore('history', () => {
       // 添加示例数据
       const sampleRecord = {
         id: Date.now() - 86400000, // 1天前
-        batchId: 'BATCH-20260322-001',
+        taskName: '未命名1',
         detectionTime: new Date(Date.now() - 86400000).toLocaleString('zh-CN'),
         uploadType: '单张图片',
         defectCount: 5,
@@ -52,9 +48,28 @@ export const useHistoryStore = defineStore('history', () => {
     }
   }
 
+  // 删除选中的历史记录
+  function deleteSelectedRecords(ids) {
+    historyRecords.value = historyRecords.value.filter(record => !ids.includes(record.id))
+    // 保存到本地存储
+    localStorage.setItem('bridgeHistoryRecords', JSON.stringify(historyRecords.value))
+  }
+
+  // 更新任务名称
+  function updateTaskName(id, newName) {
+    const record = historyRecords.value.find(record => record.id === id)
+    if (record) {
+      record.taskName = newName
+      // 保存到本地存储
+      localStorage.setItem('bridgeHistoryRecords', JSON.stringify(historyRecords.value))
+    }
+  }
+
   return { 
     historyRecords, 
     addHistoryRecord, 
-    loadHistoryRecords 
+    loadHistoryRecords,
+    deleteSelectedRecords,
+    updateTaskName
   }
 })

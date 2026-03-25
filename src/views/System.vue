@@ -9,7 +9,6 @@
         </div>
         <div class="user-intro">
           <h2>{{ userStore.username }}</h2>
-          <p>{{ userStore.position }}</p>
         </div>
       </div>
 
@@ -21,16 +20,8 @@
           <input type="text" v-model="userForm.username" >
         </div>
         <div class="form-group">
-          <label>邮箱地址</label>
-          <input type="text" v-model="userForm.email" >
-        </div>
-        <div class="form-group">
           <label>联系电话</label>
           <input type="text" v-model="userForm.phone">
-        </div>
-        <div class="form-group">
-          <label>职位</label>
-          <input type="text" v-model="userForm.position">
         </div>
         <button class="save-btn" @click="saveUserInfo" :disabled="!hasChanges">更新资料</button>
       </div>
@@ -39,27 +30,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useUserStore } from '../stores/user'
 
 const userStore = useUserStore()
 const fileInput = ref(null)
-const avatarUrl = ref('https://api.dicebear.com/7.x/avataaars/svg?seed=Bridge')
+const avatarUrl = ref('')
+
+// 监听 userStore.avatar 的变化
+watch(() => userStore.avatar, (newAvatar) => {
+  avatarUrl.value = newAvatar
+})
 const userForm = ref({
   username: '',
-  email: '',
-  phone: '',
-  position: ''
+  phone: ''
 })
 const originalUserInfo = ref({})
 
 onMounted(() => {
   userStore.loadUserInfo()
+  avatarUrl.value = userStore.avatar
   userForm.value = {
     username: userStore.username,
-    email: userStore.email,
-    phone: userStore.phone,
-    position: userStore.position || '系统管理员 / 高级桥梁工程师'
+    phone: userStore.phone
   }
   // 保存初始用户信息用于比较
   originalUserInfo.value = { ...userForm.value }
@@ -83,7 +76,15 @@ const handleAvatarUpload = (event) => {
     // 实际项目中应该使用 axios 等库发送请求
     console.log('Uploading avatar...')
     // 上传成功后更新头像URL
-    // avatarUrl.value = 服务器返回的头像URL
+    // 这里使用临时的本地URL来模拟
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const newAvatarUrl = e.target.result
+      avatarUrl.value = newAvatarUrl
+      // 更新到用户 store
+      userStore.updateUserInfo({ avatar: newAvatarUrl })
+    }
+    reader.readAsDataURL(file)
   }
 }
 
@@ -103,18 +104,19 @@ const saveUserInfo = () => {
 </script>
 
 <style scoped>
-.page-container { max-width: 600px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+.page-container { max-width: 800px; margin: 0 auto; animation: fadeIn 0.5s ease; display: flex; justify-content: center; align-items: center; height: 100%; }
 .glass-panel { border: 1px solid var(--glass-border); border-radius: 16px; padding: 40px; }
-.profile-card { width: 300px;}
-.avatar-section { display: flex; align-items: center; gap: 24px; }
+.profile-card { width: 100%; display: flex; align-items: center; gap: 100px; margin-top: -150px;}
+.avatar-section { display: flex; align-items: center; gap: 24px; flex: 0 0 auto; }
 .avatar-wrapper { position: relative; width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 2px solid var(--neon-blue); cursor: pointer; }
 .avatar-wrapper img { width: 100%; height: 100%; background: #1a202c; }
 .edit-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 30%; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; color: white; opacity: 0; transition: 0.3s; }
 .avatar-wrapper:hover .edit-overlay { opacity: 1; }
 .user-intro h2 { margin: 0; color: #fff; font-size: 22px; }
 .user-intro p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px; }
-.divider { height: 1px; background: rgba(255,255,255,0.1); margin: 30px 0; }
-.form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+.divider { width: 1px; height: 200px; background: rgba(255,255,255,0.1); margin: 0; }
+.info-form { flex: 1; margin-top: 30px; margin-left: -20px;}
+.form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;width: 120%; }
 .form-group label { color: var(--text-muted); font-size: 13px; }
 .form-group input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; color: #fff; outline: none; transition: 0.3s; }
 .form-group input:focus { border-color: var(--neon-blue); box-shadow: 0 0 0 2px rgba(0, 242, 254, 0.2); }

@@ -205,9 +205,10 @@ const toggleAiSummary = () => {
 
 // 保存到历史记录
 const saveToHistory = () => {
-  // 生成批次号
+  // 生成默认任务名称
   const date = new Date()
-  const batchId = `BATCH-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
+  const taskNumber = historyStore.historyRecords.length + 1
+  const taskName = `未命名${taskNumber}`
   
   // 确定上传类型
   let uploadType = '单张图片'
@@ -220,7 +221,7 @@ const saveToHistory = () => {
   // 创建历史记录
   const historyRecord = {
     id: Date.now(),
-    batchId: batchId,
+    taskName: taskName,
     detectionTime: date.toLocaleString('zh-CN'),
     uploadType: uploadType,
     defectCount: reportData.value.task_summary.total_defect_count,

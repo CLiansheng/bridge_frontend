@@ -68,8 +68,8 @@
 
     <div class="nav-right">
       <div class="user-profile">
-        <div class="tech-avatar"></div>
-        <span class="username">专家用户</span>
+        <div class="tech-avatar" :style="{ backgroundImage: `url(${userStore.avatar})`, backgroundSize: 'cover', backgroundPosition: 'center' }"></div>
+        <span class="username">{{ userStore.username }}</span>
       </div>
     </div>
   </header>
@@ -85,9 +85,12 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { onMounted } from 'vue'
 import ConstellationBg from '@/components/ConstellationBg.vue'
+import { useUserStore } from './stores/user'
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 // 导航菜单配置项数组
 const menu = [
@@ -101,6 +104,11 @@ const menu = [
 const navigateTo = (path) => {
   router.push(path)
 }
+
+// 组件挂载时加载用户信息
+onMounted(() => {
+  userStore.loadUserInfo()
+})
 </script>
 
 <style>
@@ -482,6 +490,8 @@ html,
   border: 1px solid var(--tech-border); 
   background: rgba(0, 229, 255, 0.05);
   flex-shrink: 0; 
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 .username {

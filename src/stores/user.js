@@ -4,10 +4,8 @@ import { ref } from 'vue'
 export const useUserStore = defineStore('user', () => {
   const isLoggedIn = ref(false)
   const username = ref('')
-  const email = ref('')
   const phone = ref('')
-  const position = ref('')
-  const currentReport = ref(null)
+  const avatar = ref('')
 
   function login(name) {
     isLoggedIn.value = true
@@ -23,16 +21,14 @@ export const useUserStore = defineStore('user', () => {
     if (storedUserInfo) {
       const userInfo = JSON.parse(storedUserInfo)
       username.value = userInfo.username || '专家用户'
-      email.value = userInfo.email || 'expert@nexus-bridge.com'
       phone.value = userInfo.phone || '138****8888'
-      position.value = userInfo.position || '系统管理员 / 高级桥梁工程师'
+      avatar.value = userInfo.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bridge'
       isLoggedIn.value = true
     } else {
       // 默认用户信息
       username.value = '专家用户'
-      email.value = 'expert@nexus-bridge.com'
       phone.value = '138****8888'
-      position.value = '系统管理员 / 高级桥梁工程师'
+      avatar.value = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bridge'
       isLoggedIn.value = true
       saveUserInfo()
     }
@@ -40,18 +36,16 @@ export const useUserStore = defineStore('user', () => {
 
   function updateUserInfo(userData) {
     if (userData.username !== undefined) username.value = userData.username
-    if (userData.email !== undefined) email.value = userData.email
     if (userData.phone !== undefined) phone.value = userData.phone
-    if (userData.position !== undefined) position.value = userData.position
+    if (userData.avatar !== undefined) avatar.value = userData.avatar
     saveUserInfo()
   }
 
   function saveUserInfo() {
     const userInfo = {
       username: username.value,
-      email: email.value,
       phone: phone.value,
-      position: position.value
+      avatar: avatar.value
     }
     localStorage.setItem('bridgeUserInfo', JSON.stringify(userInfo))
   }
@@ -59,12 +53,8 @@ export const useUserStore = defineStore('user', () => {
   return { 
     isLoggedIn, 
     username, 
-    email, 
     phone, 
-    position, 
-    currentReport, 
-    login, 
-    setCurrentReport, 
+    avatar, 
     loadUserInfo, 
     updateUserInfo 
   }

@@ -1,25 +1,41 @@
 <template>
   <div class="page-container">
     <div class="glass-panel">
-      <h2 class="title">历史检测档案</h2>
+      <div class="table-header">
+        <h2 class="title" style="position: relative;left: 50px;">历史检测档案</h2>
+        <button 
+          class="btn delete-btn" 
+          @click="deleteSelectedRecords" 
+          :disabled="selectedIds.length === 0">
+          删除所选
+        </button>
+      </div>
       <table class="cyber-table">
         <thead>
           <tr>
-            <th>任务批次号</th>
+            <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll"></th>
+            <th>任务名称</th>
             <th>检测时间</th>
             <th>上传方式</th>
             <th>病害数量</th>
-            <th>状态</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="record in historyStore.historyRecords" :key="record.id">
-            <td class="id-col">{{ record.batchId }}</td>
+            <td><input type="checkbox" v-model="selectedIds" :value="record.id"></td>
+            <td class="id-col">
+              <input 
+                type="text" 
+                v-model="record.taskName" 
+                class="task-name-input"
+                @blur="updateTaskName(record.id, record.taskName)"
+                placeholder="未命名"
+              >
+            </td>
             <td>{{ record.detectionTime }}</td>
             <td>{{ record.uploadType }}</td>
             <td class="alert-text">{{ record.defectCount }} 处</td>
-            <td><span class="status-tag success">已完成</span></td>
             <td><button class="link-btn" @click="viewReport(record)">查看报告</button></td>
           </tr>
           <tr v-if="historyStore.historyRecords.length === 0">
@@ -32,7 +48,7 @@
     <!-- 历史报告详情 -->
     <div v-if="showReport" class="glass-panel report-section animate-fade-in">
       <div class="header">
-        <h2><i class='bx bx-report'></i> 诊断报告 - {{ selectedRecord?.batchId }}</h2>
+        <h2><i class='bx bx-report'></i> 诊断报告 - {{ selectedRecord?.taskName }}</h2>
         <button class="btn close-btn" @click="showReport = false">关闭</button>
       </div>
 
@@ -83,7 +99,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import Chart from 'chart.js/auto'
 import { useHistoryStore } from '../stores/history'
 
@@ -95,6 +111,8 @@ const showReport = ref(false)
 const selectedRecord = ref(null)
 const classChart = ref(null)
 const riskChart = ref(null)
+const selectedIds = ref([])
+const selectAll = ref(false)
 let classChartInstance = null
 let riskChartInstance = null
 
@@ -103,6 +121,36 @@ const viewReport = (record) => {
   selectedRecord.value = record
   showReport.value = true
 }
+
+// 全选/取消全选
+const toggleSelectAll = () => {
+  if (selectAll.value) {
+    selectedIds.value = historyStore.historyRecords.map(record => record.id)
+  } else {
+    selectedIds.value = []
+  }
+}
+
+// 删除选中的记录
+const deleteSelectedRecords = () => {
+  if (selectedIds.value.length > 0) {
+    if (confirm('确定要删除所选记录吗？')) {
+      historyStore.deleteSelectedRecords(selectedIds.value)
+      selectedIds.value = []
+      selectAll.value = false
+    }
+  }
+}
+
+// 更新任务名称
+const updateTaskName = (id, newName) => {
+  historyStore.updateTaskName(id, newName)
+}
+
+// 监听选中的记录，更新全选状态
+watch(selectedIds, (newValue) => {
+  selectAll.value = newValue.length === historyStore.historyRecords.length
+}, { deep: true })
 
 const getClassName = (className) => {
   const classMap = {
@@ -239,18 +287,101 @@ onMounted(() => {
 <style scoped>
 .page-container { animation: fadeIn 0.5s ease; }
 .glass-panel {  border: 1px solid var(--glass-border); border-radius: 16px; padding: 30px; margin-bottom: 30px; }
-.title { color: #fff; margin-bottom: 20px; font-size: 20px; border-left: 4px solid var(--neon-blue); padding-left: 10px; }
+.title { color: #fff; font-size: 20px; border-left: 4px solid var(--tech-cyan); padding-left: 10px; }
 .cyber-table { width: 100%; border-collapse: collapse; text-align: left; }
 .cyber-table th { padding: 16px; color: var(--text-muted); font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+/* 自定义复选框样式 */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+input[type="checkbox"]:hover {
+  border-color: var(--tech-cyan);
+  background: rgba(0, 229, 255, 0.1);
+}
+
+input[type="checkbox"]:checked {
+  background: var(--tech-cyan);
+  border-color: var(--tech-cyan);
+}
+
+input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #000;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .cyber-table td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; transition: 0.3s; }
 .cyber-table tbody tr:hover td { background: rgba(0, 242, 254, 0.05); }
 .id-col { color: var(--neon-purple); font-family: monospace; }
 .alert-text { color: #f59e0b; font-weight: bold; }
-.status-tag.success { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 4px; font-size: 12px; border: 1px solid rgba(16,185,129,0.3); }
-.link-btn { background: none; border: none; color: var(--neon-blue); cursor: pointer; text-decoration: underline; }
+
+.link-btn { background: none; border: none; color: var(--tech-cyan); cursor: pointer; text-decoration: underline; }
 .empty-message { text-align: center; color: var(--text-muted); padding: 40px; }
 
 /* 报告样式 */
+.table-header { display: flex; justify-content:space-between; align-items: center; margin-bottom: 20px; }
+
+.delete-btn {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: #ff4757;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
+  position: relative;
+  left: -130px;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: rgba(255, 0, 0, 0.2);
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--text-muted);
+  color: var(--text-muted);
+}
+
+.task-name-input {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: 0.3s;
+  width: 150px;
+}
+
+.task-name-input:focus {
+  border-color: var(--tech-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2);
+}
+
 .report-section .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
 .report-section .header h2 { margin: 0; }
 .close-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
@@ -258,14 +389,14 @@ onMounted(() => {
 
 .report-content { margin-top: 30px; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
-.stat-card { background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 12px; padding: 20px; text-align: center; transition: all 0.3s; }
-.stat-card:hover { box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); transform: translateY(-2px); }
-.stat-value { font-size: 32px; font-weight: bold; color: var(--neon-blue); margin-bottom: 8px; }
+.stat-card { background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 12px; padding: 20px; text-align: center; transition: all 0.3s; }
+.stat-card:hover { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); transform: translateY(-2px); }
+.stat-value { font-size: 32px; font-weight: bold; color: var(--tech-cyan); margin-bottom: 8px; }
 .stat-label { color: var(--text-muted); font-size: 14px; }
 
 /* 图表容器 */
 .charts-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-.chart-section { background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 12px; padding: 20px; }
+.chart-section { background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 12px; padding: 20px; }
 .chart-section h3 { color: #fff; margin-bottom: 20px; text-align: center; }
 .chart-wrapper { height: 300px; }
 
