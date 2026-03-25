@@ -340,6 +340,14 @@ const aiSummaryHtml = ref(`
 // ================= 生命周期钩子 =================
 // 离开路由前销毁并重置状态，防止内存泄漏和页面卡顿
 onBeforeRouteLeave((to, from, next) => {
+  // ⭐ 新增拦截逻辑：处于分析（抖动）状态时，严禁离开当前路由
+  if (status.value === 'analyzing') {
+    alert('SYSTEM_WARNING: [ 高危操作 ] 系统正在执行核心深度扫描，强制中断将导致数据流损坏，请等待诊断完成！');
+    next(false); // 拒绝路由跳转请求
+    return;
+  }
+
+  // 正常离开时的清理逻辑
   isLeaving.value = true;
   uploadedFiles.value = [];
   if (showReportModal.value) closeReportModal();

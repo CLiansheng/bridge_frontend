@@ -48,7 +48,7 @@
       <div class="logo">
         <span class="bracket">&lt;</span>
         <span class="sys-name">SPANS</span>
-        <span class="sys-version">OS_v2.0</span>
+        <span class="sys-version"></span>
         <span class="bracket">/&gt;</span>
       </div>
     </div>
@@ -69,15 +69,16 @@
       </div>
     </nav>
 
-    <div class="nav-right">
-      <div class="user-profile">
+   <div class="nav-right">
+      <div class="user-profile" @click="navigateTo('/profile')">
         <div class="tech-avatar-wrapper">
-          <div class="tech-avatar"></div>
+          <img v-if="userStore.avatar" :src="userStore.avatar" class="tech-avatar-img" />
+          <div v-else class="tech-avatar"></div>
           <div class="online-dot"></div>
         </div>
         <div class="user-info">
-          <span class="username">专家用户</span>
-          <span class="user-role">ID: ADMIN_01</span>
+          <span class="username">{{ userStore.username }}</span>
+          <span class="user-role">ID: {{ userStore.phone || 'GUEST' }}</span>
         </div>
       </div>
     </div>
@@ -93,16 +94,21 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
 import ConstellationBg from '@/components/ConstellationBg.vue'
 const route = useRoute()
 const router = useRouter()
-
+const userStore = useUserStore() 
+onMounted(() => {
+  userStore.loadUserInfo() // 页面加载时拉取本地存储的用户信息
+})
 // 导航菜单配置项数组
 const menu = [
-  { path: '/dashboard', name: '主页', icon: 'bx-data' },
-  { path: '/diagnose', name: '诊断', icon: 'bx-radar' },
-  { path: '/history', name: '历史', icon: 'bx-history' },
-  { path: '/profile', name: '系统', icon: 'bx-slider-alt' }
+  { path: '/dashboard', name: '首页', icon: 'bx-data' },
+  { path: '/diagnose', name: '诊断系统', icon: 'bx-radar' },
+  { path: '/history', name: '历史记录', icon: 'bx-history' },
+  { path: '/profile', name: '用户资料', icon: 'bx-slider-alt' }
 ]
 
 // 导航跳转方法
@@ -375,12 +381,11 @@ html,
   backdrop-filter: blur(12px); 
   border-bottom: 1px solid rgba(0, 229, 255, 0.15); 
   display: flex; 
-  justify-content: space-around; 
-  align-items: center; /* 关键：垂直绝对居中 */
-  padding: 0 40px; 
+  align-items: center; 
+  justify-content: space-around; /* 新增：让左右两部分贴边 */
   z-index: 100;
   box-shadow: 0 4px 30px rgba(0,0,0,0.8), inset 0 -2px 15px rgba(0, 229, 255, 0.05);
-  box-sizing: border-box; /* 防止 padding 撑破容器 */
+  box-sizing: border-box; 
 }
 
 /* 导航栏底部的全局激光线 */
@@ -395,16 +400,11 @@ html,
   opacity: 0.6;
 }
 
-/* 强制让左右两边宽度相等，确保中间 nav-center 真正位于屏幕正中心 */
+/* 取消了原本的 flex: 1，依靠父级的 space-between 即可 */
 .nav-left, 
 .nav-right {
-  flex: 1; /* 让左右两部分平分剩余空间 */
   display: flex;
   align-items: center;
-}
-
-.nav-right {
-  justify-content: flex-end; /* 右侧内容靠右 */
 }
 
 /* ================= Logo 核心区域 ================= */
@@ -445,23 +445,25 @@ html,
   margin-left: 2px;
 }
 
-/* ================= 中间选项样式修复 ================= */
+/* ================= 中间选项样式修复 (文字绝对居中) ================= */
 .nav-center {
+  user-select: none;
+  position: absolute; /* 让中间菜单脱离文档流 */
+  left: 50%;          /* 左侧推至屏幕一半 */
+  transform: translateX(-50%); /* 向回拉自身的50%达到大框架的绝对居中 */
   display: flex;
   height: 100%;
-  align-items: center; /* 垂直居中所有选项 */
+  align-items: center; 
   gap: 10px;
-  flex: 2; /* 给予中间区域更多宽度 */
-  justify-content: center; /* 确保选项在中间区域内水平居中 */
 }
 
 .nav-item {
   position: relative;
   height: 100%;
   display: flex;
-  align-items: center; /* 确保文字图标垂直居中 */
+  align-items: center;
   justify-content: center;
-  padding: 0 25px;
+  padding: 0 35px; /* 留出额外空间给左侧悬浮的图标 */
   cursor: pointer;
   transition: all 0.3s ease;
   color: var(--text-muted);
@@ -469,27 +471,32 @@ html,
 }
 
 .nav-item-inner {
+  position: relative; /* 核心：让内部容器尺寸完全由“文字”的宽度决定 */
   display: flex;
-  align-items: center; /* 图标与文字垂直对齐 */
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
   z-index: 2;
-  line-height: 1; /* 解决可能出现的文字偏下问题 */
+  line-height: 1;
 }
 
+/* 核心修复：把图标抽离出正常文档流，挂在文字左侧，不再挤压排版 */
 .nav-item-inner i {
+  position: absolute;
+  left: -24px; /* 图标往左悬浮，完美避开文字中轴线 */
   font-size: 18px;
   transition: transform 0.3s ease, color 0.3s ease;
   display: flex;
-  align-items: center; /* 确保图标不发生基线偏移 */
+  align-items: center;
 }
 
 .nav-item-inner span {
   font-size: 15px;
   font-weight: 500;
   letter-spacing: 1px;
+  position: relative;
 }
 
-/* 底部状态线 */
+/* 底部状态线：它现在会自动和上方的“纯文字”完美对中 */
 .status-line {
   position: absolute;
   bottom: 0;
@@ -509,7 +516,7 @@ html,
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 100%; /* 覆盖整个选项高度 */
+  height: 100%; 
   background: linear-gradient(to top, rgba(0, 229, 255, 0.08), transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -558,7 +565,16 @@ html,
 .tech-avatar-wrapper {
   position: relative;
 }
-
+.tech-avatar-img {
+  width: 36px;
+  height: 36px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  border: 2px solid var(--tech-cyan); 
+  box-sizing: border-box;
+  position: relative;
+  object-fit: cover;
+  display: block;
+}
 .tech-avatar {
   width: 36px;
   height: 36px;

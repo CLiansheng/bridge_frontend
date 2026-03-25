@@ -3,69 +3,45 @@ import { ref } from 'vue'
 
 export const useUserStore = defineStore('user', () => {
   const isLoggedIn = ref(false)
-  const username = ref('')
-  const email = ref('')
+  const username = ref('未命名')
   const phone = ref('')
-  const position = ref('')
-  const currentReport = ref(null)
+  const avatar = ref('') 
 
-  function login(name) {
+  // 登录时初始化
+  function login(loginPhone) {
     isLoggedIn.value = true
-    username.value = name
-  }
-
-  function setCurrentReport(report) {
-    currentReport.value = report
+    phone.value = loginPhone
+    username.value = '未命名'
+    avatar.value = '' // 默认无头像，交由CSS渲染机甲默认图
+    saveUserInfo()
   }
 
   function loadUserInfo() {
-    const storedUserInfo = localStorage.getItem('bridgeUserInfo')
+    const storedUserInfo = localStorage.getItem('spansUserInfo')
     if (storedUserInfo) {
       const userInfo = JSON.parse(storedUserInfo)
-      username.value = userInfo.username || '专家用户'
-      email.value = userInfo.email || 'expert@nexus-bridge.com'
-      phone.value = userInfo.phone || '138****8888'
-      position.value = userInfo.position || '系统管理员 / 高级桥梁工程师'
+      username.value = userInfo.username || '未命名'
+      phone.value = userInfo.phone || ''
+      avatar.value = userInfo.avatar || ''
       isLoggedIn.value = true
-    } else {
-      // 默认用户信息
-      username.value = '专家用户'
-      email.value = 'expert@nexus-bridge.com'
-      phone.value = '138****8888'
-      position.value = '系统管理员 / 高级桥梁工程师'
-      isLoggedIn.value = true
-      saveUserInfo()
     }
   }
 
   function updateUserInfo(userData) {
     if (userData.username !== undefined) username.value = userData.username
-    if (userData.email !== undefined) email.value = userData.email
     if (userData.phone !== undefined) phone.value = userData.phone
-    if (userData.position !== undefined) position.value = userData.position
+    if (userData.avatar !== undefined) avatar.value = userData.avatar
     saveUserInfo()
   }
 
   function saveUserInfo() {
     const userInfo = {
       username: username.value,
-      email: email.value,
       phone: phone.value,
-      position: position.value
+      avatar: avatar.value
     }
-    localStorage.setItem('bridgeUserInfo', JSON.stringify(userInfo))
+    localStorage.setItem('spansUserInfo', JSON.stringify(userInfo))
   }
 
-  return { 
-    isLoggedIn, 
-    username, 
-    email, 
-    phone, 
-    position, 
-    currentReport, 
-    login, 
-    setCurrentReport, 
-    loadUserInfo, 
-    updateUserInfo 
-  }
+  return { isLoggedIn, username, phone, avatar, login, loadUserInfo, updateUserInfo }
 })

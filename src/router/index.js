@@ -16,7 +16,7 @@ const router = createRouter({
       path: '/',
       name: 'show',
       component: Show,
-      meta: { title: 'SPANS | 初始化系统' }
+      meta: { title: 'SPANS | 桥梁病害诊断系统' }
     },
     {
       path: '/login',

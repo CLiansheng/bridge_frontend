@@ -158,10 +158,12 @@
 </template>
 
 <script setup>
+import { useUserStore } from '@/stores/user';
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const userStore = useUserStore();
 
 // ================= 状态管理 =================
 
@@ -282,9 +284,7 @@ const handleSubmit = () => {
     
     if (['pwd', 'code'].includes(authMode.value)) {
       // 登录成功，记录缓存并跳转
-      localStorage.setItem('isLogin', 'true');
-      localStorage.setItem('username', formData.phone);
-      
+      userStore.login(formData.phone);
       setTimeout(() => {
         router.push('/dashboard');
       }, 1000);
