@@ -97,6 +97,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import ConstellationBg from '@/components/ConstellationBg.vue'
+import 'boxicons/css/boxicons.min.css'
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore() 
