@@ -10,7 +10,7 @@
       <div class="panel-inner">
         <div class="panel-header archive-header">
           <div class="header-left">
-            <h2 class="cyber-title">SPANS 历史档案库</h2>
+            <h2 class="cyber-title">BridgeEye 历史档案库</h2>
           </div>
           <div class="header-right">
             <button 
@@ -96,7 +96,7 @@
             <div class="hud-header">
               <div class="hud-header-left">
                 <i class='bx bx-history hud-radar-icon'></i>
-                <h2 class="hud-title">SPANS 回溯档案 // {{ selectedRecord?.taskName }}</h2>
+                <h2 class="hud-title">BridgeEye 回溯档案 // {{ selectedRecord?.taskName }}</h2>
               </div>
               <div class="hud-header-right">
                 <button class="hud-close-btn" @click="closeReportModal">
@@ -160,7 +160,7 @@
 
               <div class="hud-scroll-col hud-col-right">
                 <div class="hud-section-title">
-                  <span class="deco-box"></span> SPANS 核心诊断指标
+                  <span class="deco-box"></span> BridgeEye 核心诊断指标
                 </div>
                 
                 <div class="hud-stats-grid">

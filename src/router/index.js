@@ -16,37 +16,37 @@ const router = createRouter({
       path: '/',
       name: 'show',
       component: Show,
-      meta: { title: 'SPANS | 桥梁病害诊断系统' }
+      meta: { title: 'BridgeEye | 桥梁病害诊断系统' }
     },
     {
       path: '/login',
       name: 'login',
       component: Login,
-      meta: { title: '系统登录 | SPANS SYSTEM' }
+      meta: { title: '系统登录 | BridgeEye SYSTEM' }
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       component: Home,
-      meta: { title: '主页概览 | SPANS SYSTEM' }
+      meta: { title: '主页概览 | BridgeEye SYSTEM' }
     },
     {
       path: '/diagnose',
       name: 'diagnose',
       component: Detection,
-      meta: { title: '智能诊断 | SPANS SYSTEM' }
+      meta: { title: '智能诊断 | BridgeEye SYSTEM' }
     },
     {
       path: '/history',
       name: 'history',
       component: History,
-      meta: { title: '历史档案 | SPANS SYSTEM' }
+      meta: { title: '历史档案 | BridgeEye SYSTEM' }
     },
     {
       path: '/profile',
       name: 'profile',
       component: System,
-      meta: { title: '系统配置 | SPANS SYSTEM' }
+      meta: { title: '系统配置 | BridgeEye SYSTEM' }
     }
   ]
 })

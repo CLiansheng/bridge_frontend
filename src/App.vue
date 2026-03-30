@@ -47,7 +47,7 @@
     <div class="nav-left">
       <div class="logo">
         <span class="bracket">&lt;</span>
-        <span class="sys-name">SPANS</span>
+        <span class="sys-name">BridgeEye</span>
         <span class="sys-version"></span>
         <span class="bracket">/&gt;</span>
       </div>

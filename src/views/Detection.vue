@@ -29,7 +29,7 @@
               (status === 'success' ? 'DIAGNOSTIC_COMPLETE' : 'UPLINK_READY') 
             }}
           </div>
-          <h2 class="cyber-title">SPANS DETECT</h2>
+          <h2 class="cyber-title">BridgeEye DETECT</h2>
           <p class="subtitle">桥 梁 病 害 诊 断 终 端</p>
           <div class="header-divider"></div>
         </div>
@@ -90,7 +90,7 @@
           >
             <div class="btn-bg"></div>
             <span class="btn-text">
-              {{ status === 'analyzing' ? 'SPANS 正 在 诊 断 中 ' : (status === 'success' ? '诊 断 分 析 已 完 成' : '点 击 开 始 诊 断') }}
+              {{ status === 'analyzing' ? 'BridgeEye 正 在 诊 断 中 ' : (status === 'success' ? '诊 断 分 析 已 完 成' : '点 击 开 始 诊 断') }}
             </span>
             <div class="btn-glitch-layer"></div>
           </button>
@@ -112,7 +112,7 @@
             <div class="hud-header">
               <div class="hud-header-left">
                 <i class='bx bx-radar hud-radar-icon'></i>
-                <h2 class="hud-title">SPANS 深度诊断结果</h2>
+                <h2 class="hud-title">BridgeEye 深度诊断结果</h2>
               </div>
               <div class="hud-header-right">
                 <button class="hud-action-btn" @click="downloadPDF">
@@ -179,7 +179,7 @@
               <div class="hud-scroll-col hud-col-right">
                 
                 <div class="hud-section-title">
-                  <span class="deco-box"></span> SPANS 核心诊断指标
+                  <span class="deco-box"></span> BridgeEye 核心诊断指标
                 </div>
                 
                 <div class="hud-stats-grid">
@@ -237,7 +237,7 @@
           <div id="pdf-pure-template">
             
             <div class="pdf-header">
-              <h1>SPANS DETECT // 深度诊断报告</h1>
+              <h1>BridgeEye DETECT // 深度诊断报告</h1>
               <p>生成时间: {{ new Date().toLocaleString() }}</p>
             </div>
 
@@ -469,7 +469,7 @@ const downloadPDF = async () => {
     // 配置 html2pdf.js，采用标准 A4 的竖向排版
     const opt = {
       margin:       15,
-      filename:     `SPANS_Diagnostic_Report_${new Date().getTime()}.pdf`,
+      filename:     `BridgeEye_Diagnostic_Report_${new Date().getTime()}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { 
         scale: 2, 

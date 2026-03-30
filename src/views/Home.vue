@@ -8,7 +8,7 @@
       <div class="terminal-bracket tb-br"></div>
 
       <div class="hero-content">
-        <h1 class="cyber-title">SPANS 桥梁病害诊断系统</h1>
+        <h1 class="cyber-title">BridgeEye 桥梁病害诊断系统</h1>
         <p class="subtitle">A I 辅 助 / 实 时 诊 断 / 结 构 健 康 评 估</p>
         
         <div class="stats-grid">
