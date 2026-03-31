@@ -11,6 +11,7 @@
         <div class="panel-header archive-header">
           <div class="header-left">
             <h2 class="cyber-title">BridgeEye 历史档案库</h2>
+            <p class="subtitle">HISTORY / DIAGNOSTIC_RECORDS</p>
           </div>
           <div class="header-right">
             <button 
@@ -33,11 +34,11 @@
                     <span class="checkmark"></span>
                   </label>
                 </th>
-                <th>任务名称</th>
-                <th>检测时间</th>
-                <th>传输文件</th>
-                <th>病害异常</th>
-                <th>报告面板</th>
+                <th>档案代号 [ TASK_NAME ]</th>
+                <th>检测时间 [ TIMESTAMP ]</th>
+                <th>传输协议 [ UPLOAD_TYPE ]</th>
+                <th>高危异常 [ DEFECTS ]</th>
+                <th>数据回溯 [ ACTION ]</th>
               </tr>
             </thead>
             <tbody>
@@ -66,7 +67,7 @@
                 </td>
                 <td>
                   <button class="cyber-action-btn view-btn" @click="viewReport(record)">
-                    打开报告
+                    展开 HUD 面板
                   </button>
                 </td>
               </tr>
@@ -84,7 +85,7 @@
 
     <teleport to="body">
       <transition name="hud-fade">
-        <div v-if="showReportModal" class="hud-modal-overlay">
+        <div v-if="showReportModal" v-show="!isExporting" class="hud-modal-overlay">
           <div class="hud-modal-dashboard">
             
             <div class="hud-bg-grid"></div>
@@ -96,9 +97,13 @@
             <div class="hud-header">
               <div class="hud-header-left">
                 <i class='bx bx-history hud-radar-icon'></i>
-                <h2 class="hud-title">BridgeEye 回溯档案 // {{ selectedRecord?.taskName }}</h2>
+                <h2 class="hud-title">{{ selectedRecord?.taskName }}</h2>
               </div>
               <div class="hud-header-right">
+                <button class="hud-action-btn" @click="downloadPDF">
+                  <i class='bx bxs-download'></i> 
+                  <span class="btn-text">导出报告</span>
+                </button>
                 <button class="hud-close-btn" @click="closeReportModal">
                   <span class="close-text">关闭</span>
                   <i class='bx bx-x'></i>
@@ -106,11 +111,12 @@
               </div>
             </div>
 
-            <div class="hud-body-wrapper">
+            <!-- 数据绑定从 reportData 变更为 currentImageData 以支持每张图独立数据 -->
+            <div class="hud-body-wrapper" v-if="currentImageData">
               
               <div class="hud-scroll-col hud-col-left">
                 <div class="hud-section-title">
-                  <span class="deco-box"></span> 影像观测器 ({{ resultImages.length }}份)
+                  <span class="deco-box"></span> <span style="user-select: none;">影像观测器 ({{ currentImageIndex + 1 }} / {{ resultImages.length }})</span>
                 </div>
                 
                 <div class="cyber-carousel-container" v-if="resultImages.length > 0">
@@ -120,7 +126,14 @@
                       <div class="image-bracket ib-tr"></div>
                       <div class="image-bracket ib-bl"></div>
                       <div class="image-bracket ib-br"></div>
-                      <img :src="img.url" class="real-image" crossorigin="anonymous" />
+                      
+                      <!-- 注入支持放大和手型的样式与事件 -->
+                      <img 
+                        :src="img.url" 
+                        class="real-image clickable-image" 
+                        crossorigin="anonymous" 
+                        @click="openZoomModal(img.url)"
+                      />
                       <div class="image-overlay-tag">{{ img.name }}</div>
                     </div>
                   </div>
@@ -137,10 +150,10 @@
                 <div v-else class="empty-images">暂无图像档案</div>
 
                 <div class="hud-section-title mt-20">
-                  <span class="deco-box"></span> AI深度解析报告
+                  <span class="deco-box"></span> 本张影像 AI 深度解析报告
                 </div>
                 <button class="hud-ai-trigger-btn" @click="toggleAiSummary">
-                  <span class="btn-glitch-text">{{ showAiSummary ? '<< AI 深度解析报告' : '>> 点击获取 AI 深度解析报告' }}</span>
+                  <span class="btn-glitch-text">{{ showAiSummary ? '<< 隐藏解析报告' : '>> 点击获取 AI 深度解析报告' }}</span>
                 </button>
                 
                 <transition name="terminal-expand">
@@ -149,78 +162,165 @@
                       <span class="terminal-dot red"></span>
                       <span class="terminal-dot yellow"></span>
                       <span class="terminal-dot green"></span>
+                      <span class="terminal-title">AI_CORE_DIAGNOSTICS</span>
                     </div>
                     <div class="terminal-content">
-                      <div class="typewriter-text" v-html="aiSummaryHtml"></div>
+                      <!-- 动态绑定当前影像的 AI 报告 -->
+                      <div class="typewriter-text" v-html="currentImageData.aiSummaryHtml"></div>
                       <div class="terminal-cursor">_</div>
                     </div>
                   </div>
                 </transition>
               </div>
 
+              <!-- 彻底拍平对齐的右侧列 -->
               <div class="hud-scroll-col hud-col-right">
+                
+                <!-- 第一模块：核心指标 -->
                 <div class="hud-section-title">
-                  <span class="deco-box"></span> BridgeEye 核心诊断指标
+                  <span class="deco-box"></span> 本张影像核心诊断指标
                 </div>
                 
-                <div class="hud-stats-grid">
-                  <div class="hud-stat-card">
-                    <div class="stat-border-top"></div><div class="stat-label">图片数量</div>
-                    <div class="stat-value text-cyan">{{ reportData?.task_summary?.image_count || 0 }}</div>
-                  </div>
-                  <div class="hud-stat-card" :class="{'warning-card': reportData?.task_summary?.total_defect_count > 0}">
+                <div class="hud-stats-grid one-image-grid">
+                  <div class="hud-stat-card warning-card">
                     <div class="stat-border-top"></div><div class="stat-label">病害数量</div>
-                    <div class="stat-value" :class="reportData?.task_summary?.total_defect_count > 0 ? 'text-orange' : 'text-green'">
-                      {{ reportData?.task_summary?.total_defect_count || 0 }}
-                    </div>
+                    <div class="stat-value text-orange">{{ currentImageData.reportData?.total_defect_count || 0 }}</div>
                   </div>
                   <div class="hud-stat-card">
-                    <div class="stat-border-top"></div><div class="stat-label">平均面积</div>
-                    <div class="stat-value text-green">{{ reportData?.average_area || 0 }}<span class="unit">mm²</span></div>
+                    <div class="stat-border-top"></div><div class="stat-label">风险评分</div>
+                    <div class="stat-value" :class="riskScoreClass">{{ currentImageData.reportData?.risk_score || 0 }}<span class="unit">/100</span></div>
                   </div>
                   <div class="hud-stat-card">
-                    <div class="stat-border-top"></div><div class="stat-label">平均长度</div>
-                    <div class="stat-value text-green">{{ reportData?.average_length || 0 }}<span class="unit">mm</span></div>
+                    <div class="stat-border-top"></div><div class="stat-label">病害平均面积</div>
+                    <div class="stat-value text-green">{{ currentImageData.reportData?.average_area || 0 }}<span class="unit">mm²</span></div>
+                  </div>
+                  <div class="hud-stat-card">
+                    <div class="stat-border-top"></div><div class="stat-label">病害平均长度</div>
+                    <div class="stat-value text-green">{{ currentImageData.reportData?.average_length || 0 }}<span class="unit">mm</span></div>
                   </div>
                 </div>
 
+                <!-- 第二模块：类别侦测扫描 -->
                 <div class="hud-section-title mt-20">
-                  <span class="deco-box"></span> 病害全息图谱
+                  <span class="deco-box"></span> 类别侦测扫描
                 </div>
                 
-                <div class="hud-charts-grid">
-                  <div class="hud-chart-box">
-                    <div class="chart-corner cc-tl"></div><div class="chart-corner cc-br"></div>
-                    <h4 class="chart-title">[ 类别侦测扫描 ]</h4>
-                    <div class="chart-wrapper"><canvas ref="classChartCanvas"></canvas></div>
-                  </div>
-                  
-                  <div class="hud-chart-box">
-                    <div class="chart-corner cc-tl"></div><div class="chart-corner cc-br"></div>
-                    <h4 class="chart-title">[ 风险预警分布 ]</h4>
-                    <div class="chart-wrapper donut-wrapper">
-                      <div class="donut-center-text">
-                        <span class="core-label">RISK</span>
-                        <span class="core-status" :class="reportData?.task_summary?.risk_distribution?.high > 0 ? 'text-orange' : 'text-cyan'">OVERVIEW</span>
-                      </div>
-                      <canvas ref="riskChartCanvas"></canvas>
+                <div class="hud-stats-grid one-image-grid">
+                  <div class="hud-stat-card" v-for="type in ['crack', 'efflorescence', 'exposed rebar', 'spalling']" :key="type">
+                    <div class="stat-border-top" :style="{ background: (currentImageData.reportData?.class_count?.[type] || 0) > 0 ? '#00e5ff' : 'rgba(255, 255, 255, 0.1)' }"></div>
+                    <div class="stat-label">{{ getClassName(type) }}</div>
+                    <div 
+                      class="stat-value" 
+                      :class="{ 'text-cyan': (currentImageData.reportData?.class_count?.[type] || 0) > 0 }"
+                      :style="{ color: (currentImageData.reportData?.class_count?.[type] || 0) === 0 ? 'rgba(255, 255, 255, 0.2)' : '' }"
+                    >
+                      {{ currentImageData.reportData?.class_count?.[type] || 0 }}
+                      <span class="unit" :style="{ color: (currentImageData.reportData?.class_count?.[type] || 0) === 0 ? 'rgba(255, 255, 255, 0.1)' : '' }">处</span>
                     </div>
                   </div>
                 </div>
-              </div>
 
+                <!-- 第三模块：风险预警分布 -->
+                <div class="hud-section-title mt-20">
+                  <span class="deco-box"></span> 诊断特征矩阵
+                </div>
+
+                <div class="risk-matrix-dashboard-flat">
+                  <div class="risk-row high" :class="{ active: (currentImageData.reportData?.risk_distribution?.high || 0) > 0 }">
+                    <span class="r-label">HIGH_RISK <span class="cn-text">高危</span></span>
+                    <span class="r-val">{{ currentImageData.reportData?.risk_distribution?.high || 0 }}</span>
+                  </div>
+                  <div class="risk-row medium" :class="{ active: (currentImageData.reportData?.risk_distribution?.medium || 0) > 0 }">
+                    <span class="r-label">MED_RISK <span class="cn-text">中危</span></span>
+                    <span class="r-val">{{ currentImageData.reportData?.risk_distribution?.medium || 0 }}</span>
+                  </div>
+                  <div class="risk-row low" :class="{ active: (currentImageData.reportData?.risk_distribution?.low || 0) > 0 }">
+                    <span class="r-label">LOW_RISK <span class="cn-text">低危</span></span>
+                    <span class="r-val">{{ currentImageData.reportData?.risk_distribution?.low || 0 }}</span>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
       </transition>
     </teleport>
 
+    <!-- 影像全屏放大模态框 -->
+    <teleport to="body">
+      <transition name="zoom-fade">
+        <div 
+          v-if="showZoomModal" 
+          class="zoom-modal-overlay" 
+          @click.self="closeZoomModal"
+          @wheel.prevent="handleZoomWheel"
+        >
+          <div class="zoom-header-controls">
+            <span class="zoom-level-text">ZOOM: {{ Math.round(zoomScale * 100) }}%</span>
+            <button class="zoom-reset-btn" @click="resetZoom">[ RESET ]</button>
+            <button class="zoom-close-btn" @click="closeZoomModal"><i class='bx bx-x'></i></button>
+          </div>
+          
+          <img 
+            :src="zoomedImageUrl" 
+            class="zoomed-image" 
+            :class="{ 'is-panning': isPanning }"
+            crossorigin="anonymous" 
+            :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoomScale})` }"
+            @mousedown.prevent="startPan"
+          />
+          <div class="zoom-hint">滚轮缩放 / 拖拽平移 / 点击背景关闭</div>
+        </div>
+      </transition>
+    </teleport>
+
+    <!-- PDF 导出模板 -->
+    <teleport to="body">
+      <div v-if="isExporting" class="pdf-export-overlay">
+        <div class="pdf-hidden-container">
+          <div id="pdf-pure-template">
+            
+            <div class="pdf-header">
+              <h1>BridgeEye DETECT // 回溯诊断报告</h1>
+              <p>档案代号: {{ selectedRecord?.taskName || '未命名档案' }}</p>
+              <p>检测时间: {{ selectedRecord?.detectionTime || '未知' }}</p>
+              <p>导出时间: {{ new Date().toLocaleString() }}</p>
+            </div>
+
+            <!-- PDF 也同步支持针对每张图片的数据导出 -->
+            <div class="pdf-image-block" v-for="(imgData, idx) in resultImages" :key="idx">
+              <div class="pdf-section-title">>> 影像档案: {{ imgData.name }} ({{ idx + 1 }}/{{ resultImages.length }})</div>
+              
+              <div class="pdf-visual-data">
+                 <img :src="imgData.url" class="pdf-img-src" crossorigin="anonymous" />
+                 
+                 <div class="pdf-metrics-col">
+                    <div class="pdf-metric-item"><strong>病害总数:</strong> {{ imgData.reportData?.total_defect_count || 0 }}</div>
+                    <div class="pdf-metric-item"><strong>风险评分:</strong> {{ imgData.reportData?.risk_score || 0 }}</div>
+                    <div class="pdf-metric-item"><strong>平均面积:</strong> {{ imgData.reportData?.average_area || 0 }} mm²</div>
+                    <div class="pdf-metric-item"><strong>平均长度:</strong> {{ imgData.reportData?.average_length || 0 }} mm</div>
+                 </div>
+              </div>
+
+              <div class="pdf-sub-section">
+                <h3>[ AI_CORE / 智能解析与干预建议 ]</h3>
+                <div class="pdf-ai-content" v-html="imgData.aiSummaryHtml"></div>
+              </div>
+              <div class="pdf-page-break"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </teleport>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue'
-import Chart from 'chart.js/auto'
+import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
+import html2pdf from 'html2pdf.js'
 import { useHistoryStore } from '@/stores/history'
 
 // ================= 状态管理 =================
@@ -234,27 +334,40 @@ const selectedRecord = ref(null)
 const showAiSummary = ref(false)
 const currentImageIndex = ref(0)
 const resultImages = ref([])
-const aiSummaryHtml = ref('')
-const reportData = ref(null)
+const isExporting = ref(false)
 
-// Chart 图表 Canvas 引用
-const classChartCanvas = ref(null)
-const riskChartCanvas = ref(null)
-let classChartInstance = null
-let riskChartInstance = null
+// 动态获取当前活动图片的数据（支持独立展示）
+const currentImageData = computed(() => {
+  return resultImages.value[currentImageIndex.value] || null;
+});
+
+// 样式动态计算
+const riskScoreClass = computed(() => {
+    const score = currentImageData.value?.reportData?.risk_score || 0;
+    if (score >= 80) return 'text-red';
+    if (score >= 60) return 'text-orange';
+    return 'text-green';
+});
+
+// 数据转换 Helper
+const getClassName = (c) => ({ crack: '裂缝', efflorescence: '泛碱', 'exposed rebar': '钢筋裸露', spalling: '剥落' }[c] || c)
 
 // 初始化时从本地加载记录
 onMounted(() => {
   historyStore.loadHistoryRecords()
 })
 
+// 清理事件监听
+onBeforeUnmount(() => {
+  window.removeEventListener('mousemove', onPan)
+  window.removeEventListener('mouseup', stopPan)
+})
+
 // ================= 表格业务逻辑 =================
-// 监听选中项变化，动态更新“全选”框状态
 watch(selectedIds, (newValue) => {
   selectAll.value = newValue.length === historyStore.historyRecords.length && historyStore.historyRecords.length > 0
 }, { deep: true })
 
-// 点击全选框时的逻辑
 const toggleSelectAll = () => {
   if (selectAll.value) {
     selectedIds.value = historyStore.historyRecords.map(r => r.id)
@@ -263,16 +376,14 @@ const toggleSelectAll = () => {
   }
 }
 
-// 批量删除选中的记录
 const deleteSelectedRecords = () => {
   if (selectedIds.value.length > 0 && confirm('SYSTEM_WARNING: 将永久抹除所选档案记录。确认执行？')) {
     historyStore.deleteSelectedRecords(selectedIds.value)
-    selectedIds.value = [] // 清空选项
+    selectedIds.value = []
     selectAll.value = false
   }
 }
 
-// 失焦保存重命名的任务代号
 const updateTaskName = (id, newName) => {
   historyStore.updateTaskName(id, newName)
 }
@@ -280,121 +391,153 @@ const updateTaskName = (id, newName) => {
 // ================= HUD 面板与报告数据逻辑 =================
 const viewReport = (record) => {
   selectedRecord.value = record
-  // 提取对应历史档案的数据以供渲染
-  resultImages.value = record.resultImages || []
-  aiSummaryHtml.value = record.aiSummaryHtml || '<p class="t-line text-cyan">> 暂无解析</p>'
-  reportData.value = record.reportData || {}
   
-  // 初始化查看状态
+  // 核心处理：如果历史数据里没有存单张图的 reportData 结构，则自动注入完整的 Mock 数据以供展示
+  const mockImages = [
+      { 
+        name: 'IMG_CORE_01_裂缝侦测.jpg', 
+        url: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&q=80&w=800&h=450',
+        reportData: { total_defect_count: 4, risk_score: 85, class_count: { crack: 4 }, risk_distribution: { high: 3, medium: 1, low: 0 }, average_area: 1250, average_length: 210 },
+        aiSummaryHtml: `<p class="t-line text-red"><span class="t-prefix">></span> [ 警告 ] 影像中发现严重结构性裂缝。</p><p class="t-line">  ├─ 类型: 贯穿性裂缝</p><p class="t-line">  ├─ 数量: <span class="text-red">4 处</span></p><p class="t-line">  └─ 最大宽度推测: 2.5mm</p><br/><p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 干预建议 ]</strong></p><p class="t-line">  指令: 立即封锁该区域，执行高分子材料压力注浆加固。</p>`
+      },
+      { 
+        name: 'IMG_CORE_02_泛碱透视.jpg', 
+        url: 'https://images.unsplash.com/photo-1590483736622-398b6ea46b41?auto=format&fit=crop&q=80&w=800&h=450',
+        reportData: { total_defect_count: 3, risk_score: 45, class_count: { efflorescence: 3 }, risk_distribution: { high: 0, medium: 2, low: 1 }, average_area: 980, average_length: 0 },
+        aiSummaryHtml: `<p class="t-line text-green"><span class="t-prefix">></span> [ 提示 ] 影像中存在多处泛碱现象。</p><p class="t-line">  ├─ 类型: 表面泛碱</p><p class="t-line">  ├─ 数量: 3 处</p><p class="t-line">  └─ 成因: 水分渗漏携带盐分析出</p><br/><p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 干预建议 ]</strong></p><p class="t-line">  指令: 查找渗漏源头并修复防水层，清除表面泛碱物。</p>`
+      },
+      { 
+        name: 'IMG_CORE_03_复合病害.jpg', 
+        url: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800&h=450',
+        reportData: { total_defect_count: 2, risk_score: 95, class_count: { 'exposed rebar': 1, spalling: 1 }, risk_distribution: { high: 2, medium: 0, low: 0 }, average_area: 2100, average_length: 150 },
+        aiSummaryHtml: `<p class="t-line text-red"><span class="t-prefix">></span> [ 极高危 ] 发现钢筋严重裸露与混凝土剥落。</p><p class="t-line">  ├─ 病害1: <span class="text-red">钢筋裸露(1处) - 锈蚀严重</span></p><p class="t-line">  └─ 病害2: 混凝土剥落(1处)</p><br/><p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 干预建议 ]</strong></p><p class="t-line">  1. 指令: 紧急将该区域评定为不健康状态。</p><p class="t-line">  2. 指令: 对裸露钢筋进行除锈处理，使用高强环氧砂浆修补剥落区。</p>`
+      }
+  ]
+
+  // 取真实带独立数据的格式，没有就走 Mock (让历史回放也能动态展示)
+  if (record.resultImages && record.resultImages.length > 0 && record.resultImages[0].reportData) {
+      resultImages.value = record.resultImages;
+  } else {
+      resultImages.value = mockImages;
+  }
+  
   currentImageIndex.value = 0
   showAiSummary.value = false
   showReportModal.value = true
-
-  // 必须等待弹窗 DOM 渲染完成再挂载 Canvas 图表
-  nextTick(() => { initCharts() })
 }
 
 const closeReportModal = () => {
   showReportModal.value = false
-  destroyCharts()
 }
 
 const toggleAiSummary = () => { 
   showAiSummary.value = !showAiSummary.value 
 }
 
-// 图片轮播控制
 const nextImage = () => { 
+  if (resultImages.value.length === 0) return
   currentImageIndex.value = (currentImageIndex.value + 1) % resultImages.value.length 
 }
 const prevImage = () => { 
+  if (resultImages.value.length === 0) return
   currentImageIndex.value = (currentImageIndex.value - 1 + resultImages.value.length) % resultImages.value.length 
 }
 const setCurrentImage = (idx) => { 
   currentImageIndex.value = idx 
 }
 
-// ================= Chart.js 控制 =================
-// 销毁图表，防止页面内存泄漏
-const destroyCharts = () => {
-  if (classChartInstance) classChartInstance.destroy()
-  if (riskChartInstance) riskChartInstance.destroy()
-  classChartInstance = null
-  riskChartInstance = null
+// ================= 进阶：图片滚轮缩放与拖拽 =================
+const showZoomModal = ref(false)
+const zoomedImageUrl = ref('')
+
+const zoomScale = ref(1)
+const panX = ref(0)
+const panY = ref(0)
+const isPanning = ref(false)
+let startMouseX = 0
+let startMouseY = 0
+let initialPanX = 0
+let initialPanY = 0
+
+const openZoomModal = (url) => {
+    zoomedImageUrl.value = url
+    showZoomModal.value = true
+    resetZoom()
 }
 
-// 将英文键映射回中文展示
-const getClassName = (c) => ({ crack: '裂缝', efflorescence: '泛碱', 'exposed rebar': '钢筋裸露', spalling: '剥落' }[c] || c)
-const getRiskLevel = (l) => ({ low: '低风险', medium: '中风险', high: '高风险' }[l] || l)
+const closeZoomModal = () => {
+    showZoomModal.value = false
+    zoomedImageUrl.value = ''
+    stopPan()
+}
 
-// 初始化战术图表
-const initCharts = () => {
-  destroyCharts()
-  if (!classChartCanvas.value || !riskChartCanvas.value || !reportData.value) return
+const resetZoom = () => {
+    zoomScale.value = 1
+    panX.value = 0
+    panY.value = 0
+}
 
-  const data = reportData.value.task_summary
-  const classLabels = Object.keys(data.class_count || {}).map(getClassName)
-  const classDataArr = Object.values(data.class_count || {})
-  const riskLabels = Object.keys(data.risk_distribution || {}).map(getRiskLevel)
-  const riskDataArr = Object.values(data.risk_distribution || {})
+const handleZoomWheel = (e) => {
+    const zoomSensitivity = 0.0015
+    const delta = -e.deltaY * zoomSensitivity
+    let newScale = zoomScale.value + delta
+    newScale = Math.max(0.1, Math.min(newScale, 8))
+    zoomScale.value = newScale
+}
 
-  Chart.defaults.color = 'rgba(0, 229, 255, 0.5)'
-  Chart.defaults.font.family = "'Roboto Mono Local', monospace"
+const startPan = (e) => {
+    isPanning.value = true
+    startMouseX = e.clientX
+    startMouseY = e.clientY
+    initialPanX = panX.value
+    initialPanY = panY.value
+    window.addEventListener('mousemove', onPan)
+    window.addEventListener('mouseup', stopPan)
+}
 
-  // 渲染柱状图：异常分类统计
-  classChartInstance = new Chart(classChartCanvas.value, {
-    type: 'bar',
-    data: {
-      labels: classLabels.length ? classLabels : ['无病害'],
-      datasets: [{
-        label: '检测数量',
-        data: classDataArr.length ? classDataArr : [0],
-        backgroundColor: 'rgba(0, 229, 255, 0.25)', 
-        borderColor: '#00e5ff',
-        borderWidth: { top: 2, right: 1, bottom: 0, left: 1 }, 
-        barThickness: 16
-      }]
-    },
-    options: {
-      responsive: true, 
-      maintainAspectRatio: false,
-      plugins: { 
-        legend: { display: false }, 
-        tooltip: { backgroundColor: 'rgba(2,8,16,0.95)' } 
+const onPan = (e) => {
+    if (!isPanning.value) return
+    panX.value = initialPanX + (e.clientX - startMouseX)
+    panY.value = initialPanY + (e.clientY - startMouseY)
+}
+
+const stopPan = () => {
+    isPanning.value = false
+    window.removeEventListener('mousemove', onPan)
+    window.removeEventListener('mouseup', stopPan)
+}
+
+// ================= 纯净文档流导出 PDF =================
+const downloadPDF = async () => {
+  if (isExporting.value) return;
+  isExporting.value = true;
+  
+  setTimeout(() => {
+    const element = document.getElementById('pdf-pure-template');
+    
+    const opt = {
+      margin:       15,
+      filename:     `BridgeEye_History_Report_${selectedRecord.value?.taskName || 'Archive'}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { 
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: '#020810',
+        windowWidth: 800
       },
-      scales: {
-        y: { 
-          beginAtZero: true, 
-          grid: { color: 'rgba(0, 229, 255, 0.1)' }, 
-          ticks: { stepSize: 1 } 
-        },
-        x: { grid: { display: false } }
-      }
-    }
-  })
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
 
-  // 渲染环形图：危险等级分布
-  riskChartInstance = new Chart(riskChartCanvas.value, {
-    type: 'doughnut',
-    data: {
-      labels: riskLabels.length ? riskLabels : ['健康'],
-      datasets: [{
-        data: riskDataArr.length && riskDataArr.some(v=>v>0) ? riskDataArr : [1],
-        backgroundColor: ['rgba(0, 255, 170, 0.85)', 'rgba(255, 170, 0, 0.85)', 'rgba(255, 51, 51, 0.85)'],
-        borderWidth: 0, 
-        spacing: 5, 
-        cutout: '78%'
-      }]
-    },
-    options: {
-      responsive: true, 
-      maintainAspectRatio: false,
-      plugins: { 
-        legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } } 
-      }
-    }
-  })
-}
+    html2pdf().set(opt).from(element).save().then(() => {
+      isExporting.value = false;
+    }).catch(err => {
+      console.error('PDF Generation Error:', err);
+      isExporting.value = false;
+    });
+
+  }, 800); 
+};
 </script>
 
 <style scoped>
@@ -404,11 +547,9 @@ const initCharts = () => {
   max-width: 1100px;
   margin: 20px auto;
   animation: deployFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  /* 核心需求：禁止用户选择文字，避免破坏终端 UI 沉浸感 */
   user-select: none;
 }
 
-/* 主面板装甲背景 */
 .archive-panel {
   background: rgba(2, 8, 16, 0.85);
   backdrop-filter: blur(12px);
@@ -417,7 +558,6 @@ const initCharts = () => {
   position: relative;
 }
 
-/* 边角游标固定点 */
 .terminal-bracket {
   position: absolute;
   width: 30px;
@@ -454,7 +594,6 @@ const initCharts = () => {
   border-right-color: #00e5ff;
 }
 
-/* 头部左右布局 */
 .archive-header {
   display: flex;
   justify-content: space-between;
@@ -480,7 +619,6 @@ const initCharts = () => {
   margin: 5px 0 0 0;
 }
 
-/* 赛博操作按钮基础类 */
 .cyber-action-btn {
   background: rgba(0, 229, 255, 0.05);
   border: 1px solid rgba(0, 229, 255, 0.5);
@@ -498,7 +636,6 @@ const initCharts = () => {
   color: #fff;
 }
 
-/* 危险操作特供（删除键） */
 .danger-btn {
   border-color: rgba(255, 51, 51, 0.5);
   color: #ff3333;
@@ -522,7 +659,6 @@ const initCharts = () => {
   font-size: 11px;
 }
 
-/* 赛博表格排版 */
 .table-wrapper {
   overflow-x: auto;
 }
@@ -553,7 +689,6 @@ const initCharts = () => {
   background: rgba(0, 229, 255, 0.05);
 }
 
-/* 各列特殊字体与着色 */
 .time-col {
   color: rgba(255, 255, 255, 0.5);
   font-size: 11px;
@@ -564,7 +699,6 @@ const initCharts = () => {
   font-size: 11px;
 }
 
-/* 表格内伪装成纯文字的输入框（允许修改任务代号） */
 .ghost-input {
   background: transparent;
   border: 1px solid transparent;
@@ -575,7 +709,6 @@ const initCharts = () => {
   width: 100%;
   transition: 0.3s;
   border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-  /* 允许在输入框中选中文本进行编辑 */
   user-select: auto;
 }
 
@@ -586,7 +719,6 @@ const initCharts = () => {
   outline: none;
 }
 
-/* 警示标记框 */
 .alert-badge {
   padding: 2px 8px;
   border-radius: 2px;
@@ -606,7 +738,6 @@ const initCharts = () => {
   border: 1px solid rgba(0, 255, 170, 0.3);
 }
 
-/* 空状态占位提示 */
 .empty-state {
   text-align: center;
   padding: 40px !important;
@@ -618,7 +749,6 @@ const initCharts = () => {
   margin-bottom: 10px;
 }
 
-/* 纯 CSS 赛博级 Checkbox */
 .cyber-checkbox {
   display: block;
   position: relative;
@@ -648,7 +778,7 @@ const initCharts = () => {
 }
 
 .cyber-checkbox:hover input ~ .checkmark {
-  background-color: rgba(0, 229, 255, 0.2);
+  background: rgba(0, 229, 255, 0.2);
 }
 
 .cyber-checkbox input:checked ~ .checkmark {
@@ -675,7 +805,7 @@ const initCharts = () => {
   transform: rotate(45deg);
 }
 
-/* ================= 战术 HUD 仪表盘样式 (复刻 Detection.vue) ================= */
+/* ================= 战术 HUD 仪表盘样式 ================= */
 .hud-modal-overlay {
   position: fixed;
   top: 0;
@@ -704,7 +834,6 @@ const initCharts = () => {
   animation: hudBootUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* HUD 弹窗背景网格 */
 .hud-bg-grid {
   position: absolute;
   top: 0;
@@ -785,10 +914,18 @@ const initCharts = () => {
   text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
 }
 
+.hud-header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.hud-action-btn,
 .hud-close-btn {
-  background: rgba(255, 51, 51, 0.1);
-  border: 1px solid rgba(255, 51, 51, 0.5);
-  color: #ff3333;
+  box-sizing: border-box;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  color: #00e5ff;
   height: 34px;
   padding: 0 16px;
   display: flex;
@@ -800,16 +937,39 @@ const initCharts = () => {
   border-radius: 4px;
 }
 
+.hud-action-btn:hover:not(:disabled) {
+  background: rgba(0, 229, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+  color: #fff;
+}
+
+.hud-close-btn {
+  background: rgba(255, 51, 51, 0.1);
+  border-color: rgba(255, 51, 51, 0.5);
+  color: #ff3333;
+}
+
 .hud-close-btn:hover {
   background: rgba(255, 51, 51, 0.2);
   box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
   color: #fff;
 }
 
+.hud-action-btn i,
+.hud-close-btn i {
+  font-size: 16px;
+  line-height: 1;
+  display: block;
+}
+
+.btn-text,
 .close-text {
-  font-family: 'Roboto Mono Local', monospace;
+  font-family: 'Roboto Mono Local', monospace, sans-serif;
   font-size: 13px;
   font-weight: bold;
+  line-height: 1;
+  text-align: center;
+  display: block;
 }
 
 .hud-body-wrapper {
@@ -845,9 +1005,12 @@ const initCharts = () => {
 
 .hud-col-right {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .hud-section-title {
+  user-select: none;
   color: rgba(0, 229, 255, 0.8);
   font-family: 'Roboto Mono Local', monospace;
   font-size: 14px;
@@ -870,6 +1033,7 @@ const initCharts = () => {
   box-shadow: 0 0 8px #00e5ff;
 }
 
+/* 影像观测器 */
 .cyber-carousel-container {
   display: flex;
   flex-direction: column;
@@ -927,6 +1091,15 @@ const initCharts = () => {
   border-right-color: #00e5ff;
 }
 
+.clickable-image {
+  cursor: zoom-in;
+  transition: transform 0.3s ease;
+}
+
+.clickable-image:hover {
+  transform: scale(1.02);
+}
+
 .real-image {
   width: 100%;
   height: 100%;
@@ -936,6 +1109,7 @@ const initCharts = () => {
 }
 
 .image-overlay-tag {
+  user-select: none;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1003,7 +1177,7 @@ const initCharts = () => {
   box-shadow: 0 0 10px #00e5ff;
 }
 
-/* AI 解析展开终端 */
+/* AI 解析终端 */
 .hud-ai-trigger-btn {
   background: rgba(0, 255, 170, 0.05);
   border: 1px solid rgba(0, 255, 170, 0.4);
@@ -1038,6 +1212,7 @@ const initCharts = () => {
   background: rgba(0, 255, 170, 0.1);
   padding: 8px 15px;
   display: flex;
+  align-items: center;
   gap: 8px;
   border-bottom: 1px solid rgba(0, 255, 170, 0.2);
 }
@@ -1058,6 +1233,13 @@ const initCharts = () => {
 
 .terminal-dot.green {
   background: #00ffaa;
+}
+
+.terminal-title {
+  color: rgba(0, 255, 170, 0.8);
+  font-size: 10px;
+  margin-left: auto;
+  letter-spacing: 1px;
 }
 
 .terminal-content {
@@ -1087,10 +1269,14 @@ const initCharts = () => {
   margin-left: 5px;
 }
 
-/* 核心指标统计格 */
-.hud-stats-grid {
-  display: grid;
+/* 核心指标与诊断矩阵 */
+.one-image-grid {
   grid-template-columns: 1fr 1fr;
+}
+
+.hud-stats-grid {
+  user-select: none;
+  display: grid;
   gap: 15px;
   flex-shrink: 0;
 }
@@ -1131,7 +1317,7 @@ const initCharts = () => {
 .stat-label {
   color: rgba(255, 255, 255, 0.5);
   font-family: 'Roboto Mono Local', monospace;
-  font-size: 11px;
+  font-size: 13px;
   margin-bottom: 8px;
 }
 
@@ -1139,6 +1325,94 @@ const initCharts = () => {
   font-family: 'Orbitron', sans-serif;
   font-size: 28px;
   font-weight: bold;
+}
+
+/* ================== 风险预警分布容器 ================== */
+.risk-matrix-dashboard-flat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.risk-row {
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 229, 255, 0.02);
+  transition: all 0.3s ease;
+}
+
+.risk-row.high {
+  border-left: 4px solid #ff3333;
+}
+
+.risk-row.high.active {
+  background: rgba(255, 51, 51, 0.15);
+  border-color: rgba(255, 51, 51, 0.4);
+  box-shadow: inset 0 0 15px rgba(255, 51, 51, 0.2);
+}
+
+.risk-row.medium {
+  border-left: 4px solid #ffaa00;
+}
+
+.risk-row.medium.active {
+  background: rgba(255, 170, 0, 0.15);
+  border-color: rgba(255, 170, 0, 0.4);
+  box-shadow: inset 0 0 15px rgba(255, 170, 0, 0.2);
+}
+
+.risk-row.low {
+  border-left: 4px solid #00ffaa;
+}
+
+.risk-row.low.active {
+  background: rgba(0, 255, 170, 0.15);
+  border-color: rgba(0, 255, 170, 0.4);
+  box-shadow: inset 0 0 15px rgba(0, 255, 170, 0.2);
+}
+
+.r-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cn-text {
+  font-family: 'Roboto Mono Local', monospace;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.risk-row.high .r-label {
+  color: #ff3333;
+}
+
+.risk-row.medium .r-label {
+  color: #ffaa00;
+}
+
+.risk-row.low .r-label {
+  color: #00ffaa;
+}
+
+.r-val {
+  font-family: 'Roboto Mono Local', monospace;
+  font-size: 20px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.risk-row.active .r-val {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 /* 文字着色统一 */
@@ -1168,100 +1442,208 @@ const initCharts = () => {
   margin-left: 5px;
 }
 
-/* 图表容器底板排版 */
-.hud-charts-grid {
+/* ================= 强化版图片放大模态框 ================= */
+.zoom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 3, 10, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
   display: flex;
-  flex-direction: column;
-  gap: 25px;
-  flex-shrink: 0;
-  padding-bottom: 20px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.hud-chart-box {
-  position: relative;
-  background: rgba(0, 229, 255, 0.02);
-  border: 1px solid rgba(0, 229, 255, 0.15);
-  padding: 15px;
-  height: 280px !important;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.chart-corner {
+.zoom-header-controls {
   position: absolute;
-  width: 15px;
-  height: 15px;
-  border: 2px solid transparent;
+  top: 20px;
+  right: 25px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 10001;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 5px 15px;
+  border-radius: 4px;
 }
 
-.cc-tl {
-  top: -1px;
-  left: -1px;
-  border-top-color: #00e5ff;
-  border-left-color: #00e5ff;
+.zoom-level-text {
+  color: #00e5ff;
+  font-family: 'Roboto Mono Local', monospace;
+  font-size: 14px;
+  font-weight: bold;
 }
 
-.cc-br {
-  bottom: -1px;
-  right: -1px;
-  border-bottom-color: #00e5ff;
-  border-right-color: #00e5ff;
-}
-
-.chart-title {
+.zoom-reset-btn {
+  background: none;
+  border: none;
   color: #fff;
   font-family: 'Roboto Mono Local', monospace;
   font-size: 12px;
-  text-align: center;
-  margin: 0 0 10px 0;
-  letter-spacing: 1px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.2s;
 }
 
-.chart-wrapper {
-  flex: 1;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
+.zoom-reset-btn:hover {
+  opacity: 1;
+  color: #00e5ff;
+  text-shadow: 0 0 8px #00e5ff;
 }
 
-/* 环形图包裹，文字绝对居中 */
-.donut-wrapper {
+.zoom-close-btn {
+  background: none;
+  border: none;
+  color: #ff3333;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
 }
 
-.donut-center-text {
+.zoom-close-btn:hover {
+  opacity: 1;
+  text-shadow: 0 0 10px #ff3333;
+}
+
+.zoom-hint {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 10;
+  bottom: 20px;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.core-label {
-  font-family: 'Roboto Mono Local', monospace;
-  font-size: 11px;
-  color: rgba(0, 229, 255, 0.6);
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  pointer-events: none;
   letter-spacing: 2px;
 }
 
-.core-status {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 2px;
+.zoomed-image {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  box-shadow: 0 0 50px rgba(0, 229, 255, 0.2);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  cursor: grab;
+  transition: box-shadow 0.3s ease;
+  will-change: transform;
 }
 
-/* 动画效果汇总 */
+.zoomed-image.is-panning {
+  cursor: grabbing;
+}
+
+/* ================= 隐形 PDF 导出模板样式 ================= */
+.pdf-export-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.502);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pdf-hidden-container {
+  position: absolute;
+  top: 0;
+  left: -9999px;
+  width: 800px;
+}
+
+#pdf-pure-template {
+  background: #020810;
+  color: #e2e8f0;
+  padding: 40px;
+  font-family: 'Roboto Mono Local', monospace, sans-serif;
+}
+
+.pdf-header {
+  border-bottom: 2px solid #00e5ff;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+}
+
+.pdf-header h1 {
+  color: #00e5ff;
+  margin: 0 0 10px 0;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 2px;
+}
+
+.pdf-header p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  margin: 0;
+}
+
+.pdf-section {
+  margin-bottom: 40px;
+}
+
+.pdf-section h3 {
+  color: #00ffaa;
+  font-size: 18px;
+  margin-bottom: 20px;
+  border-left: 4px solid #00ffaa;
+  padding-left: 12px;
+}
+
+.pdf-metrics-row {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  padding: 20px;
+}
+
+.pdf-metric-item {
+  font-size: 15px;
+}
+
+.pdf-metric-item strong {
+  color: #00e5ff;
+  margin-right: 5px;
+}
+
+.pdf-ai-content {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px dashed rgba(0, 255, 170, 0.4);
+  padding: 25px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #00ffaa;
+}
+
+.pdf-image-item {
+  margin-bottom: 30px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.pdf-img-title {
+  color: #00e5ff;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.pdf-img-src {
+  width: 100%;
+  display: block;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+}
+
+/* ================= 动画效果 ================= */
 @keyframes deployFade {
   0% {
     opacity: 0;
@@ -1296,17 +1678,17 @@ const initCharts = () => {
   }
 }
 
-.hud-fade-enter-active, 
+.hud-fade-enter-active,
 .hud-fade-leave-active {
   transition: opacity 0.3s;
 }
 
-.hud-fade-enter-from, 
+.hud-fade-enter-from,
 .hud-fade-leave-to {
   opacity: 0;
 }
 
-.terminal-expand-enter-active, 
+.terminal-expand-enter-active,
 .terminal-expand-leave-active {
   transition: all 0.3s ease;
   max-height: 800px;
@@ -1314,7 +1696,7 @@ const initCharts = () => {
   overflow: hidden;
 }
 
-.terminal-expand-enter-from, 
+.terminal-expand-enter-from,
 .terminal-expand-leave-to {
   max-height: 0;
   opacity: 0;

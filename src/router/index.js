@@ -22,31 +22,31 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login,
-      meta: { title: '系统登录 | BridgeEye SYSTEM' }
+      meta: { title: '系统登录 | BridgeEye' }
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       component: Home,
-      meta: { title: '主页概览 | BridgeEye SYSTEM' }
+      meta: { title: '首页 | BridgeEye' }
     },
     {
       path: '/diagnose',
       name: 'diagnose',
       component: Detection,
-      meta: { title: '智能诊断 | BridgeEye SYSTEM' }
+      meta: { title: '智能诊断 | BridgeEye' }
     },
     {
       path: '/history',
       name: 'history',
       component: History,
-      meta: { title: '历史档案 | BridgeEye SYSTEM' }
+      meta: { title: '历史档案 | BridgeEye' }
     },
     {
       path: '/profile',
       name: 'profile',
       component: System,
-      meta: { title: '系统配置 | BridgeEye SYSTEM' }
+      meta: { title: '用户资料 | BridgeEye' }
     }
   ]
 })

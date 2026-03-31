@@ -48,8 +48,7 @@
       <div class="logo">
         <span class="bracket">&lt;</span>
         <span class="sys-name">BridgeEye</span>
-        <span class="sys-version"></span>
-        <span class="bracket">/&gt;</span>
+        <span class="bracket">&gt;</span>
       </div>
     </div>
     
@@ -107,8 +106,8 @@ onMounted(() => {
 // 导航菜单配置项数组
 const menu = [
   { path: '/dashboard', name: '首页', icon: 'bx-data' },
-  { path: '/diagnose', name: '诊断系统', icon: 'bx-radar' },
-  { path: '/history', name: '历史记录', icon: 'bx-history' },
+  { path: '/diagnose', name: '智能诊断', icon: 'bx-radar' },
+  { path: '/history', name: '历史档案', icon: 'bx-history' },
   { path: '/profile', name: '用户资料', icon: 'bx-slider-alt' }
 ]
 
@@ -435,15 +434,6 @@ html,
   color: transparent;
   letter-spacing: 4px;
   filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5)); 
-}
-
-.sys-version {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--tech-cyan);
-  opacity: 0.7;
-  letter-spacing: 1px;
-  margin-left: 2px;
 }
 
 /* ================= 中间选项样式修复 (文字绝对居中) ================= */
