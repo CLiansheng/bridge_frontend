@@ -396,19 +396,19 @@ const viewReport = (record) => {
   const mockImages = [
       { 
         name: 'IMG_CORE_01_裂缝侦测.jpg', 
-        url: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&q=80&w=800&h=450',
+        url: '/result1.jpg',
         reportData: { total_defect_count: 4, risk_score: 85, class_count: { crack: 4 }, risk_distribution: { high: 3, medium: 1, low: 0 }, average_area: 1250, average_length: 210 },
         aiSummaryHtml: `<p class="t-line text-red"><span class="t-prefix">></span> [ 警告 ] 影像中发现严重结构性裂缝。</p><p class="t-line">  ├─ 类型: 贯穿性裂缝</p><p class="t-line">  ├─ 数量: <span class="text-red">4 处</span></p><p class="t-line">  └─ 最大宽度推测: 2.5mm</p><br/><p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 干预建议 ]</strong></p><p class="t-line">  指令: 立即封锁该区域，执行高分子材料压力注浆加固。</p>`
       },
       { 
         name: 'IMG_CORE_02_泛碱透视.jpg', 
-        url: 'https://images.unsplash.com/photo-1590483736622-398b6ea46b41?auto=format&fit=crop&q=80&w=800&h=450',
+        url: '/result2.jpg',
         reportData: { total_defect_count: 3, risk_score: 45, class_count: { efflorescence: 3 }, risk_distribution: { high: 0, medium: 2, low: 1 }, average_area: 980, average_length: 0 },
         aiSummaryHtml: `<p class="t-line text-green"><span class="t-prefix">></span> [ 提示 ] 影像中存在多处泛碱现象。</p><p class="t-line">  ├─ 类型: 表面泛碱</p><p class="t-line">  ├─ 数量: 3 处</p><p class="t-line">  └─ 成因: 水分渗漏携带盐分析出</p><br/><p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 干预建议 ]</strong></p><p class="t-line">  指令: 查找渗漏源头并修复防水层，清除表面泛碱物。</p>`
       },
       { 
         name: 'IMG_CORE_03_复合病害.jpg', 
-        url: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800&h=450',
+        url: '/result3.jpg',
         reportData: { total_defect_count: 2, risk_score: 95, class_count: { 'exposed rebar': 1, spalling: 1 }, risk_distribution: { high: 2, medium: 0, low: 0 }, average_area: 2100, average_length: 150 },
         aiSummaryHtml: `<p class="t-line text-red"><span class="t-prefix">></span> [ 极高危 ] 发现钢筋严重裸露与混凝土剥落。</p><p class="t-line">  ├─ 病害1: <span class="text-red">钢筋裸露(1处) - 锈蚀严重</span></p><p class="t-line">  └─ 病害2: 混凝土剥落(1处)</p><br/><p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 干预建议 ]</strong></p><p class="t-line">  1. 指令: 紧急将该区域评定为不健康状态。</p><p class="t-line">  2. 指令: 对裸露钢筋进行除锈处理，使用高强环氧砂浆修补剥落区。</p>`
       }

@@ -506,176 +506,75 @@ HUD视觉元素：
 页面里介绍了系统的核心功能、操作流程、应用场景等信息，并同样有丰富的交互效果。
 在点击启动系统按钮后，会跳转到登录页面，用户需要输入邮箱和密码进行身份验证。
 ##### 3.2.3.2 登录页面
-登录页面是用户进入系统的入口，通过手机号和验证码进行身份验证。以下是核心实现：
-
-```vue
-<template>
-  <main class="login-main">
-    <div class="terminal-deploy-wrapper">
-      <section 
-        class="auth-terminal" 
-        :class="{ 
-          'is-loading': authStatus === 'loading',
-          'is-success': authStatus === 'success',
-          'is-error': authStatus === 'error' 
-        }"
-      >
-        <div class="terminal-bracket tb-tl"></div>
-        <div class="terminal-bracket tb-tr"></div>
-        <div class="terminal-bracket tb-bl"></div>
-        <div class="terminal-bracket tb-br"></div>
-
-        <div class="terminal-inner">
-          <div class="terminal-header">
-            <div class="sys-badge">
-              <span class="badge-icon"></span>
-              {{ authStatus === 'success' ? 'ACCESS_GRANTED' : (authStatus === 'error' ? 'ACCESS_DENIED' : 'SYS_LOCKED') }}
-            </div>
-            <h1 class="glitch-text" data-text="SPANS">SPANS</h1>
-            <p class="subtitle">桥梁病害诊断中心</p>
-            <div class="header-divider"></div>
-          </div>
-
-          <div class="tactical-tabs" v-if="authMode !== 'reset'">
-            <div 
-              class="tab-item" 
-              :class="{ active: ['pwd', 'code'].includes(authMode) }"
-              @click="switchMode('pwd')"
-            >
-              [ 账号登录 ]
-            </div>
-            <div 
-              class="tab-item" 
-              :class="{ active: authMode === 'register' }"
-              @click="switchMode('register')"
-            >
-              [ 注册 ]
-            </div>
-          </div>
-          
-          <div class="reset-header" v-else>
-            <span class="warning-text">>> 密码重置</span>
-          </div>
-
-          <form class="auth-form" @submit.prevent="handleSubmit">
-            <div class="input-group">
-              <input 
-                type="tel" 
-                id="phone" 
-                v-model="formData.phone" 
-                maxlength="11"
-                placeholder=" "
-                autocomplete="off"
-                @input="formData.phone = formData.phone.replace(/[^\d]/g, ''); clearError()"
-              >
-              <label for="phone">请输入手机号码</label>
-              <div class="input-energy-bar"></div>
-              <div class="input-corner"></div>
-            </div>
-
-            <div class="input-group code-group" v-if="['code', 'register', 'reset'].includes(authMode)">
-              <input 
-                type="text" 
-                id="verifyCode" 
-                v-model="formData.verifyCode" 
-                maxlength="6"
-                placeholder=" "
-                autocomplete="off"
-                @input="clearError()"
-              >
-              <label for="verifyCode">请输入验证码</label>
-              <button 
-                type="button" 
-                class="send-code-btn" 
-                :disabled="countdown > 0 || !isValidPhone"
-                @click="sendCode"
-              >
-                {{ countdown > 0 ? `[ T-${countdown}s ]` : '[ 获取验证码 ]' }}
-              </button>
-              <div class="input-energy-bar"></div>
-              <div class="input-corner"></div>
-            </div>
-
-            <div class="input-group password-group" v-if="['pwd', 'register', 'reset'].includes(authMode)">
-              <input 
-                :type="showPassword ? 'text' : 'password'" 
-                id="password" 
-                v-model="formData.password" 
-                placeholder=" "
-                @input="formData.password = formData.password.replace(/[^\x21-\x7E]/g, ''); clearError()"
-              >
-              <label for="password">请输入密码</label>
-              <button 
-                type="button" 
-                class="toggle-password-btn"
-                @click="showPassword = !showPassword"
-              >
-                <i class='bx' :class="showPassword ? 'bx-hide' : 'bx-show'"></i>
-              </button>
-              <div class="input-energy-bar"></div>
-              <div class="input-corner"></div>
-            </div>
-
-            <div class="input-group password-group" v-if="authMode === 'register'">
-              <input 
-                :type="showConfirm ? 'text' : 'password'" 
-                id="confirmPassword" 
-                v-model="formData.confirmPassword" 
-                placeholder=" "
-                @input="clearError()"
-              >
-              <label for="confirmPassword">请确认密码</label>
-              <button 
-                type="button" 
-                class="toggle-password-btn"
-                @click="showConfirm = !showConfirm"
-              >
-                <i class='bx' :class="showConfirm ? 'bx-hide' : 'bx-show'"></i>
-              </button>
-              <div class="input-energy-bar"></div>
-              <div class="input-corner"></div>
-            </div>
-
-            <div class="form-actions">
-              <button 
-                type="submit" 
-                class="auth-submit-btn"
-                :disabled="authStatus === 'loading'"
-              >
-                <span class="btn-text">{{ submitText }}</span>
-                <div class="btn-scan-line"></div>
-              </button>
-              
-              <div class="form-links" v-if="authMode === 'pwd'">
-                <a href="#" @click.prevent="switchMode('code')" class="form-link">验证码登录</a>
-                <a href="#" @click.prevent="switchMode('reset')" class="form-link">忘记密码</a>
-              </div>
-              
-              <div class="form-links" v-else-if="authMode === 'code'">
-                <a href="#" @click.prevent="switchMode('pwd')" class="form-link">密码登录</a>
-                <a href="#" @click.prevent="switchMode('reset')" class="form-link">忘记密码</a>
-              </div>
-              
-              <div class="form-links" v-else-if="authMode === 'register'">
-                <a href="#" @click.prevent="switchMode('pwd')" class="form-link">已有账号？登录</a>
-              </div>
-              
-              <div class="form-links" v-else-if="authMode === 'reset'">
-                <a href="#" @click.prevent="switchMode('pwd')" class="form-link">返回登录</a>
-              </div>
-            </div>
-          </form>
-        </div>
-      </section>
-    </div>
-  </main>
-</template>
-```
-
 登录页面采用了终端风格的设计，提供了账号密码登录、验证码登录、注册和密码重置等功能，满足不同用户的需求。
+![登录页面](./public/screenshots/login.jpg)
+在填写邮箱和密码时，我们使⽤正则表达式检测格式是否正确，并且对输入进行了过滤。
+```JavaScript
+  const isValidEmail = computed(() => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(formData.email);
+});
+
+// 邮箱输入过滤（只允许字母、数字、@、.、_、%、+、-）
+@input="formData.email = formData.email.replace(/[^a-zA-Z0-9@._%+-]/g, ''); clearError()"
+
+// 密码输入过滤（只允许ASCII可打印字符）
+@input="formData.password = formData.password.replace(/[^\x21-\x7E]/g, ''); clearError()"
+```
+点击登录按钮后，对表单进行提交处理。
+```JavaScript
+const handleSubmit = () => {
+  // 复用计算属性，消除重复验证逻辑
+  const isEmailValid = isValidEmail.value; 
+  const isPwdComplete = ['pwd', 'register', 'reset'].includes(authMode.value) ? formData.password.length > 0 : true;
+  const isCodeComplete = ['code', 'register', 'reset'].includes(authMode.value) ? formData.verifyCode.length === 6 : true;
+
+  if (!isEmailValid || !isPwdComplete || !isCodeComplete) {
+    if (errorTimer) clearTimeout(errorTimer);
+    authStatus.value = 'error'; 
+    errorTimer = setTimeout(() => {
+      authStatus.value = 'idle'; 
+    }, 1000);
+    return; 
+  }
+
+  authStatus.value = 'loading';
+  
+  loadingTimer = setTimeout(() => {
+    
+    if (formData.password === 'error') {
+      authStatus.value = 'error';
+      return; 
+    }
+
+    authStatus.value = 'success'; 
+    
+    if (['pwd', 'code'].includes(authMode.value)) {
+      userStore.login(formData.email);
+      actionTimer = setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
+    } else {
+      actionTimer = setTimeout(() => {
+        alert("操作指令已确立执行。");
+        switchMode('pwd');
+      }, 1000);
+    }
+
+  }, 1500);
+};
+```
+同时系统根据登录的情况会展示不同的动画效果。（登录成功、登录失败）
+登录成功
+![登录成功动画](./public/screenshots/login_yes.jpg)
+登录失败
+![登录失败动画](./public/screenshots/login_no.jpg)
+
 
 ##### 3.2.3.2 主界面
-主界面是系统的核心页面，包含导航菜单和各种功能模块。以下是核心实现：
+主界面是系统的核心页面，包含导航菜单和统计数据展示板。
+![主界面](./public/screenshots/home.jpg)
+
 
 ```vue
 <template>
@@ -684,7 +583,7 @@ HUD视觉元素：
       <div class="nav-left">
         <div class="logo">
           <span class="bracket">&lt;</span>
-          <span class="sys-name">SPANS</span>
+          <span class="sys-name">BridgeEye</span>
           <span class="sys-version"></span>
           <span class="bracket">/&gt;</span>
         </div>
@@ -742,8 +641,8 @@ const userStore = useUserStore()
 // 导航菜单配置项数组
 const menu = [
   { path: '/dashboard', name: '首页', icon: 'bx-data' },
-  { path: '/diagnose', name: '诊断系统', icon: 'bx-radar' },
-  { path: '/history', name: '历史记录', icon: 'bx-history' },
+  { path: '/diagnose', name: '智能诊断', icon: 'bx-radar' },
+  { path: '/history', name: '历史档案', icon: 'bx-history' },
   { path: '/profile', name: '用户资料', icon: 'bx-slider-alt' }
 ]
 
@@ -754,22 +653,319 @@ const navigateTo = (path) => {
 </script>
 ```
 
-主界面采用了赛博朋克风格的导航栏，提供了清晰的功能入口，方便用户快速访问系统的各个模块。
+主界面采用了科幻风格的导航栏，提供了清晰的功能入口，方便用户快速访问系统的各个模块。同时有展示板展示当前统计数据
 
 ##### 3.2.3.3 检测页面
-检测页面是系统的核心功能页面，用于上传桥梁图像并进行病害检测。以下是核心实现：
+检测页面是系统的核心功能页面，用于上传桥梁图像并进行病害检测。
+![检测页面](./public/screenshots/detect.jpg)
+文件上传模块支持批量上传，用户可以一次上传多张图像或zip文件进行检测。
+```javascript
+// 基本状态管理
+const fileInput = ref(null);
+const isDragging = ref(false);       
+const status = ref('idle');          
+const uploadedFiles = ref([]);       
+//文件上传触发
+const triggerFileInput = () => { 
+  if (status.value === 'idle') fileInput.value.click(); 
+};
+//拖拽处理
+const handleDrop = (e) => { 
+  isDragging.value = false; 
+  if (status.value !== 'idle') return; 
+  if (e.dataTransfer.files.length > 0) processFiles(e.dataTransfer.files); 
+};
+//文件选择处理
+const handleFileSelect = (e) => { 
+  if (e.target.files.length > 0) processFiles(e.target.files); 
+  e.target.value = ''; 
+};
+//文件处理
+const processFiles = (files) => {
+  const maxSize = 50 * 1024 * 1024;
+  Array.from(files).forEach(file => {
+    if (file.size > maxSize) return alert(`SYSTEM_WARN: 文件 ${file.name} 超过 50MB。`);
+    if (!uploadedFiles.value.some(f => f.name === file.name)) uploadedFiles.value.push(file);
+  });
+};
+//文件大小格式化
+const formatSize = (bytes) => {
+  if (bytes === 0) return '0 B';
+  const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'], i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+//文件分析开始
+const startAnalysis = () => {
+  if (uploadedFiles.value.length === 0 || status.value !== 'idle') return;
+  status.value = 'analyzing';
+  
+  analyzeTimer = setTimeout(() => {
+    if (isLeaving.value) return;
+    status.value = 'success';
+    successTimer = setTimeout(() => { openReportModal(); }, 1200);
+  }, 3000);
+};
 
-XXX
+```
+检测完成后，系统会生成检测报告，包含检测结果、病害类型、风险等级等信息，并以单独页面展示。
+![检测报告](./public/screenshots/report.jpg)
+该页面包含影像观测、AI报告、导出报告等功能。用户可以根据需要查看和分析检测结果，同时也可以导出报告进行进一步的分析和分享。以下是核心实现：
+![影像观测](./public/screenshots/pic.jpg)
+```javascript
+// 图片轮播控制
+const currentImageIndex = ref(0);
+
+const nextImage = () => { 
+  if (currentImageIndex.value < resultImages.value.length - 1) currentImageIndex.value++; 
+  else currentImageIndex.value = 0; 
+};
+
+const prevImage = () => { 
+  if (currentImageIndex.value > 0) currentImageIndex.value--; 
+  else currentImageIndex.value = resultImages.value.length - 1; 
+};
+
+const setCurrentImage = (idx) => { 
+  currentImageIndex.value = idx; 
+};
+
+// 图片缩放功能
+const showZoomModal = ref(false);
+const zoomedImageUrl = ref('');
+
+// 变换状态
+const zoomScale = ref(1);
+const panX = ref(0);
+const panY = ref(0);
+
+// 拖拽控制变量
+const isPanning = ref(false);
+let startMouseX = 0;
+let startMouseY = 0;
+let initialPanX = 0;
+let initialPanY = 0;
+
+const openZoomModal = (url) => {
+    zoomedImageUrl.value = url;
+    showZoomModal.value = true;
+    resetZoom();
+};
+
+const closeZoomModal = () => {
+    showZoomModal.value = false;
+    zoomedImageUrl.value = '';
+    stopPan();
+};
+
+const resetZoom = () => {
+    zoomScale.value = 1;
+    panX.value = 0;
+    panY.value = 0;
+};
+
+// 滚轮缩放事件
+const handleZoomWheel = (e) => {
+    // 缩放灵敏度
+    const zoomSensitivity = 0.0015;
+    const delta = -e.deltaY * zoomSensitivity;
+    let newScale = zoomScale.value + delta;
+    
+    // 限制缩放比例范围 10% - 800%
+    newScale = Math.max(0.1, Math.min(newScale, 8));
+    zoomScale.value = newScale;
+};
+
+// 开始拖拽
+const startPan = (e) => {
+    isPanning.value = true;
+    startMouseX = e.clientX;
+    startMouseY = e.clientY;
+    initialPanX = panX.value;
+    initialPanY = panY.value;
+    window.addEventListener('mousemove', onPan);
+    window.addEventListener('mouseup', stopPan);
+};
+
+// 拖拽中
+const onPan = (e) => {
+    if (!isPanning.value) return;
+    panX.value = initialPanX + (e.clientX - startMouseX);
+    panY.value = initialPanY + (e.clientY - startMouseY);
+};
+
+// 停止拖拽
+const stopPan = () => {
+    isPanning.value = false;
+    window.removeEventListener('mousemove', onPan);
+    window.removeEventListener('mouseup', stopPan);
+};
+
+```
+![AI报告](./public/screenshots/AI.jpg)
+```javascript
+// AI 报告状态
+const showAiSummary = ref(false);
+
+// 切换 AI 报告显示
+const toggleAiSummary = () => {
+  showAiSummary.value = !showAiSummary.value;
+};
+
+// 当前图片数据计算
+const currentImageData = computed(() => resultImages.value[currentImageIndex.value] || null);
+
+```
+![导出报告](./public/screenshots/file.jpg)
+```javascript
+// 导出状态
+const isExporting = ref(false);
+
+// PDF 导出
+const downloadPDF = async () => {
+  if (isExporting.value) return;
+  isExporting.value = true;
+  
+  setTimeout(() => {
+    const element = document.getElementById('pdf-pure-template');
+    const opt = {
+      margin:       10,
+      filename:     `BridgeEye_Diagnostic_Report_${new Date().getTime()}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#020810', windowWidth: 800 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      isExporting.value = false;
+    }).catch(err => {
+      console.error('PDF Generation Error:', err);
+      isExporting.value = false;
+    });
+
+  }, 800); 
+};
+
+```
 
 ##### 3.2.3.4 历史记录页面
-历史记录页面用于查看和管理历史检测记录。以下是核心实现：
+![历史记录](./public/screenshots/history.jpg)
+历史记录页面用于查看和管理历史检测记录。每条记录展开后与检测报告页面相同，这里不再赘述。以下是历史记录管理的核心功能实现：
+```javascript
+import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
+import html2pdf from 'html2pdf.js'
+import { useHistoryStore } from '@/stores/history'
 
-XXX
+// 状态管理
+const historyStore = useHistoryStore()
+const selectedIds = ref([])
+const selectAll = ref(false)
 
-##### 3.2.3.5 系统设置页面
-系统设置页面用于管理用户信息和系统配置。以下是核心实现：
+// HUD Report (查看报告详情)相关状态
+const showReportModal = ref(false)
+const selectedRecord = ref(null)
+const showAiSummary = ref(false)
+const currentImageIndex = ref(0)
+const resultImages = ref([])
+const isExporting = ref(false)
 
-XXX
+// 动态获取当前活动图片的数据（支持独立展示）
+const currentImageData = computed(() => {
+  return resultImages.value[currentImageIndex.value] || null;
+});
+
+// 样式动态计算
+const riskScoreClass = computed(() => {
+    const score = currentImageData.value?.reportData?.risk_score || 0;
+    if (score >= 80) return 'text-red';
+    if (score >= 60) return 'text-orange';
+    return 'text-green';
+});
+
+// 数据转换 Helper
+const getClassName = (c) => ({ crack: '裂缝', efflorescence: '泛碱', 'exposed rebar': '钢筋裸露', spalling: '剥落' }[c] || c)
+
+// 初始化时从本地加载记录
+onMounted(() => {
+  historyStore.loadHistoryRecords()
+})
+
+// 清理事件监听
+onBeforeUnmount(() => {
+  window.removeEventListener('mousemove', onPan)
+  window.removeEventListener('mouseup', stopPan)
+})
+
+```
+##### 3.2.3.5 用户资料页面
+![用户资料](./public/screenshots/system.jpg)
+用户资料页面用于查看和管理用户信息。以下是核心实现：
+```javascript
+<script setup>
+import { ref, onMounted, computed, watch } from 'vue'
+import { useUserStore } from '@/stores/user'
+
+// 引入全局用户状态仓库
+const userStore = useUserStore()
+const fileInput = ref(null)
+const avatarUrl = ref('')
+
+// 本地表单状态，用于和原始数据做对比
+const userForm = ref({ username: '', phone: '' })
+const originalUserInfo = ref({})
+
+// 页面加载时初始化数据
+onMounted(() => {
+  userStore.loadUserInfo()
+  avatarUrl.value = userStore.avatar
+  userForm.value = {
+    username: userStore.username,
+    phone: userStore.phone
+  }
+  // 保存一份原始数据的拷贝，用于判断是否有修改
+  originalUserInfo.value = { ...userForm.value }
+})
+
+// 监听跨组件的头像数据变化
+watch(() => userStore.avatar, (newAvatar) => { 
+  avatarUrl.value = newAvatar 
+})
+
+// 触发隐藏的 input 框点击事件
+const triggerAvatarUpload = () => { 
+  fileInput.value.click() 
+}
+
+// 处理头像上传：将图片转为 Base64 格式保存在本地
+const handleAvatarUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const base64 = e.target.result
+      avatarUrl.value = base64
+      userStore.updateUserInfo({ avatar: base64 }) // 立即更新到 Store 同步全局
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+// 动态计算属性：验证表单数据是否发生变化，以控制按钮的禁用状态
+const hasChanges = computed(() => {
+  return JSON.stringify(userForm.value) !== JSON.stringify(originalUserInfo.value)
+})
+
+// 保存修改的用户信息
+const saveUserInfo = () => {
+  if (hasChanges.value) {
+    userStore.updateUserInfo(userForm.value)
+    // 更新完成后重新对齐原始数据基准
+    originalUserInfo.value = { ...userForm.value }
+  }
+}
+</script>
+```
+
 
 
         

@@ -346,7 +346,7 @@ const currentImageIndex = ref(0);
 const resultImages = ref([
   { 
     name: 'IMG_CORE_01_裂缝侦测.jpg', 
-    url: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&q=80&w=800&h=450',
+    url: '/result1.jpg',
     reportData: {
         total_defect_count: 4,
         risk_score: 85, 
@@ -367,7 +367,7 @@ const resultImages = ref([
   },
   { 
     name: 'IMG_CORE_02_泛碱透视.jpg', 
-    url: 'https://images.unsplash.com/photo-1590483736622-398b6ea46b41?auto=format&fit=crop&q=80&w=800&h=450',
+    url: '/result2.jpg',
     reportData: {
         total_defect_count: 3,
         risk_score: 45,
@@ -388,7 +388,7 @@ const resultImages = ref([
   },
   { 
     name: 'IMG_CORE_03_复合病害.jpg', 
-    url: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800&h=450',
+    url: '/result3.jpg',
     reportData: {
         total_defect_count: 2,
         risk_score: 95,
