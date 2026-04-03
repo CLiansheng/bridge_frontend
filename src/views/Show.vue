@@ -1503,15 +1503,15 @@ const startEnterSystem = () => {
   .info-text-highlight {
     font-size: 16px !important;
     font-weight: bold;
-    color: rgb(0, 229, 255,) !important;
+    color: #00e5ff !important;
     text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
     margin-bottom: 20px !important;
   }
 
   .info-image-placeholder {
-    width: 350px;
+    width: 300px;
     height: 200px;
-    background: linear-gradient(45deg, rgba(0, 229, 255, 0.6), rgba(0, 229, 255, 0.05));
+    background: linear-gradient(45deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05));
     border: 1px solid rgba(0, 229, 255, 0.2);
     border-radius: 8px;
     position: relative;

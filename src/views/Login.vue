@@ -25,7 +25,7 @@
               {{ authStatus === 'success' ? 'ACCESS_GRANTED' : (authStatus === 'error' ? 'ACCESS_DENIED' : 'SYS_LOCKED') }}
             </div>
             <h1 class="glitch-text" data-text="BridgeEye">BridgeEye</h1>
-            <p class="subtitle">桥梁病害诊断中心</p>
+            <p class="subtitle">桥梁病害诊断系统</p>
             <div class="header-divider"></div>
           </div>
 
@@ -55,14 +55,13 @@
             <div class="input-group">
               <input 
                 type="tel" 
-                id="phone" 
-                v-model="formData.phone" 
-                maxlength="11"
+                id="email" 
+                v-model="formData.email" 
                 placeholder=" "
                 autocomplete="off"
-                @input="formData.phone = formData.phone.replace(/[^\d]/g, ''); clearError()"
+                @input="formData.email = formData.email.replace(/[^a-zA-Z0-9@._%+-]/g, ''); clearError()"
               >
-              <label for="phone">请输入手机号码</label>
+              <label for="email">请输入电子邮箱</label>
               <div class="input-energy-bar"></div>
               <div class="input-corner"></div>
             </div>
@@ -81,7 +80,7 @@
               <button 
                 type="button" 
                 class="send-code-btn" 
-                :disabled="countdown > 0 || !isValidPhone"
+                :disabled="countdown > 0 || !isValidEmail"
                 @click="sendCode"
               >
                 {{ countdown > 0 ? `[ T-${countdown}s ]` : '[ 获取验证码 ]' }}
@@ -147,7 +146,11 @@
           <div class="terminal-footer">
             <div class="status-dot"></div>
             <span>
-              {{ authStatus === 'error' ? 'WARNING: 账号或密码错误' : 'AWAITING...' }}
+              {{ 
+                authStatus === 'error' 
+                  ? (['register', 'reset', 'code'].includes(authMode) ? 'WARNING: 验证码错误' : 'WARNING: 账号或密码错误') 
+                  : 'AWAITING...' 
+              }}
             </span>
           </div>
 
@@ -159,7 +162,7 @@
 
 <script setup>
 import { useUserStore } from '@/stores/user';
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -167,49 +170,39 @@ const userStore = useUserStore();
 
 // ================= 状态管理 =================
 
-// 记录当前表单模式：'pwd'(密码), 'code'(验证码), 'register'(注册), 'reset'(重置)
 const authMode = ref('pwd'); 
-
-// 记录整个终端的状态：'idle'(正常), 'loading'(请求后端中), 'success'(绿屏), 'error'(报错红屏)
 const authStatus = ref('idle'); 
-
-// 验证码倒计时相关
 const countdown = ref(0);
-let timer = null;
 
-// 表单核心数据绑定
+// 定时器引用，防止内存泄漏和路由跳转导致的报错
+let timer = null; 
+let errorTimer = null;
+let loadingTimer = null;
+let actionTimer = null;
+
 const formData = reactive({
-  phone: '',
+  email: '',
   password: '',
   verifyCode: ''
 });
 
-// 密码框小眼睛开关状态
 const showPassword = ref(false);
 
 // ================= 核心业务方法 =================
 
-/**
- * 清除错误状态
- * 只要用户在任意输入框里打字，就把面板的红色报错状态重置为正常(idle)
- */
 const clearError = () => {
+  // 清除未执行完的错误恢复定时器，防止状态竞态闪烁
+  if (errorTimer) clearTimeout(errorTimer);
   if (authStatus.value === 'error') {
     authStatus.value = 'idle';
   }
 };
 
-/**
- * 实时监控手机号是否符合 11 位数字格式，用于判断“获取验证码”按钮是否可点
- */
-const isValidPhone = computed(() => {
-  // 因为输入时已经过滤了非数字，这里只需判断长度是否够 11 位即可
-  return formData.phone.length === 11;
+const isValidEmail = computed(() => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(formData.email);
 });
 
-/**
- * 动态计算大按钮上显示的文字
- */
 const submitButtonText = computed(() => {
   if (authStatus.value === 'loading') return 'PROCESSING...';
   if (authStatus.value === 'success') return 'SYSTEM_UNLOCKED';
@@ -222,25 +215,23 @@ const submitButtonText = computed(() => {
   }
 });
 
-/**
- * 切换业务模式 (登录/注册/找回)
- */
 const switchMode = (mode) => {
   authMode.value = mode;
-  // 切换模式时清空敏感数据和状态
   formData.password = '';
   formData.verifyCode = '';
   authStatus.value = 'idle';
   showPassword.value = false;
+  
+  // 切换模式时重置验证码倒计时和报错状态
+  countdown.value = 0;
+  if (timer) clearInterval(timer);
+  if (errorTimer) clearTimeout(errorTimer);
 };
 
-/**
- * 发送验证码点击事件
- */
 const sendCode = () => {
-  if (countdown.value > 0 || !isValidPhone.value) return;
+  if (countdown.value > 0 || !isValidEmail.value) return;
   
-  console.log('Sending code to:', formData.phone); 
+  console.log('Sending code to:', formData.email); 
   
   countdown.value = 60;
   timer = setInterval(() => {
@@ -251,46 +242,39 @@ const sendCode = () => {
   }, 1000);
 };
 
-/**
- * 核心提交逻辑
- */
 const handleSubmit = () => {
-  // 1. 判断该填的有没有填完
-  const isPhoneComplete = formData.phone.length === 11;
+  // 复用计算属性，消除重复验证逻辑
+  const isEmailValid = isValidEmail.value; 
   const isPwdComplete = ['pwd', 'register', 'reset'].includes(authMode.value) ? formData.password.length > 0 : true;
   const isCodeComplete = ['code', 'register', 'reset'].includes(authMode.value) ? formData.verifyCode.length === 6 : true;
 
-  // 如果有没填完的，触发红屏震动，并且震动完后不自动恢复 (必须等用户重新输入才恢复)
-  if (!isPhoneComplete || !isPwdComplete || !isCodeComplete) {
-    authStatus.value = 'error';
-    return; // 直接拦截，不发请求
+  if (!isEmailValid || !isPwdComplete || !isCodeComplete) {
+    if (errorTimer) clearTimeout(errorTimer);
+    authStatus.value = 'error'; 
+    errorTimer = setTimeout(() => {
+      authStatus.value = 'idle'; 
+    }, 1000);
+    return; 
   }
 
-  // 2. 格式完整，进入请求状态
   authStatus.value = 'loading';
   
-  // 模拟发送网络请求给后端 (1.5 秒延迟)
-  setTimeout(() => {
+  loadingTimer = setTimeout(() => {
     
-    // 【模拟后端告知：账号或密码错误】
-    // 测试逻辑：当输入的密码是 'error' 时触发
     if (formData.password === 'error') {
-      authStatus.value = 'error'; // 变成红屏，并显示底部的 WARNING 文字
+      authStatus.value = 'error';
       return; 
     }
 
-    // ================= 验证成功逻辑 =================
-    authStatus.value = 'success'; // 变成绿屏
+    authStatus.value = 'success'; 
     
     if (['pwd', 'code'].includes(authMode.value)) {
-      // 登录成功，记录缓存并跳转
-      userStore.login(formData.phone);
-      setTimeout(() => {
+      userStore.login(formData.email);
+      actionTimer = setTimeout(() => {
         router.push('/dashboard');
       }, 1000);
     } else {
-      // 注册或重置成功
-      setTimeout(() => {
+      actionTimer = setTimeout(() => {
         alert("操作指令已确立执行。");
         switchMode('pwd');
       }, 1000);
@@ -298,10 +282,18 @@ const handleSubmit = () => {
 
   }, 1500);
 };
+
+// ================= 生命周期钩子 =================
+// 组件销毁前彻底清理所有后台跑动的定时器
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+  if (errorTimer) clearTimeout(errorTimer);
+  if (loadingTimer) clearTimeout(loadingTimer);
+  if (actionTimer) clearTimeout(actionTimer);
+});
 </script>
 
 <style scoped>
-
 /* 彻底隐藏浏览器原生自带的密码小眼睛和清除按钮 */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
@@ -830,7 +822,7 @@ input::-webkit-credentials-auto-fill-button {
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* ================= 认证状态动效 (成功绿屏 / 失败红屏) ================= */
+/* ================= 认证状态动效 ================= */
 
 /* 当系统识别为 error 状态时，全局强制染红所有输入框 */
 .auth-terminal.is-error .input-group input {
@@ -910,7 +902,6 @@ input::-webkit-credentials-auto-fill-button {
 }
 
 /* 2. 失败 红色警戒态 + 左右物理跳动受击反馈 */
-/* both 保证动画结束后，框体位置锁定在原始坐标不重置偏移，防止重绘冲突 */
 .auth-terminal.is-error {
   animation: terminalErrorShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   border-color: #ff3333;
@@ -1000,7 +991,6 @@ input::-webkit-credentials-auto-fill-button {
   }
 }
 
-/* 失败时的左右抖动动效 (确保 0% 和 100% 都是原始坐标) */
 @keyframes terminalErrorShake {
   0%, 100% {
     transform: translate3d(0, 0, 0);
