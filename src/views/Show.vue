@@ -172,7 +172,7 @@
                 <p>我们的目标是利用AI技术提升桥梁检测的效率和准确性，为桥梁安全保驾护航。</p>
               </div>
               <div class="info-image-placeholder large">
-                <img src="../../public/BridgeEye.jpg" alt="BridgeEye" class="feature-img">
+                <img src="/BridgeEye.jpg" alt="BridgeEye" class="feature-img">
               </div>
             </div>
           </section>
@@ -186,40 +186,48 @@
             </div>
             <div class="section-content">
               <div class="feature-grid enhanced">
-                <div class="feature-item feature-item-1">
-                  <div class="feature-image">
-                    <img src="../../public/feature1.jpg" alt="智能病害检测" class="feature-img">
-                  </div>
-                  <div class="feature-text">
-                    <h4>智能病害检测</h4>
-                    <p>利用AI算法自动识别多种桥梁病害类型</p>
-                  </div>
-                </div>
-                <div class="feature-item feature-item-2">
-                  <div class="feature-image">
-                    <img src="../../public/feature2.png" alt="风险等级评估" class="feature-img">
-                  </div>
-                  <div class="feature-text">
-                    <h4>风险等级评估</h4>
-                    <p>根据病害严重程度评估风险等级</p>
+                <div class="feature-item-wrapper">
+                  <div class="feature-item feature-item-1">
+                    <div class="feature-image">
+                      <img src="/feature1.jpg" alt="智能病害检测" class="feature-img">
+                    </div>
+                    <div class="feature-text">
+                      <h4>智能病害检测</h4>
+                      <p>利用AI算法自动识别多种桥梁病害类型</p>
+                    </div>
                   </div>
                 </div>
-                <div class="feature-item feature-item-3">
-                  <div class="feature-image">
-                    <img src="../../public/feature3.jpg" alt="历史记录管理" class="feature-img">
-                  </div>
-                  <div class="feature-text">
-                    <h4>历史记录管理</h4>
-                    <p>存储和管理历史诊断记录</p>
+                <div class="feature-item-wrapper">
+                  <div class="feature-item feature-item-2">
+                    <div class="feature-image">
+                      <img src="/feature2.png" alt="风险等级评估" class="feature-img">
+                    </div>
+                    <div class="feature-text">
+                      <h4>风险等级评估</h4>
+                      <p>根据病害严重程度评估风险等级</p>
+                    </div>
                   </div>
                 </div>
-                <div class="feature-item feature-item-4">
-                  <div class="feature-image">
-                    <img src="../../public/feature4.jpg" alt="报告生成" class="feature-img">
+                <div class="feature-item-wrapper">
+                  <div class="feature-item feature-item-3">
+                    <div class="feature-image">
+                      <img src="/feature3.jpg" alt="历史记录管理" class="feature-img">
+                    </div>
+                    <div class="feature-text">
+                      <h4>历史记录管理</h4>
+                      <p>存储和管理历史诊断记录</p>
+                    </div>
                   </div>
-                  <div class="feature-text">
-                    <h4>报告生成</h4>
-                    <p>自动生成详细的诊断报告</p>
+                </div>
+                <div class="feature-item-wrapper">
+                  <div class="feature-item feature-item-4">
+                    <div class="feature-image">
+                      <img src="/feature4.jpg" alt="报告生成" class="feature-img">
+                    </div>
+                    <div class="feature-text">
+                      <h4>报告生成</h4>
+                      <p>自动生成详细的诊断报告</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -238,7 +246,7 @@
                 <div class="step-item step-item-1">
                   <div class="step-number">1</div>
                   <div class="step-image">
-                    <img src="../../public/step1.jpg" alt="上传图片" class="step-img">
+                    <img src="/step1.jpg" alt="上传图片" class="step-img">
                   </div>
                   <div class="step-content">
                     <h4>上传图片</h4>
@@ -251,7 +259,7 @@
                 <div class="step-item step-item-2">
                   <div class="step-number">2</div>
                   <div class="step-image">
-                    <img src="../../public/step2.jpg" alt="AI分析" class="step-img">
+                    <img src="/step2.jpg" alt="AI分析" class="step-img">
                   </div>
                   <div class="step-content">
                     <h4>AI分析</h4>
@@ -264,7 +272,7 @@
                 <div class="step-item step-item-3">
                   <div class="step-number">3</div>
                   <div class="step-image">
-                    <img src="../../public/step3.jpg" alt="查看报告" class="step-img">
+                    <img src="/step3.jpg" alt="查看报告" class="step-img">
                   </div>
                   <div class="step-content">
                     <h4>查看报告</h4>
@@ -287,7 +295,7 @@
                 <div class="scenario-item scenario-item-1">
                   <div class="scenario-content">
                     <div class="scenario-image">
-                      <img src="../../public/scenario1.jpg" alt="桥梁定期检测" class="scenario-img">
+                      <img src="/scenario1.jpg" alt="桥梁定期检测" class="scenario-img">
                     </div>
                     <div class="scenario-text">
                       <h4>桥梁定期检测</h4>
@@ -298,7 +306,7 @@
                 <div class="scenario-item scenario-item-2">
                   <div class="scenario-content reverse">
                     <div class="scenario-image">
-                      <img src="../../public/scenario2.jpg" alt="灾后评估" class="scenario-img">
+                      <img src="/scenario2.jpg" alt="灾后评估" class="scenario-img">
                     </div>
                     <div class="scenario-text">
                       <h4>灾后评估</h4>
@@ -309,7 +317,7 @@
                 <div class="scenario-item scenario-item-3">
                   <div class="scenario-content">
                     <div class="scenario-image">
-                      <img src="../../public/scenario3.jpg" alt="维护决策" class="scenario-img">
+                      <img src="/scenario3.jpg" alt="维护决策" class="scenario-img">
                     </div>
                     <div class="scenario-text">
                       <h4>维护决策</h4>
@@ -320,7 +328,7 @@
                 <div class="scenario-item scenario-item-4">
                   <div class="scenario-content reverse">
                     <div class="scenario-image">
-                      <img src="../../public/scenario4.jpg" alt="长期监测" class="scenario-img">
+                      <img src="/scenario4.jpg" alt="长期监测" class="scenario-img">
                     </div>
                     <div class="scenario-text">
                       <h4>长期监测</h4>
@@ -1543,6 +1551,7 @@ const startEnterSystem = () => {
     grid-template-columns: repeat(2, 1fr);
     gap: 30px;
     width: 100%;
+    perspective: 1000px;
   }
 
   .feature-grid.enhanced {
@@ -1562,7 +1571,6 @@ const startEnterSystem = () => {
     position: relative;
     overflow: hidden;
     min-height: 300px;
-    transform: perspective(1000px) rotateY(0deg);
   }
 
   .feature-item::before {
@@ -1577,18 +1585,24 @@ const startEnterSystem = () => {
     z-index: 1;
   }
 
-  .feature-item:hover {
-    transform: perspective(1000px) rotateY(5deg) translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 229, 255, 0.2);
-  }
+.feature-item-wrapper {
+  width: 100%;
+  height: 100%;
+  transition: all 0.3s ease;
+}
 
-  .feature-item-2:hover {
-    transform: perspective(1000px) rotateY(-5deg) translateY(-8px);
-  }
+.feature-item-wrapper:hover .feature-item {
+  transform: perspective(1000px) rotateY(5deg) translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 229, 255, 0.2);
+}
 
-  .feature-item-4:hover {
-    transform: perspective(1000px) rotateY(-5deg) translateY(-8px);
-  }
+.feature-item-wrapper:hover .feature-item-2 {
+  transform: perspective(1000px) rotateY(-5deg) translateY(-8px);
+}
+
+.feature-item-wrapper:hover .feature-item-4 {
+  transform: perspective(1000px) rotateY(-5deg) translateY(-8px);
+}
 
   /* 不同功能项的颜色 */
   .feature-item-1 {
@@ -1619,11 +1633,6 @@ const startEnterSystem = () => {
     overflow: hidden;
     background: linear-gradient(45deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05));
     border: 1px solid rgba(0, 229, 255, 0.2);
-    transition: all 0.3s ease;
-  }
-
-  .feature-item:hover .feature-image {
-    transform: scale(1.05);
   }
 
   .feature-img {
