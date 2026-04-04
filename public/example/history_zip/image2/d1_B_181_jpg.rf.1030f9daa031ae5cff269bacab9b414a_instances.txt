@@ -1,0 +1,15 @@
+image_name: d1_B_181_jpg.rf.1030f9daa031ae5cff269bacab9b414a
+
+process_time：141ms
+
+total_instances: 1
+
+per_class_count:
+  0 (Crack): 0
+  1 (Efflorescence): 0
+  2 (Exposed_Rebar): 1
+  3 (Spalling): 0
+
+instance_details:
+instance_id，class_id，class_name，confidence，bbox[x1，y1，x2，y2]，center[cx，cy]，lengh，width
+0，2，Exposed_Rebar，0.720479，[25.22，0.90，631.92，639.33]，[328.57，320.12]，0.35，0.24

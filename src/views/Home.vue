@@ -91,11 +91,14 @@ const totalDefects = computed(() => {
   return historyStore.historyRecords.reduce((sum, record) => sum + (record.defectCount || 0), 0);
 });
 
-// 历史高风险预警总数
+// 历史高风险预警总数 (🔴 修复：遍历每条记录的 resultImages 数组)
 const highRiskAlerts = computed(() => {
   return historyStore.historyRecords.reduce((sum, record) => {
-    const high = record.reportData?.task_summary?.risk_distribution?.high || 0;
-    return sum + high;
+    // 累加该次任务中，所有图片的高危病害数量
+    const recordHighRisk = (record.resultImages || []).reduce((imgSum, img) => {
+      return imgSum + (img.reportData?.risk_distribution?.high || 0);
+    }, 0);
+    return sum + recordHighRisk;
   }, 0);
 });
 
@@ -108,16 +111,13 @@ let riskChartInstance = null;
 // ================= 初始化与渲染 =================
 onMounted(() => {
   // 确保数据已加载
-  if (historyStore.historyRecords.length === 0) {
-    historyStore.loadHistoryRecords();
-  }
+  historyStore.loadHistoryRecords();
   
   // 延迟一帧等待 DOM 挂载完毕后初始化图表
   nextTick(() => {
     initCharts();
   });
 
-  // 关键修复 2: 绑定 resize 监听器，在全屏或缩小窗口时强行更新图表，防止混乱
   window.addEventListener('resize', handleResize);
 });
 
@@ -132,13 +132,11 @@ watch(() => historyStore.historyRecords, () => {
   initCharts();
 }, { deep: true });
 
-// 关键修复 3: 全屏或缩小窗口时的强行重绘逻辑
 const handleResize = () => {
   if (defectTypeChartInstance) defectTypeChartInstance.resize();
   if (riskChartInstance) riskChartInstance.resize();
 };
 
-// 返回顶部功能
 const scrollToTop = () => {
   window.scrollTo({
     top: 0,
@@ -148,67 +146,69 @@ const scrollToTop = () => {
 
 // ================= 核心图表绘制逻辑 =================
 const initCharts = () => {
+  // 1. 先销毁旧图表
   if (defectTypeChartInstance) defectTypeChartInstance.destroy();
   if (riskChartInstance) riskChartInstance.destroy();
 
   if (!defectTypeChartCanvas.value || !riskChartCanvas.value) return;
 
   const records = historyStore.historyRecords;
-  if (records.length === 0) return; // 无数据不渲染
-
-  // ====== 准备类别分布数据 ======
-  // 初始化累计变量
-  let totalCrack = 0, totalEfflorescence = 0, totalBare = 0, totalSpalling = 0;
   
-  // 统揽所有历史记录
-  records.forEach(r => {
-    const classCount = r.reportData?.task_summary?.class_count;
-    if (classCount) {
-      totalCrack += classCount.crack || 0;
-      totalEfflorescence += classCount.efflorescence || 0;
-      totalBare += classCount['exposed rebar'] || 0;
-      totalSpalling += classCount.spalling || 0;
-    }
-  });
-
-  // ====== 准备风险分布数据 ======
+  // ====== 准备类别分布数据 ======
+  let totalCrack = 0, totalEfflorescence = 0, totalBare = 0, totalSpalling = 0;
   let totalLow = 0, totalMedium = 0, totalHigh = 0;
-  records.forEach(r => {
-    const risk = r.reportData?.task_summary?.risk_distribution;
-    if (risk) {
-      totalLow += risk.low || 0;
-      totalMedium += risk.medium || 0;
-      totalHigh += risk.high || 0;
-    }
-  });
+
+  // 🔴 修复：双重遍历，先遍历档案，再遍历档案里的每一张影像
+  if (records.length > 0) {
+    records.forEach(r => {
+      (r.resultImages || []).forEach(img => {
+        // 类别累计
+        const classCount = img.reportData?.class_count;
+        if (classCount) {
+          totalCrack += classCount.crack || 0;
+          totalEfflorescence += classCount.efflorescence || 0;
+          totalBare += classCount['exposed rebar'] || 0;
+          totalSpalling += classCount.spalling || 0;
+        }
+        
+        // 风险累计
+        const risk = img.reportData?.risk_distribution;
+        if (risk) {
+          totalLow += risk.low || 0;
+          totalMedium += risk.medium || 0;
+          totalHigh += risk.high || 0;
+        }
+      });
+    });
+  }
 
   // ====== Chart.js 全局机甲风设定 ======
   Chart.defaults.color = 'rgba(0, 229, 255, 0.5)';
-  Chart.defaults.font.family = "'Roboto Mono Local', monospace";
+  Chart.defaults.font.family = " monospace";
 
   // ====== ⭐ 绘制类别分布柱状图 (Bar Chart) ======
   const ctxTrend = defectTypeChartCanvas.value.getContext('2d');
   const gradientTrend = ctxTrend.createLinearGradient(0, 0, 0, 300);
-  gradientTrend.addColorStop(0, 'rgba(0, 229, 255, 0.4)'); // 顶部高亮
-  gradientTrend.addColorStop(1, 'rgba(0, 229, 255, 0.0)'); // 底部消散
+  gradientTrend.addColorStop(0, 'rgba(0, 229, 255, 0.4)');
+  gradientTrend.addColorStop(1, 'rgba(0, 229, 255, 0.0)');
 
   defectTypeChartInstance = new Chart(defectTypeChartCanvas.value, {
     type: 'bar',
     data: {
-      labels: ['裂缝', '泛碱', '钢筋 bare', '剥落'],
+      labels: ['裂缝', '泛碱', '钢筋裸露', '剥落'],
       datasets: [{
         label: '累计发现数量',
         data: [totalCrack, totalEfflorescence, totalBare, totalSpalling],
         borderColor: '#00e5ff',
-        backgroundColor: gradientTrend, // 使用渐变填充
-        borderWidth: { top: 2, right: 1, bottom: 0, left: 1 }, // 只要顶部有清晰切边
-        borderRadius: 4,     // 顶部微小切角
-        barThickness: 24,    // 锁定柱状图宽度
+        backgroundColor: gradientTrend, 
+        borderWidth: { top: 2, right: 1, bottom: 0, left: 1 }, 
+        borderRadius: 4,     
+        barThickness: 24,    
       }]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false, // 关键修复 4: 强制图表跟随 Canvas 容器填满，不保持固定比例，防止崩坏
+      maintainAspectRatio: false, 
       plugins: { 
         legend: { display: false },
         tooltip: { backgroundColor: 'rgba(2,8,16,0.95)', titleColor: '#00e5ff', borderColor: '#00e5ff', borderWidth: 1 }
@@ -216,13 +216,11 @@ const initCharts = () => {
       scales: {
         y: { 
           beginAtZero: true, 
+          suggestedMax: records.length === 0 ? 5 : undefined,
           grid: { color: 'rgba(0, 229, 255, 0.1)', drawBorder: false }, 
-          ticks: { stepSize: 1, color: '#00e5ff' } 
+          ticks: { stepSize: 1, color: '#00e5ff', precision: 0 } 
         },
-        x: { 
-          grid: { display: false }, 
-          ticks: { color: '#00e5ff' } 
-        }
+        x: { grid: { display: false }, ticks: { color: '#00e5ff' } }
       }
     }
   });
@@ -233,8 +231,10 @@ const initCharts = () => {
     data: {
       labels: ['低风险(Low)', '中风险(Med)', '高风险(High)'],
       datasets: [{
-        data: [totalLow, totalMedium, totalHigh],
-        backgroundColor: ['rgba(0, 255, 170, 0.85)', 'rgba(255, 170, 0, 0.85)', 'rgba(255, 51, 51, 0.85)'],
+        data: records.length > 0 ? [totalLow, totalMedium, totalHigh] : [1],
+        backgroundColor: records.length > 0 
+          ? ['rgba(0, 255, 170, 0.85)', 'rgba(255, 170, 0, 0.85)', 'rgba(255, 51, 51, 0.85)'] 
+          : ['rgba(255, 255, 255, 0.05)'], 
         borderWidth: 0, 
         spacing: 5,     
         borderRadius: 10, 
@@ -243,17 +243,16 @@ const initCharts = () => {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false, // 关键修复 4
+      maintainAspectRatio: false, 
       cutout: '78%', 
       plugins: {
-        legend: { position: 'bottom', labels: { padding: 15, boxWidth: 10, usePointStyle: true, color: '#00e5ff' } },
-        tooltip: { backgroundColor: 'rgba(2,8,16,0.95)', bodyColor: '#fff', borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1 }
+        tooltip: { enabled: records.length > 0, backgroundColor: 'rgba(2,8,16,0.95)', bodyColor: '#fff', borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1 },
+        legend: { position: 'bottom', labels: { padding: 15, boxWidth: 10, usePointStyle: true, color: '#00e5ff' } }
       }
     }
   });
 };
 </script>
-
 <style scoped>
 /* ================= 页面根容器布局基础 ================= */
 .page-container { 
@@ -352,7 +351,7 @@ const initCharts = () => {
 }
 .label { 
   font-size: 12px; 
-  font-family: 'Roboto Mono Local', monospace; 
+  font-family:  monospace; 
   color: rgba(255, 255, 255, 0.6); 
   letter-spacing: 1px; 
   margin-bottom: 4px; 
@@ -440,7 +439,7 @@ const initCharts = () => {
 .chart-title { 
   user-select: none;
   color: #fff; 
-  font-family: 'Roboto Mono Local', monospace; 
+  font-family:  monospace; 
   font-size: 13px; 
   text-align: center; 
   margin-top: 0; 
@@ -478,7 +477,7 @@ const initCharts = () => {
   transform: translate(-50%, -50%); 
 }
 .core-label { 
-  font-family: 'Roboto Mono Local', monospace; 
+  font-family:  monospace; 
   font-size: 11px; 
   color: rgba(0, 229, 255, 0.6); 
   letter-spacing: 2px; 

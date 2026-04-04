@@ -1,0 +1,28 @@
+image_name: d1_A_-_05_17_jpg.rf.9d701fd3df4edd5e5dd126d10f359969
+
+process_time：181ms	//单张图片处理时间，单位ms
+
+total_instances: 4	//这张图片总共有4个实例
+
+per_class_count:	//每种病害的数量
+  0 (Crack): 0
+  1 (Efflorescence): 0
+  2 (Exposed_Rebar): 4
+  3 (Spalling): 0
+
+instance_details:	//以实例为研究对象的参数，一列一列对应起来的
+instance_id，class_id，class_name，confidence，bbox[x1，y1，x2，y2]，center[cx，cy]，lengh，width
+0，2，Exposed_Rebar，0.670133，[268.45，38.47，282.97，185.83]，[275.71，112.15]，0.21，0.03
+1，2，Exposed_Rebar，0.668960，[206.04，190.14，218.35，291.78]，[212.20，240.96]，0.29，0.03
+2，2，Exposed_Rebar，0.628367，[200.70，41.29，215.80，174.55]，[208.25，107.92]，0.25，0.03
+3，2，Exposed_Rebar，0.304150，[35.18，264.22，57.02，372.79]，[46.10，318.50]，0.26，0.02
+
+instance_id实例编号
+class_id病害类别编号
+class_name病害类别名称
+confidence置信度
+bbox[x1，y1，x2，y2]检测框
+center[cx，cy]中心点
+lengh物理长度，单位m
+width最大宽度，单位m
+

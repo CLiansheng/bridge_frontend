@@ -1,0 +1,15 @@
+image_name: d1_B_2328_jpg.rf.0c1fb8c29b7cc5d45044d4828ff13eb5
+
+process_time：144ms
+
+total_instances: 1
+
+per_class_count:
+  0 (Crack): 1
+  1 (Efflorescence): 0
+  2 (Exposed_Rebar): 0
+  3 (Spalling): 0
+
+instance_details:
+instance_id，class_id，class_name，confidence，bbox[x1，y1，x2，y2]，center[cx，cy]，lengh，width
+0，0，Crack，0.829203，[0.83，286.84，640.00，373.90]，[320.42，330.37]，1.53，0.02

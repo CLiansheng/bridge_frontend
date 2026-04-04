@@ -108,39 +108,27 @@
       </div>
     </div>
 
-    <button
-      class="initiate-btn"
-      @click="startEnterSystem"
-    >
-      <span class="btn-bracket">
-        [
-      </span>
-      <span class="btn-text">
-        启动系统
-      </span>
-      <span class="btn-bracket">
-        ]
-      </span>
-      <div class="btn-scan-line"></div>
-    </button>
-    
-    <!-- ================= 项目简介按钮 ================= -->
-    <button
-      class="initiate-btn"
-      @click="toggleInfo"
-    >
-      <span class="btn-bracket">
-        [
-      </span>
-      <span class="btn-text">
-        项目简介
-      </span>
-      <span class="btn-bracket">
-        ]
-      </span>
-      <div class="btn-scan-line"></div>
-    </button>
+    <div class="action-buttons-wrapper">
+      
+      <button
+        class="initiate-btn secondary-btn"
+        @click="startEnterSystem"
+      >
+        <span class="btn-bracket">[</span>
+        <span class="btn-text">启动系统</span>
+        <span class="btn-bracket">]</span>
+      </button>
+      
+      <button
+        class="initiate-btn"
+        @click="toggleInfo"
+      >
+        <span class="btn-bracket">[</span>
+        <span class="btn-text">项目简介</span>
+        <span class="btn-bracket">]</span>
+      </button>
 
+    </div>
     <!-- ================= 项目简介展开页面 ================= -->
     <div class="info-overlay" :class="{ 'open': isInfoOpen }">
       <div class="info-content">
@@ -153,23 +141,22 @@
         <div class="info-header">
           <h2 class="info-title">BridgeEye 桥梁病害诊断系统</h2>
           <button class="close-btn" @click="toggleInfo">
-            X
+              X
           </button>
         </div>
         
-        <div class="info-body">
-          <!-- 平台简介 -->
+<div class="info-body">
           <section class="info-section">
             <div class="section-header">
               <div class="section-border"></div>
-              <h3>平台简介</h3>
+              <h3>系统功能概览</h3>
               <div class="section-border"></div>
             </div>
             <div class="section-content">
               <div class="info-text">
-                <p class="info-text-highlight">BridgeEye 桥梁病害诊断系统是一款基于人工智能技术的桥梁结构健康监测与评估平台，旨在为桥梁维护提供高效、准确的病害诊断解决方案。</p>
-                <p>系统通过先进的计算机视觉技术，对桥梁表面图像进行智能分析，自动识别裂缝、泛碱、钢筋裸露、剥落等常见病害，并评估其风险等级。</p>
-                <p>我们的目标是利用AI技术提升桥梁检测的效率和准确性，为桥梁安全保驾护航。</p>
+                <p class="info-text-highlight">BridgeEye 桥梁智能巡检与全息诊断决策基座，是依托先进计算机视觉与多模态大语言模型打造的划时代桥梁基础设施病害检测平台。</p>
+                <p>面对传统桥梁巡检中“高危人工作业多、主观误判率高、海量数据追溯难”等行业级痛点，本系统开创性地引入了全新的 AI 专家研判引擎。我们将物理世界的桥梁实体与病害特征精准映射至数字空间，构筑了一条从“高清图像采集、毫秒级特征解析、多维风险定级”到“智能化养护策略生成”的端到端数据闭环。</p>
+                <p>这不仅是一套病害识别工具，更是面向未来交通枢纽的“预防性养护”数字大脑。BridgeEye 致力于打破数据孤岛，赋能交通管理部门实现从“被动抢修”向“主动干预”的战略跨越，实现运维成本的指数级降低与桥梁服役寿命的极限延伸。</p>
               </div>
               <div class="info-image-placeholder large">
                 <img src="../../public/BridgeEye.jpg" alt="BridgeEye" class="feature-img">
@@ -177,109 +164,58 @@
             </div>
           </section>
 
-          <!-- 核心功能 -->
           <section class="info-section">
             <div class="section-header">
               <div class="section-border"></div>
-              <h3>核心功能</h3>
+              <h3>核心业务引擎 (CORE ENGINES)</h3>
               <div class="section-border"></div>
             </div>
             <div class="section-content">
               <div class="feature-grid enhanced">
                 <div class="feature-item feature-item-1">
                   <div class="feature-image">
-                    <img src="../../public/feature1.jpg" alt="智能病害检测" class="feature-img">
+                    <img src="../../public/feature1.jpg" alt="多维视觉病害解析" class="feature-img">
                   </div>
                   <div class="feature-text">
-                    <h4>智能病害检测</h4>
-                    <p>利用AI算法自动识别多种桥梁病害类型</p>
+                    <h4>多维视觉解析引擎</h4>
+                    <p>突破复杂野外环境光与遮挡干扰，底层卷积神经网络能够精准锁定裂缝、泛碱、露筋等表观病害，毫米级提取病害几何特征、走向与形态分布参数。</p>
                   </div>
                 </div>
                 <div class="feature-item feature-item-2">
                   <div class="feature-image">
-                    <img src="../../public/feature2.png" alt="风险等级评估" class="feature-img">
+                    <img src="../../public/feature2.png" alt="AI Agent 智能研判" class="feature-img">
                   </div>
                   <div class="feature-text">
-                    <h4>风险等级评估</h4>
-                    <p>根据病害严重程度评估风险等级</p>
+                    <h4>AI 智能研判中枢</h4>
+                    <p>引入具备上下文逻辑思考能力的 AI 专家助手。系统将视觉提取指标与国家现行桥梁评定标准融合，进行多模态交叉演算，科学输出结构风险定级模型。</p>
                   </div>
                 </div>
                 <div class="feature-item feature-item-3">
                   <div class="feature-image">
-                    <img src="../../public/feature3.jpg" alt="历史记录管理" class="feature-img">
+                    <img src="../../public/feature3.jpg" alt="全息数字档案管线" class="feature-img">
                   </div>
                   <div class="feature-text">
-                    <h4>历史记录管理</h4>
-                    <p>存储和管理历史诊断记录</p>
+                    <h4>全息数字档案管线</h4>
+                    <p>沉淀桥梁全生命周期检测数据，构建防篡改、可追溯的历史病害知识库。通过交互式三维数据大屏，直观呈现全网桥梁健康指数与劣化趋势热力图。</p>
                   </div>
                 </div>
                 <div class="feature-item feature-item-4">
                   <div class="feature-image">
-                    <img src="../../public/feature4.jpg" alt="报告生成" class="feature-img">
+                    <img src="../../public/feature4.jpg" alt="标准化评估诊断书" class="feature-img">
                   </div>
                   <div class="feature-text">
-                    <h4>报告生成</h4>
-                    <p>自动生成详细的诊断报告</p>
+                    <h4>标准化决策诊断书</h4>
+                    <p>告别繁杂的人工报表编撰。系统可一键导出涵盖高分辨率病害图谱、量化指标矩阵及 AI 智能修复建议的综合诊断报告，为一线养护决策提供坚实数据背书。</p>
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          <!-- 操作流程 -->
           <section class="info-section">
             <div class="section-header">
               <div class="section-border"></div>
-              <h3>操作流程</h3>
-              <div class="section-border"></div>
-            </div>
-            <div class="section-content">
-              <div class="process-steps enhanced">
-                <div class="step-item step-item-1">
-                  <div class="step-number">1</div>
-                  <div class="step-image">
-                    <img src="../../public/step1.jpg" alt="上传图片" class="step-img">
-                  </div>
-                  <div class="step-content">
-                    <h4>上传图片</h4>
-                    <p>上传桥梁表面图像或ZIP压缩包</p>
-                  </div>
-                </div>
-                <div class="step-connector">
-                  <span>→</span>
-                </div>
-                <div class="step-item step-item-2">
-                  <div class="step-number">2</div>
-                  <div class="step-image">
-                    <img src="../../public/step2.jpg" alt="AI分析" class="step-img">
-                  </div>
-                  <div class="step-content">
-                    <h4>AI分析</h4>
-                    <p>系统自动分析识别病害</p>
-                  </div>
-                </div>
-                <div class="step-connector">
-                  <span>→</span>
-                </div>
-                <div class="step-item step-item-3">
-                  <div class="step-number">3</div>
-                  <div class="step-image">
-                    <img src="../../public/step3.jpg" alt="查看报告" class="step-img">
-                  </div>
-                  <div class="step-content">
-                    <h4>查看报告</h4>
-                    <p>查看详细的诊断报告</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- 应用场景 -->
-          <section class="info-section">
-            <div class="section-header">
-              <div class="section-border"></div>
-              <h3>应用场景</h3>
+              <h3>全场景应用赋能 (SCENARIOS)</h3>
               <div class="section-border"></div>
             </div>
             <div class="section-content">
@@ -287,44 +223,22 @@
                 <div class="scenario-item scenario-item-1">
                   <div class="scenario-content">
                     <div class="scenario-image">
-                      <img src="../../public/scenario1.jpg" alt="桥梁定期检测" class="scenario-img">
+                      <img src="../../public/scenario1.jpg" alt="例行巡检与健康建档" class="scenario-img">
                     </div>
                     <div class="scenario-text">
-                      <h4>桥梁定期检测</h4>
-                      <p>用于桥梁的定期健康检查，通过AI技术快速识别潜在病害，提高检测效率和准确性。系统能够自动分析桥梁表面图像，识别裂缝、腐蚀等常见病害，为桥梁维护提供科学依据。</p>
+                      <h4>桥梁例行巡检与数字建档</h4>
+                      <p>深度赋能路政及桥梁养护单位的日常巡检业务。依托高并发计算集群，BridgeEye 能够极速吞吐无人机及车载抓拍的海量表观图像，将非结构化的杂乱数据瞬间转化为标准化的病害台账。大幅降低人工登高、下水作业的安全风险与主观漏检率，为每一座桥梁建立伴随其全生命周期的超清数字健康档案。</p>
                     </div>
                   </div>
                 </div>
                 <div class="scenario-item scenario-item-2">
                   <div class="scenario-content reverse">
                     <div class="scenario-image">
-                      <img src="../../public/scenario2.jpg" alt="灾后评估" class="scenario-img">
+                      <img src="../../public/scenario2.jpg" alt="突发灾后结构快速评估" class="scenario-img">
                     </div>
                     <div class="scenario-text">
-                      <h4>灾后评估</h4>
-                      <p>自然灾害后快速评估桥梁损伤程度，为应急响应提供决策支持。系统能够在短时间内处理大量图像数据，评估桥梁结构完整性，帮助相关部门制定合理的修复方案。</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="scenario-item scenario-item-3">
-                  <div class="scenario-content">
-                    <div class="scenario-image">
-                      <img src="../../public/scenario3.jpg" alt="维护决策" class="scenario-img">
-                    </div>
-                    <div class="scenario-text">
-                      <h4>维护决策</h4>
-                      <p>为桥梁维护提供数据支持，基于AI分析结果生成维护建议。系统能够根据病害类型、严重程度和发展趋势，推荐最优维护方案，帮助管理部门合理分配资源。</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="scenario-item scenario-item-4">
-                  <div class="scenario-content reverse">
-                    <div class="scenario-image">
-                      <img src="../../public/scenario4.jpg" alt="长期监测" class="scenario-img">
-                    </div>
-                    <div class="scenario-text">
-                      <h4>长期监测</h4>
-                      <p>跟踪桥梁病害发展趋势，建立桥梁健康档案。通过定期检测和数据分析，系统能够预测病害发展方向，为桥梁的全生命周期管理提供支持。</p>
+                      <h4>突发自然灾害后结构快速评估</h4>
+                      <p>在面对地震、极寒冰雪、特大洪涝或超重车辆撞击等突发性公共事件后，生命线工程的恢复时间极度宝贵。本平台能够协助应急响应团队在震后/灾后 24 小时内完成受损数据的全面上云与解析，迅速量化桥梁承重结构的完好程度，为交通生命线的抢险保通提供最核心的量化决策依据。</p>
                     </div>
                   </div>
                 </div>
@@ -361,11 +275,11 @@ const toggleInfo = () => {
 
 // 展开页面返回顶部功能
 const scrollToTopInfo = () => {
-  const infoContent = document.querySelector('.info-content');
-  if (infoContent) {
-    infoContent.scrollTo({
+  const infoBody = document.querySelector('.info-body');
+  if (infoBody) {
+    infoBody.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: 'smooth' /* 触发浏览器原生丝滑滚动 */
     });
   }
 };
@@ -389,7 +303,7 @@ const startEnterSystem = () => {
   /* 定义局部 CSS 变量：主题青色、暗色背景、等宽字体族 */
   --show-cyan: rgba(0, 229, 255, 1);
   --show-cyan-dim: rgba(0, 229, 255, 0.3);
-  --font-mono: 'Roboto Mono Local', 'Courier New', Courier, monospace;
+  --font-mono: 'Courier New', Courier, monospace;
   /* 全屏绝对定位，阻止滚动 */
   position: absolute;
   top: 0;
@@ -977,53 +891,132 @@ const startEnterSystem = () => {
 }
 
 /* ================= 底部重型启动按钮 ================= */
-.initiate-btn {
-  margin-top: 50px;
+/* ================= 新增：底部横向按钮组容器 ================= */
+.action-buttons-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 50px;               /* 加大间距，让呼吸感更强 */
+  margin-top: 60px;
   z-index: 20;
+}
+
+/* ================= 核心机甲风按钮基类 (启动系统) ================= */
+.initiate-btn {
+  user-select: none;
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  padding: 18px 55px;
-  opacity: 0;
-  animation: fadeUp 1s 0.5s ease forwards;
-  background: rgba(4, 20, 32, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 229, 255, 0.3);
-  border-top: 1px solid rgba(0, 229, 255, 0.8);
-  border-bottom: 5px solid rgba(0, 100, 140, 0.9);
-  border-radius: 4px;
-  color: rgba(0, 229, 255, 1);
-  font-family: 'Roboto Mono', 'Courier New', Courier, monospace;
-  font-size: 18px;
+  min-width: 180px;
+  padding: 14px 35px;
+  /* 玻璃拟态：微弱的渐变底色 + 强效高斯模糊 */
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(2, 8, 16, 0.5) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 2px;
+  
+  color: rgba(0, 229, 255, 0.9);
+  /* 使用你标题的 Orbitron 字体，如果没有则回退到等宽字体 */
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
   font-weight: bold;
   letter-spacing: 4px;
   cursor: pointer;
-  overflow: hidden;
-  transition: all 0.15s ease-out;
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+  
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
 }
 
-.initiate-btn + .initiate-btn {
-  margin-top: 35px;
+/* 按钮四个角的“锁定准星”修饰 */
+.initiate-btn::before,
+.initiate-btn::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  transition: all 0.3s ease;
+  pointer-events: none;
 }
 
-/* 装饰性括弧 */
-.btn-bracket {
-  font-weight: 300;
-  opacity: 0.5;
-  transition: 0.2s;
+.initiate-btn::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid #00e5ff;
+  border-left: 2px solid #00e5ff;
 }
 
-/* ================= 悬停充能状态 ================= */
+.initiate-btn::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid #00e5ff;
+  border-right: 2px solid #00e5ff;
+}
+
+/* ================= 悬停炫酷发光态 ================= */
 .initiate-btn:hover {
-  background: rgba(0, 45, 65, 0.9);
-  color: #fff;
-  border-top: 1px solid #fff;
-  border-bottom: 5px solid rgba(0, 180, 220, 1);
-  box-shadow: 0 15px 30px rgba(0, 229, 255, 0.3), inset 0 0 20px rgba(0, 229, 255, 0.2);
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.25) 0%, rgba(0, 100, 150, 0.4) 100%);
+  color: #ffffff;
+  border-color: rgba(0, 229, 255, 0.8);
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.4), inset 0 0 15px rgba(0, 229, 255, 0.2);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  transform: translateY(-3px); /* 悬浮微升 */
 }
+
+/* 悬停时四个角的锁定框包裹住整个按钮 */
+.initiate-btn:hover::before,
+.initiate-btn:hover::after {
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  opacity: 0.5;
+}
+
+/* 按下受击反馈 */
+.initiate-btn:active {
+  transform: translateY(0.1px);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2), inset 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+/* ================= 次级按钮 (项目简介) - 幽灵装甲风 ================= */
+.secondary-btn {
+  /* 提升亮度：使用浅青色的微渐变毛玻璃底色 */
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(0, 229, 255, 0.15) 100%);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  color: rgba(0, 229, 255, 0.9); /* 文字提亮 */
+  box-shadow: inset 0 0 10px rgba(0, 229, 255, 0.1); /* 增加微妙的内发光 */
+}
+
+/* 调亮四角机械准星的初始亮度 */
+.secondary-btn::before,
+.secondary-btn::after {
+  border-color: rgba(0, 229, 255, 0.6);
+}
+
+
+/* 悬停时的能量爆发感 */
+.secondary-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(0, 229, 255, 0.3) 100%);
+  color: #ffffff;
+  border-color: rgba(0, 229, 255, 1);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3), inset 0 0 15px rgba(0, 229, 255, 0.3);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  transform: translateY(-3px);
+}
+
+/* 按下反馈 */
+.secondary-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2), inset 0 0 15px rgba(0, 229, 255, 0.3);
+}
+
+/* 机甲解体时，整个按钮组同步退出 */
+.is-entering .action-buttons-wrapper {
+  animation: btnExit 0.3s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+}
+
+
 
 /* 悬停时外框括号放大强化焦点 */
 .initiate-btn:hover .btn-bracket {
@@ -1035,22 +1028,6 @@ const startEnterSystem = () => {
 .initiate-btn:active {
   border-bottom: 1px solid rgba(0, 180, 220, 1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), inset 0 5px 15px rgba(0, 0, 0, 0.5);
-}
-
-.btn-scan-line {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
-  transform: skewX(-20deg);
-  animation: btnScan 3s infinite;
 }
 
 /* ================= 震撼机甲解体退场动画 ================= */
@@ -1248,20 +1225,6 @@ const startEnterSystem = () => {
   }
 }
 
-/* 二维顺时针 360 度循环平滑旋转 */
-@keyframes spinCW {
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-/* 二维逆时针 360 度循环平滑旋转 */
-@keyframes spinCCW {
-  to {
-    transform: translate(-50%, -50%) rotate(-360deg);
-  }
-}
-
 /* 缩放脉冲放大呼吸动画 */
 @keyframes pulse {
   to {
@@ -1285,16 +1248,6 @@ const startEnterSystem = () => {
   }
   50% {
     opacity: 0.2;
-  }
-}
-
-/* 按钮表面强光滑过动画 */
-@keyframes btnScan {
-  0% {
-    left: -100%;
-  }
-  50%, 100% {
-    left: 200%;
   }
 }
 
@@ -1359,151 +1312,202 @@ const startEnterSystem = () => {
 }
 
 
-  /* ================= 项目简介展开页面 ================= */
-  .info-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+/* ================= 项目简介展开页面 (全息悬浮窗重构) ================= */
+.info-overlay {
+  /* 保留原有基础... */
+  user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(2, 8, 16, 0.7); /* 稍微降低遮罩透明度，减少混合成本 */
+  
+  backdrop-filter: blur(8px); /* 模糊度从15px下调到8px，视觉相差不大，性能提升巨大 */
+  -webkit-backdrop-filter: blur(8px);
+  
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-  .info-overlay.open {
-    opacity: 1;
-    visibility: visible;
-  }
+.info-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
 
-  .info-content {
-    background: rgba(2, 8, 16, 0.95);
-    border-top: 2px solid #00e5ff;
-    border-left: 1px solid rgba(0, 229, 255, 0.2);
-    border-right: 1px solid rgba(0, 229, 255, 0.2);
-    width: 100%;
-    max-width: 1600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 -10px 60px rgba(0, 229, 255, 0.15);
-    position: relative;
-  }
+/* 悬浮玻璃面板 */
+.info-content {
+  /* 保留原有基础样式... */
+  background: rgba(4, 14, 28, 0.9); /* 稍微加大底色不透明度，减少透视计算 */
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(0, 229, 255, 0.05);
+  width: 90%;
+  max-width: 1400px;
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  transform: translateZ(0) scale(0.95) translateY(30px);
+  will-change: transform, opacity; /* 提前告知浏览器将要进行的动画，进一步优化 */
+}
 
-  .info-overlay.open .info-content {
-    transform: translateY(0);
-  }
+.info-overlay.open .info-content {
+  transform: translateZ(0) scale(1) translateY(0); /* 保持 translateZ */
+}
 
-  .info-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 30px;
-    border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-    background: rgba(0, 229, 255, 0.05);
-  }
+/* 固定的头部标题栏 */
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 40px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  background: linear-gradient(to bottom, rgba(0, 229, 255, 0.08), transparent);
+  flex-shrink: 0; /* 确保头部不会在滚动时被压缩 */
+  z-index: 10;
+}
 
-  .info-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 24px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 4px;
-    margin: 0;
-    text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
-  }
+.info-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 4px;
+  margin: 0;
+  text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+}
+/* ================= 极简关闭按钮 ================= */
+.close-btn {
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00e5ff;
+  font-size: 20px;
+  font-family: monospace;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
-  .close-btn {
-    background: none;
-    border: 1px solid rgba(0, 229, 255, 0.3);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #00e5ff;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
+/* 简单的悬停变亮效果 */
+.close-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: rgba(0, 229, 255, 0.8);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
 
-  .close-btn:hover {
-    background: rgba(0, 229, 255, 0.2);
-    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
-  }
+.close-btn:active {
+  transform: scale(0.95);
+}
 
-  .info-body {
-    padding: 50px;
-  }
+/* 核心的两条青色横线组成的“十”字（赛博机甲风） */
+.cross-line {
+  position: absolute;
+  width: 20px;
+  height: 2px;
+  background: #00e5ff;
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+}
 
-  .info-section {
-    margin-bottom: 50px;
-  }
+.cross-line.l1 { transform: rotate(45deg); }
+.cross-line.l2 { transform: rotate(-45deg); }
 
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 40px;
-    justify-content: center;
-  }
 
-  .section-border {
-    width: 40px;
-    height: 2px;
-    background: #00e5ff;
-    box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-  }
 
-  .section-header h3 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #00e5ff;
-    letter-spacing: 2px;
-    margin: 0;
-  }
+/* 独立滑动的丝滑内容区 */
+.info-body {
+  padding: 40px 50px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  
+  /* hint：告诉浏览器这里的内容专门处理抗锯齿，能缓解滑动卡顿感 */
+  -webkit-font-smoothing: antialiased;
+  /* hint：提升滚动区域层级，尽量减少和底层 Matrix 雨的混合计算 */
+  contain: paint; 
+}
 
-  .section-content {
-    display: flex;
-    gap: 30px;
-    align-items: flex-start;
-  }
+.info-section {
+  margin-bottom: 60px; /* 稍微加大各个段落的间距，呼吸感更强 */
+}
 
-  .info-text {
-    flex: 1;
-  }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 40px;
+  justify-content: center;
+}
 
-  .info-text p {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-    margin-bottom: 15px;
-    font-family: 'Roboto Mono Local', monospace;
-    font-size: 14px;
-  }
+.section-border {
+  width: 40px;
+  height: 2px;
+  background: #00e5ff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
 
-  .info-text-highlight {
-    font-size: 16px !important;
-    font-weight: bold;
-    color: #00e5ff !important;
-    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-    margin-bottom: 20px !important;
-  }
+.section-header h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 2px;
+  margin: 0;
+}
 
-  .info-image-placeholder {
-    width: 300px;
+.section-content {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+/* 文本与高亮细节保留... */
+.info-text { flex: 1; }
+.info-text p {
+  color: rgba(220, 245, 255, 0.85); /* 抛弃暗灰色，改用极其通透的高级冰蓝色 */
+  line-height: 2.0; /* 拉大行高，让长篇幅文字不显得拥挤 */
+  margin-bottom: 22px;
+  font-family: -apple-system, 'PingFang SC', sans-serif;
+  font-size: 16px; /* 字号从 14px 提拔到 16px */
+  letter-spacing: 1px;
+  text-shadow: 0 0 1px rgba(0, 229, 255, 0.2); /* 微弱的字体发光，增加屏幕质感 */
+}
+
+.info-text-highlight {
+  font-size: 20px !important; /* 字号拉大，增加视觉冲击 */
+  font-weight: 900;
+  letter-spacing: 2px;
+  /* 制作青绿交织的高级金属渐变字体 */
+  background: linear-gradient(90deg, #00e5ff 0%, #00ffaa 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(0, 229, 255, 0.4); /* 外发光光晕 */
+  margin-bottom: 30px !important;
+  line-height: 1.6 !important;
+}
+
+/* 图片占位符等保留... (确保没删掉你原有的图片样式) */
+.info-image-placeholder {
+    width: 350px;
     height: 200px;
-    background: linear-gradient(45deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05));
+    background: linear-gradient(45deg, rgba(0, 229, 255, 0.6), rgba(0, 229, 255, 0.05));
     border: 1px solid rgba(0, 229, 255, 0.2);
     border-radius: 8px;
     position: relative;
@@ -1530,6 +1534,33 @@ const startEnterSystem = () => {
     background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.2), transparent);
     animation: shine 3s infinite;
   }
+
+  @keyframes shine {
+    100% {
+      left: 100%;
+    }
+  }
+
+/* ================= 极细科技感悬浮滚动条 ================= */
+.info-body::-webkit-scrollbar {
+  width: 6px; /* 极细设计 */
+}
+
+.info-body::-webkit-scrollbar-track {
+  background: transparent; /* 轨道完全透明，干脆利落 */
+  border-left: 1px solid rgba(0, 229, 255, 0.05); /* 仅留一条微弱的定位指示线 */
+}
+
+.info-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 229, 255, 0.1); /* 给游标加上微弱的物理边框质感 */
+}
+
+.info-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.8);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.6); /* 鼠标移上去产生耀眼高光 */
+}
 
   @keyframes shine {
     100% {
@@ -1565,6 +1596,7 @@ const startEnterSystem = () => {
     transform: perspective(1000px) rotateY(0deg);
   }
 
+  
   .feature-item::before {
     content: '';
     position: absolute;
@@ -1638,13 +1670,11 @@ const startEnterSystem = () => {
   }
 
   .feature-item h4 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    color: #00e5ff;
-    letter-spacing: 1px;
-    margin: 0 0 15px 0;
-    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+  font-family: 'Orbitron', 'PingFang SC', sans-serif;
+  font-size: 18px; /* 原本 16px，调大 */
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0 0 15px 0;
   }
 
   .feature-item-2 h4 {
@@ -1663,11 +1693,11 @@ const startEnterSystem = () => {
   }
 
   .feature-item p {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 14px;
-    line-height: 1.4;
+    color: rgba(220, 245, 255, 0.75);
+    font-size: 15px; /* 原本 14px，调大 */
+    line-height: 1.8;
     margin: 0;
-    font-family: 'Roboto Mono Local', monospace;
+    letter-spacing: 1px;
   }
 
   /* 操作流程 */
@@ -1806,7 +1836,7 @@ const startEnterSystem = () => {
     color: rgba(255, 255, 255, 0.6);
     font-size: 12px;
     margin: 0;
-    font-family: 'Roboto Mono Local', monospace;
+    font-family: monospace;
   }
 
   .step-connector {
@@ -1939,13 +1969,11 @@ const startEnterSystem = () => {
   }
 
   .scenario-item h4 {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 20px;
+    font-family: 'Orbitron', 'PingFang SC', sans-serif;
+    font-size: 22px; /* 原本 20px，调大 */
     font-weight: 700;
-    color: #00e5ff;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     margin: 0 0 20px 0;
-    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
   }
 
   .scenario-item-2 h4 {
@@ -1964,13 +1992,21 @@ const startEnterSystem = () => {
   }
 
   .scenario-item p {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 16px;
-    line-height: 1.6;
+    color: rgba(220, 245, 255, 0.85); /* 同样采用通透的冰蓝色 */
+    font-size: 16px; /* 统一正文字号 */
+    line-height: 2.0;
     margin: 0;
-    font-family: 'Roboto Mono Local', monospace;
+    letter-spacing: 1px;
   }
 
+  .section-header h3 {
+    font-family: 'Orbitron', 'PingFang SC', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff; /* 主色变白 */
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.8); /* 靠青色阴影发光 */
+    letter-spacing: 4px;
+  }
   /* 返回顶部按钮 */
   .info-back-to-top {
     position: absolute;

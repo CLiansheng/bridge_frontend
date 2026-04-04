@@ -46,7 +46,7 @@
 
             <div class="input-group locked-group">
               <input type="tel" id="sys-phone" :value="userForm.phone" placeholder=" " readonly>
-              <label for="sys-phone">手机号</label>
+              <label for="sys-phone">邮箱</label>
               <div class="input-energy-bar"></div>
               <div class="input-corner"></div>
             </div>
