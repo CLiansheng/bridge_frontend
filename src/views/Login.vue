@@ -398,7 +398,7 @@ input::-webkit-credentials-auto-fill-button {
   color: #ff3333;
   padding: 4px 12px;
   font-size: 12px;
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
   letter-spacing: 2px;
   margin-bottom: 15px;
   transition: all 0.3s ease;
@@ -443,7 +443,7 @@ input::-webkit-credentials-auto-fill-button {
   justify-content: center;
   gap: 20px;
   margin-bottom: 30px;
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
 }
 
 .tab-item {
@@ -468,7 +468,7 @@ input::-webkit-credentials-auto-fill-button {
 .reset-header {
   text-align: center;
   margin-bottom: 30px;
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
 }
 
 .warning-text {
@@ -491,7 +491,7 @@ input::-webkit-credentials-auto-fill-button {
   padding: 15px 15px 15px 20px;
   color: #fff;
   font-size: 16px;
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
   outline: none;
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
   box-sizing: border-box;
@@ -504,7 +504,7 @@ input::-webkit-credentials-auto-fill-button {
   left: 20px;
   color: rgba(255, 255, 255, 0.4);
   font-size: 13px;
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
   letter-spacing: 1px;
   pointer-events: none;
   transform-origin: left top;
@@ -649,7 +649,7 @@ input::-webkit-credentials-auto-fill-button {
   background: transparent;
   border: none;
   color: rgba(0, 229, 255, 0.8);
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
   font-size: 12px;
   font-weight: bold;
   letter-spacing: 1px;
@@ -708,7 +708,7 @@ input::-webkit-credentials-auto-fill-button {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
 }
 
 .form-actions.single-action {
@@ -765,7 +765,7 @@ input::-webkit-credentials-auto-fill-button {
   position: relative;
   z-index: 2;
   color: rgba(0, 229, 255, 1);
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
   font-size: 16px;
   font-weight: 900;
   letter-spacing: 4px;
@@ -807,7 +807,7 @@ input::-webkit-credentials-auto-fill-button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: 'Roboto Mono Local', monospace;
+  font-family:  monospace;
   font-size: 10px;
   color: rgba(255, 255, 255, 0.3);
   transition: color 0.3s ease;
