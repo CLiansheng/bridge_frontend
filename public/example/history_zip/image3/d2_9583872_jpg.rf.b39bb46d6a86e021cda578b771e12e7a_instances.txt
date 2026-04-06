@@ -1,0 +1,16 @@
+image_name: d2_9583872_jpg.rf.b39bb46d6a86e021cda578b771e12e7a
+
+process_time：146ms
+
+total_instances: 2
+
+per_class_count:
+  0 (Crack): 0
+  1 (Efflorescence): 2
+  2 (Exposed_Rebar): 0
+  3 (Spalling): 0
+
+instance_details:
+instance_id，class_id，class_name，confidence，bbox[x1，y1，x2，y2]，center[cx，cy]，lengh，width
+0，1，Efflorescence，0.716152，[312.99，217.36，390.93，638.72]，[351.96，428.04]，0.47，0.12
+1，1，Efflorescence，0.875109，[273.64，0.67，330.31，325.00]，[301.97，162.83]，0.22，0.07

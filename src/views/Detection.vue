@@ -145,7 +145,7 @@
                       <div class="image-bracket ib-tr"></div>
                       <div class="image-bracket ib-bl"></div>
                       <div class="image-bracket ib-br"></div>
-                      <img :src="img.url" class="real-image clickable-image" @click="openZoomModal(img.url)"/>
+                      <img :src="img.url" class="real-image clickable-image" crossorigin="anonymous" @click="openZoomModal(img.url)"/>
                       <div class="image-overlay-tag">{{ img.name }}</div>
                     </div>
                   </div>
@@ -259,7 +259,7 @@
             <button class="zoom-reset-btn" @click="resetZoom">[ RESET ]</button>
             <button class="zoom-close-btn" @click="closeZoomModal"><i class='bx bx-x'></i></button>
           </div>
-          <img :src="zoomedImageUrl" class="zoomed-image" :class="{ 'is-panning': isPanning }" :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoomScale})` }" @mousedown.prevent="startPan"/>
+          <img :src="zoomedImageUrl" class="zoomed-image" :class="{ 'is-panning': isPanning }" crossorigin="anonymous" :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoomScale})` }" @mousedown.prevent="startPan"/>
           <div class="zoom-hint">滚轮缩放 / 拖拽平移 / 点击背景关闭</div>
         </div>
       </transition>
@@ -267,8 +267,6 @@
 
     <teleport to="body">
       <div v-if="isExporting" class="pdf-export-overlay">
-        
-
         <div class="pdf-hidden-container">
           <div id="pdf-pure-template" class="formal-pdf">
             
@@ -286,16 +284,16 @@
               
               <div class="pdf-images-grid">
                  <div class="pdf-img-main">
-                   <img :src="imgData.url" />
+                   <img :src="imgData.url" crossorigin="anonymous" />
                    <p>【图 1】 原始检测影像及病害位置标注</p>
                  </div>
                  <div class="pdf-img-sub-row">
                    <div class="pdf-img-sub">
-                     <img :src="imgData.maskUrl || imgData.url" />
+                     <img :src="imgData.maskUrl || imgData.url" crossorigin="anonymous" />
                      <p>【图 2】 像素级病害分割掩码图 (Mask)</p>
                    </div>
                    <div class="pdf-img-sub">
-                     <img :src="imgData.featureUrl || imgData.url" />
+                     <img :src="imgData.featureUrl || imgData.url" crossorigin="anonymous" />
                      <p>【图 3】 深度学习特征热力图 (Feature Map)</p>
                    </div>
                  </div>
@@ -316,14 +314,6 @@
                        <span v-for="(val, key) in imgData.reportData?.class_count" :key="key">
                          {{ getClassName(key) }}({{ val }}处) &nbsp;&nbsp;&nbsp;
                        </span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>特征诊断矩阵</th>
-                    <td colspan="3" class="text-left">
-                      高危风险: {{ imgData.reportData?.risk_distribution?.high || 0 }} 处 &nbsp;&nbsp;&nbsp;
-                      中危风险: {{ imgData.reportData?.risk_distribution?.medium || 0 }} 处 &nbsp;&nbsp;&nbsp;
-                      低危风险: {{ imgData.reportData?.risk_distribution?.low || 0 }} 处
                     </td>
                   </tr>
                 </table>
@@ -399,28 +389,27 @@ const mockDataSingle = [
     maskUrl: '/example/show_one/mask.png',
     featureUrl: '/example/show_one/feature.png',
     reportData: {
-      total_defect_count: 6,
-      overall_risk_level: '高危',
-      class_count: { 'exposed rebar': 5, 'spalling': 1 },
-      risk_distribution: { high: 4, medium: 0, low: 2 },
+      total_defect_count: 3,
+      overall_risk_level: '低危',
+      class_count: { 'spalling': 3 },
+      risk_distribution: { high: 0, medium: 1, low: 2 },
       defects_detail: [
-        { defect_id: 'D-SGL-301', type: 'spalling', name: '剥落', physical_length: 98, max_width: 85, severity: 'high' },
-        { defect_id: 'D-SGL-302', type: 'exposed rebar', name: '钢筋裸露', physical_length: 25, max_width: 3, severity: 'low' },
-        { defect_id: 'D-SGL-303', type: 'exposed rebar', name: '钢筋裸露', physical_length: 21, max_width: 3, severity: 'low' },
-        { defect_id: 'D-SGL-304', type: 'exposed rebar', name: '钢筋裸露', physical_length: 57, max_width: 4, severity: 'high' },
-        { defect_id: 'D-SGL-305', type: 'exposed rebar', name: '钢筋裸露', physical_length: 59, max_width: 4, severity: 'high' },
-        { defect_id: 'D-SGL-306', type: 'exposed rebar', name: '钢筋裸露', physical_length: 76, max_width: 56, severity: 'high' }
+        { defect_id: 'D-SGL-301', type: 'spalling', name: '剥落', physical_length: 42, max_width: 35, severity: 'medium' },
+        { defect_id: 'D-SGL-302', type: 'spalling', name: '剥落', physical_length: 17, max_width: 14, severity: 'low' },
+        { defect_id: 'D-SGL-303', type: 'saplling', name: '剥落', physical_length: 6, max_width: 4, severity: 'low' }
       ]
     },
     aiSummaryHtml: `
-      <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出严重结构性病害，整体评定为高危。</p>
-      <p class="t-line">  ├─ 核心特征: 存在大面积混凝土剥落 (最大 98x85cm)，并伴随多处连续的钢筋裸露现象。</p>
-      <p class="t-line">  └─ 劣化分析: 保护层大面积失效将导致钢筋加速锈蚀，显著削弱构件的有效承载截面，直接威胁结构整体安全。</p>
+      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出群发性混凝土表面剥落，评估为结构耐久性中度退化。</p>
+      <p class="t-line">  ├─ 核心特征: 目标区块共提取到 3 处独立剥落区，最大缺损尺寸达 42x35cm，形态呈现典型的不规则离散分布。</p>
+      <p class="t-line">  ├─ 深度推演: 结合 Feature Map 深度特征热力图分析，当前剥落已突破表层防线，内部混凝土基体微观孔隙已直接暴露。</p>
+      <p class="t-line">  └─ 劣化分析: 保护层的局部丧失将大幅加速该区域的碳化进程。若遭遇冻融循环或雨水冲蚀，病害将沿边缘应力集中区迅速向深层扩展，未来极易诱发底层钢筋锈胀。</p>
       <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 响应级别: 建议立即对该桥段实施临时交通限载或封闭管控。</p>
-      <p class="t-line">  2. 深度检测: 安排结构工程师进行现场无损检测，评估内部钢筋锈蚀程度及承载力折减情况。</p>
-      <p class="t-line">  3. 修复方案: 对裸露钢筋进行彻底除锈、涂刷阻锈剂处理；随后使用高强聚合物修补砂浆恢复混凝土截面。</p>
+      <p class="t-line"><strong class="text-cyan">[ 修复与全生命周期干预建议 ]</strong></p>
+      <p class="t-line">  1. 状态评级: 当前病害尚未触发结构承载力断崖式衰减，但表观耐久性已被破坏，建议启动 [ 二级预防性养护响应 ]。</p>
+      <p class="t-line">  2. 基层预处理: 采用机械剔凿或高压水射流技术，彻底清除剥落区四周的松散、酥软及隐性空鼓混凝土，直至露出坚实基面。</p>
+      <p class="t-line">  3. 截面重塑工艺: 对粗糙基面涂刷高性能双向界面剂，随后采用高粘结力、低收缩的专用聚合物修补砂浆进行多道填平压实，恢复原始截面流线。</p>
+      <p class="t-line">  4. 终极防护升级: 待修补区养护成型后，建议对该受损面整体喷涂硅烷浸渍剂或柔性防碳化涂料，彻底封堵毛细吸水通道，重构长效物理屏障。</p>
     `
   }
 ];
@@ -433,22 +422,27 @@ const mockDataMulti = [
     maskUrl: '/example/show_many/image1/mask.png',
     featureUrl: '/example/show_many/image1/feature.png',
     reportData: {
-      total_defect_count: 1,
+      total_defect_count: 3,
       overall_risk_level: '高危',
-      class_count: { crack: 1 },
-      risk_distribution: { high: 1, medium: 0, low: 0 },
+      class_count: { 'exposed rebar': 3 },
+      risk_distribution: { high: 2, medium: 1, low: 0 },
       defects_detail: [
-        { defect_id: 'D-MUL-201', type: 'crack', name: '裂缝', physical_length: 153, max_width: 2, severity: 'high' }
+        { defect_id: 'D-MUL-201', type: 'exposed rebar', name: '钢筋裸露', physical_length: 126, max_width: 37, severity: 'high' },
+        { defect_id: 'D-MUL-202', type: 'exposed rebar', name: '钢筋裸露', physical_length: 58, max_width: 22, severity: 'high' },
+        { defect_id: 'D-MUL-203', type: 'exposed rebar', name: '钢筋裸露', physical_length: 23, max_width: 19, severity: 'medium' }
       ]
     },
     aiSummaryHtml: `
-      <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出超限裂缝，整体评定为高危。</p>
-      <p class="t-line">  ├─ 核心特征: 发现长度 153cm、最大宽度 2cm 的主裂缝。</p>
-      <p class="t-line">  └─ 劣化分析: 裂缝宽度已超出常规桥梁规范允许值 (通常为 0.2cm)，表现为明显的结构受力裂缝，水分及腐蚀介质极易沿裂缝侵入。</p>
+      <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出大面积深层钢筋裸露，评估为结构承载力严重受损（极高危）。</p>
+      <p class="t-line">  ├─ 核心特征: 目标区块提取到 3 处连片分布的钢筋裸露区，保护层混凝土已完全崩落丧失，致使底层主筋与箍筋交织网格大面积直接暴露于外部环境。</p>
+      <p class="t-line">  ├─ 深度推演: 结合 Feature Map 特征热力图极高响应峰值分析，该区域已发生深度贯穿性结构剥落，周边未脱落基体大概率已形成严重的隐性空鼓与微观暗裂。</p>
+      <p class="t-line">  └─ 劣化分析: 核心承重构件失去碱性钝化膜保护，钢筋锈胀效应将呈指数级加速。有效受力截面被极度削弱，抗剪与抗拉能力出现断崖式下降，当前面临极高的突发性局部失效或整体失稳风险。</p>
       <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 响应级别: 优先处理，需启动专项力学验算，分析该裂缝对构件整体刚度的影响。</p>
-      <p class="t-line">  2. 修复方案: 针对超宽裂缝，须采用低粘度环氧树脂进行高压灌浆封闭处理，以恢复结构整体性并阻断水流渗入。</p>
+      <p class="t-line"><strong class="text-cyan">[ 应急响应与结构性修复干预建议 ]</strong></p>
+      <p class="t-line">  1. 应急管控: 立即触发 [ 一级红色预警响应 ]，建议对该受损结构关联区域实施紧急物理隔离与重载交通强制限行，严防次生坍塌灾害发生。</p>
+      <p class="t-line">  2. 深度探伤: 紧急调遣结构专家组介入，采用探地雷达 (GPR) 或超声断层扫描技术进行内部缺陷无损层析成像，重新验算构件剩余承载力极限状态 (ULS)。</p>
+      <p class="t-line">  3. 截面置换重塑: 严格实施全方位高压水除锈及化学阻锈处理。针对巨量截面损失，常规修补砂浆已无法满足力学传导要求，须采用喷射高强自密实聚合物混凝土进行结构性原位置换重构。</p>
+      <p class="t-line">  4. 体系强化加固: 截面基体恢复后，强烈建议引入外包注胶钢板法或粘贴高模量碳纤维复合材料 (CFRP) 进行抗剪补强，并同步接入结构健康监测物联网 (SHM) 进行长效应力追踪。</p>
     `
   },
   {
@@ -457,22 +451,27 @@ const mockDataMulti = [
     maskUrl: '/example/show_many/image2/mask.png',
     featureUrl: '/example/show_many/image2/feature.png',
     reportData: {
-      total_defect_count: 1,
-      overall_risk_level: '中危',
-      class_count: { crack: 1 },
-      risk_distribution: { high: 0, medium: 1, low: 0 },
+      total_defect_count: 3,
+      overall_risk_level: '低危',
+      class_count: { crack: 1, 'exposed rebar': 2 },
+      risk_distribution: { high: 0, medium: 1, low: 2 },
       defects_detail: [
-        { defect_id: 'D-MUL-203', type: 'crack', name: '裂缝', physical_length: 45, max_width: 27, severity: 'medium' }
+        { defect_id: 'D-MUL-204', type: 'crack', name: '裂缝', physical_length: 35, max_width: 23, severity: 'medium' },
+        { defect_id: 'D-MUL-204', type: 'crack', name: '裂缝', physical_length: 13, max_width: 4, severity: 'low' },
+        { defect_id: 'D-MUL-204', type: 'crack', name: '裂缝', physical_length: 7, max_width: 2, severity: 'low' }
       ]
     },
     aiSummaryHtml: `
-      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出宽幅结构张开，整体评定为中危。</p>
-      <p class="t-line">  ├─ 核心特征: 发现延伸裂隙，局部最大宽度达到 27cm。</p>
-      <p class="t-line">  └─ 劣化分析: 裂缝存在明显的不均匀张开，需警惕水分截留引发冻胀破坏或内部钢筋锈蚀。</p>
+      <p class="t-line text-green"><span class="t-prefix">></span> [ 综合研判 ] 检出复合型浅表病害（局部开裂与钢筋裸露），评估为表观耐久性轻度受损（低危）。</p>
+      <p class="t-line">  ├─ 核心特征: 目标区块共提取到 3 处缺陷特征，包含 1 处表面开裂受损区（最大物理界限达 35x23cm）及 2 处局部钢筋裸露（尺寸分别为 13x4cm 与 7x2cm）。</p>
+      <p class="t-line">  ├─ 深度推演: 结合 Feature Map 浅层特征热力图分析，高频响应主要集中于混凝土保护层破损边缘，核心承重体系及主筋应力传导路径尚未受到实质性破坏。</p>
+      <p class="t-line">  └─ 劣化分析: 虽当前评定为低危，但防腐屏障的局部失效已为水汽及氯离子打开微观入侵通道。长期暴露将引发钢筋表面的电化学腐蚀，产生锈胀应力并导致周边基体进一步剥离。</p>
       <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 深度排查: 探明裂缝深度是否触及主筋，排查周边区域是否存在隐性空鼓现象。</p>
-      <p class="t-line">  2. 修复方案: 建议对裂缝进行“V”型扩缝清理后，使用弹性嵌缝胶结合修补砂浆进行深度填补。</p>
+      <p class="t-line"><strong class="text-cyan">[ 修复与全生命周期干预建议 ]</strong></p>
+      <p class="t-line">  1. 状态评级: 结构主体仍处于安全服役期，病害属于早期轻度劣化，建议纳入 [ 三级预防性常规养护 ] 序列，当前无需限制交通荷载。</p>
+      <p class="t-line">  2. 靶向除锈封闭: 针对 13x4cm 及 7x2cm 的裸露点，需采用小型机械进行靶向除锈，表面涂覆聚合物防锈底漆后，利用高粘结力环氧树脂砂浆进行微创封闭。</p>
+      <p class="t-line">  3. 浅层基面修复: 针对 35x23cm 的主受损区，需彻底清除内部延伸的疏松、劣化表皮，清扫粉尘后使用高强自流平修补砂浆恢复保护层厚度。</p>
+      <p class="t-line">  4. 长效物理防线: 修补面固化验收后，建议对该辐射区域整体喷涂硅烷浸渍剂，彻底阻断毛细孔隙吸水，有效提升构件表层的抗渗与抗碳化能力。</p>
     `
   },
   {
@@ -481,24 +480,26 @@ const mockDataMulti = [
     maskUrl: '/example/show_many/image3/mask.png',
     featureUrl: '/example/show_many/image3/feature.png',
     reportData: {
-      total_defect_count: 3,
+      total_defect_count: 2,
       overall_risk_level: '中危',
-      class_count: { spalling: 3 },
-      risk_distribution: { high: 0, medium: 1, low: 2 },
+      class_count: { crack: 2 },
+      risk_distribution: { high: 1, medium: 1, low: 0 },
       defects_detail: [
-        { defect_id: 'D-MUL-204', type: 'spalling', name: '剥落', physical_length: 42, max_width: 35, severity: 'medium' },
-        { defect_id: 'D-MUL-205', type: 'spalling', name: '剥落', physical_length: 17, max_width: 14, severity: 'low' },
-        { defect_id: 'D-MUL-206', type: 'spalling', name: '剥落', physical_length: 6, max_width: 4, severity: 'low' }
+        { defect_id: 'D-MUL-205', type: 'crack', name: '裂缝', physical_length: 57, max_width: 1, severity: 'high' },
+        { defect_id: 'D-MUL-206', type: 'crack', name: '裂缝', physical_length: 24, max_width: 1, severity: 'medium' },
       ]
     },
     aiSummaryHtml: `
-      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出多处表层缺陷，整体评定为中危。</p>
-      <p class="t-line">  ├─ 核心特征: 检出 3 处混凝土剥落，最大尺寸为 42x35cm。</p>
-      <p class="t-line">  └─ 劣化分析: 保护层局部脱落，虽未大规模钢筋裸露，但长期暴露将加速碳化进程。</p>
+      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出显著的结构受力型裂缝，评估为承载体系中度受损（中危）。</p>
+      <p class="t-line">  ├─ 核心特征: 目标区块内共检出 2 处清晰的线性开裂。其中主裂缝延伸长度达 57cm，且局部最大张开宽度达到 1cm，呈典型的不均匀扩展形态。</p>
+      <p class="t-line">  ├─ 深度推演: 结合 Feature Map 线性应力集中热力分布分析，高达 1cm 的宏观裂缝宽度表明局部截面可能已部分退出工作，或伴随内部受拉主筋的屈服变形，结构内力传导路径已发生偏移。</p>
+      <p class="t-line">  └─ 劣化分析: 此级别宽度的裂缝已彻底丧失物理防护屏障作用。雨水、氧气及除冰盐等腐蚀介质可长驱直入直达钢筋表面；若遭遇低温冰冻，冰晶膨胀应力将导致裂缝迅速向纵深撕裂。</p>
       <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 修复准备: 凿除周边松散、劣化的混凝土至坚实基面。</p>
-      <p class="t-line">  2. 修复方案: 清理粉尘并涂刷界面剂后，使用专用修补砂浆进行表面找平，建议补刷防碳化涂层。</p>
+      <p class="t-line"><strong class="text-cyan">[ 修复与全生命周期干预建议 ]</strong></p>
+      <p class="t-line">  1. 状态评级: 鉴于局部裂缝宽度已远超常规桥梁规范允许限值，建议立即提升至 [ 二级结构性干预响应 ]，并在修复前对该墩台/梁体进行持续位移监测。</p>
+      <p class="t-line">  2. 溯源排查: 严禁盲目封堵，必须由专业工程师引入超声波无损探伤技术探测裂缝实际深度，精准排查诱发开裂的根本致灾因子（如不均匀沉降、疲劳超载或严重温缩）。</p>
+      <p class="t-line">  3. 恒压灌浆重塑: 针对 1cm 宽的深层主裂缝，必须采用壁可法（BICS）或低压恒速注浆工艺，将高韧性、低粘度的改性环氧树脂注入结构深处，强效恢复截面整体刚度。</p>
+      <p class="t-line">  4. 局部应力补强: 树脂固化成型后，视结构复核计算结果，建议在裂缝垂直分布方向粘贴高抗拉强度的碳纤维复合板（CFRP）进行抗剪/抗弯强化，彻底遏制裂缝的二次发育。</p>
     `
   }
 ];
@@ -506,27 +507,33 @@ const mockDataMulti = [
 // 场景 3：ZIP批量航拍
 const mockDataZip = [
   {
-    name: 'IMG_001.jpg',
+    name: 'IMG_01.jpg',
     url: '/example/show_zip/image1/page.jpg',
     maskUrl: '/example/show_zip/image1/mask.png',
     featureUrl: '/example/show_zip/image1/feature.png',
     reportData: {
-      total_defect_count: 1,
-      overall_risk_level: '高危',
-      class_count: { crack: 1 },
-      risk_distribution: { high: 1, medium: 0, low: 0 },
+      total_defect_count: 4,
+      overall_risk_level: '中危',
+      class_count: { 'exposed rebar': 4 },
+      risk_distribution: { high: 0, medium: 4, low: 0 },
       defects_detail: [
-        { defect_id: 'D-ZIP-101', type: 'crack', name: '裂缝', physical_length: 180, max_width: 4, severity: 'high' }
+        { defect_id: 'D-ZIP-101', type: 'exposed rebar', name: '钢筋裸露', physical_length: 21, max_width: 3, severity: 'medium' },
+        { defect_id: 'D-ZIP-102', type: 'exposed rebar', name: '钢筋裸露', physical_length: 29, max_width: 3, severity: 'medium' },
+        { defect_id: 'D-ZIP-103', type: 'exposed rebar', name: '钢筋裸露', physical_length: 25, max_width: 3, severity: 'medium' },
+        { defect_id: 'D-ZIP-104', type: 'exposed rebar', name: '钢筋裸露', physical_length: 26, max_width: 3, severity: 'medium' }
       ]
     },
     aiSummaryHtml: `
-      <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出贯穿性主裂缝，整体评定为高危。</p>
-      <p class="t-line">  ├─ 核心特征: 结构表面存在长达 180cm、最大宽度 4cm 的严重裂缝。</p>
-      <p class="t-line">  └─ 劣化分析: 该尺寸裂缝极具破坏性，通常由不均匀沉降或超载引起，严重削弱抗剪能力。</p>
+      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出群发性顺筋锈胀剥落，评估为附属构件耐久性中度衰减（中危）。</p>
+      <p class="t-line">  ├─ 核心特征: 目标区块（护栏边缘区域）精准提取到 4 处平行的纵向钢筋裸露病害。其中最大连续外露长度达 29cm，锈胀破损宽度约 3cm。</p>
+      <p class="t-line">  ├─ 深度推演: 结合 Feature Map 的纵向线性热力响应分析，此病害为典型的“锈胀开裂”力学演化。内部主筋表面的碱性钝化膜已被破坏，铁锈体积膨胀产生的巨大径向拉应力突破了外层混凝土的抗拉极限，导致保护层沿受力主筋方向呈劈裂脱落。</p>
+      <p class="t-line">  └─ 劣化分析: 裸露主筋已完全置于大气与水汽交替的电化学活化区，截面锈损将呈加速衰减趋势。虽不直接威胁桥梁主承重体系，但严重削弱了该边缘防撞构件的抗冲击安全冗余度。</p>
       <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 响应级别: 结构面临失稳风险，建议立即封锁交通并搭建临时支撑架。</p>
-      <p class="t-line">  2. 修复方案: 实施体外预应力加固或粘贴碳纤维板补强；裂缝本体进行高压注浆封闭。</p>
+      <p class="t-line"><strong class="text-cyan">[ 修复与全生命周期干预建议 ]</strong></p>
+      <p class="t-line">  1. 状态评级: 构件外层防腐物理体系已局部失效，建议启动 [ 专项防腐与界面修复响应 ]，遏制锈蚀向内部健康节点蔓延。</p>
+      <p class="t-line">  2. 环向靶向除锈: 严禁未经处理直接封堵。必须对裸露主筋进行 360 度机械打磨或喷砂除锈至露出金属本色（Sa2.5标准），随后立即涂覆环氧富锌底漆或渗透型化学阻锈剂进行底层钝化。</p>
+      <p class="t-line">  3. 截面抗裂重塑: 彻底剔除周遭松散、起壳的劣化基体，采用掺入抗裂微纤维的高强聚合物修补砂浆进行原位几何重塑，确保新老界面的高强粘结。</p>
+      <p class="t-line">  4. 阻隔屏障重建: 砂浆固化成型后，强烈建议对该批次构件整体喷涂渗透性硅烷防水剂或高耐候氟碳涂层，彻底封死外部水分及氯离子的侵入管线。</p>
     `
   },
   {
@@ -535,23 +542,24 @@ const mockDataZip = [
     maskUrl: '/example/show_zip/image2/mask.png',
     featureUrl: '/example/show_zip/image2/feature.png',
     reportData: {
-      total_defect_count: 2,
-      overall_risk_level: '中危',
-      class_count: { efflorescence: 2 },
-      risk_distribution: { high: 0, medium: 2, low: 0 },
+      total_defect_count: 1,
+      overall_risk_level: '高危',
+      class_count: { crack: 1 },
+      risk_distribution: { high: 1, medium: 0, low: 0 },
       defects_detail: [
-        { defect_id: 'D-ZIP-103', type: 'efflorescence', name: '泛碱', physical_length: 40, max_width: 20, severity: 'medium' },
-        { defect_id: 'D-ZIP-104', type: 'efflorescence', name: '泛碱', physical_length: 35, max_width: 15, severity: 'medium' }
+        { defect_id: 'D-ZIP-105', type: 'crack', name: '裂缝', physical_length: 93, max_width: 2, severity: 'high' },
       ]
     },
     aiSummaryHtml: `
-      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出明显渗水析出，整体评定为中危。</p>
-      <p class="t-line">  ├─ 核心特征: 发现 2 处泛碱区域，最大影响范围达 40x20cm。</p>
-      <p class="t-line">  └─ 劣化分析: 预示着防水层已失效，需防范内部碱骨料反应的发生。</p>
+      <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出典型分叉型结构受力裂缝，评估为承载体系严重受损（高危）。</p>
+      <p class="t-line">  ├─ 核心特征: 目标区块提取到 1 处呈 "Y" 字型放射状扩展的主裂缝，主干长度延伸约 68cm，最大张开宽度达 0.4cm。</p>
+      <p class="t-line">  ├─ 深度推演: 结合 Feature Map 高频且连续的线性热力响应分析，该裂缝已具备深度贯穿倾向。其分叉拓扑形态表明，局部区域正承受复杂的双向拉剪复合应力，原有的受力传导路径已发生严重畸变。</p>
+      <p class="t-line">  └─ 劣化分析: 裂缝的多向分支扩展将极速割裂混凝土基体的整体刚度。若不及时阻断，动水压力将顺主干直达钢筋骨架，引发内部主筋的群体性电化学腐蚀与保护层的大面积连片剥离。</p>
       <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 源头治理: 优先查明并切断渗水源头（如桥面排水系统不畅、伸缩缝老化漏水等）。</p>
-      <p class="t-line">  2. 修复方案: 清除表面结晶体，待基面干燥后，大面积涂刷硅烷浸渍剂防水。</p>
+      <p class="t-line"><strong class="text-cyan">[ 修复与全生命周期干预建议 ]</strong></p>
+      <p class="t-line">  1. 状态评级: 裂缝形态复杂且宽度超出安全冗余阈值，建议立即触发 [ 一级结构性干预响应 ]，并增设动态裂缝计严密监测其疲劳扩展速率。</p>
+      <p class="t-line">  2. 深层高压灌浆: 必须采取封闭式高压注浆工艺。沿裂缝分叉走向密集布设注浆嘴，注入超低粘度、高渗透性的改性环氧树脂，强力粘结离散的混凝土区块。</p>
+      <p class="t-line">  3. 复合应力补强: 针对 "Y" 型分叉的核心应力集中区，建议在内部灌浆固化后，于表面采用跨缝植筋（骑马钉）或呈正交方向多层粘贴碳纤维布（CFRP），彻底锁死裂缝的张开自由度。</p>
     `
   },
   {
@@ -560,24 +568,25 @@ const mockDataZip = [
     maskUrl: '/example/show_zip/image3/mask.png',
     featureUrl: '/example/show_zip/image3/feature.png',
     reportData: {
-      total_defect_count: 3,
-      overall_risk_level: '低危',
-      class_count: { spalling: 1, 'exposed rebar': 2 },
-      risk_distribution: { high: 0, medium: 0, low: 3 },
+      total_defect_count: 1,
+      overall_risk_level: '中危',
+      class_count: { spalling: 1 },
+      risk_distribution: { high: 0, medium: 1, low: 0 },
       defects_detail: [
-        { defect_id: 'D-ZIP-106', type: 'spalling', name: '剥落', physical_length: 25, max_width: 23, severity: 'low' },
-        { defect_id: 'D-ZIP-107', type: 'exposed rebar', name: '钢筋裸露', physical_length: 13, max_width: 4, severity: 'low' },
-        { defect_id: 'D-ZIP-108', type: 'exposed rebar', name: '钢筋裸露', physical_length: 7, max_width: 2, severity: 'low' }
+        { defect_id: 'D-ZIP-106', type: 'spalling', name: '剥落', physical_length: 49, max_width: 36, severity: 'medium' },
       ]
     },
     aiSummaryHtml: `
-      <p class="t-line text-green"><span class="t-prefix">></span> [ 综合研判 ] 检出轻微表观病害，整体评定为低危。</p>
-      <p class="t-line">  ├─ 核心特征: 存在小范围剥落 (25x23cm) 及局部点状钢筋外露。</p>
-      <p class="t-line">  └─ 劣化分析: 属于早期轻度劣化状态，未达到危及结构整体安全的界限。</p>
+      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出孤立型深层混凝土剥落，评估为局部保护层中度失效（中危）。</p>
+      <p class="t-line">  ├─ 核心特征: 目标区块精准提取到 1 处显著的块状剥落缺陷，最大几何包络尺寸达 49x36cm，呈现典型的脆性断裂剥离特征。</p>
+      <p class="t-line">  ├─ 深度推演: 结合 Feature Map 的中心高亮凝聚态分布，该剥落面已突破表层砂浆，直达粗骨料层。其边缘应力梯度变化剧烈，暗示周边基体可能已处于悬浮或半脱离状态。</p>
+      <p class="t-line">  └─ 劣化分析: 虽暂未发生主筋裸露，但该区域的有效保护层厚度已遭断崖式削减。二氧化碳及酸性游离离子将直接侵蚀深层基体，中长期视域下钢筋钝化膜被击穿的风险急剧攀升。</p>
       <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 响应级别: 暂不影响正常安全运营，建议纳入常规养护计划统一处理。</p>
-      <p class="t-line">  2. 预防性养护: 对点状裸露钢筋进行打磨防锈，并用普通水泥砂浆封闭表面。</p>
+      <p class="t-line"><strong class="text-cyan">[ 修复与全生命周期干预建议 ]</strong></p>
+      <p class="t-line">  1. 状态评级: 局部耐久性防线已被突破，建议纳入 [ 二级结构性修复序列 ]，务必在下个雨季或冻融循环期来临前完成闭环处置。</p>
+      <p class="t-line">  2. 界面拓扑清理: 严禁直接涂抹覆盖。必须采用机械手段将剥落区外延扩凿 2-3cm，彻底剔除边缘暗裂与松动骨料，形成向内倾斜的企口倒角，以强化后续修复的力学咬合。</p>
+      <p class="t-line">  3. 截面无收缩重塑: 对粗糙基面进行湿润及界面剂涂刷后，采用带有抗下垂特性的高强聚合物修补砂浆进行分层夯实填补，重构构件原始几何线型。</p>
+      <p class="t-line">  4. 屏障强化涂装: 修复面终凝验收后，对该区域及周边 50cm 缓冲带整体施加渗透型硅烷阻水剂或聚氨酯防碳化面漆，重建抵抗侵蚀介质的外部极效防线。</p>
     `
   }
 ];
@@ -617,17 +626,37 @@ onBeforeUnmount(() => {
   window.removeEventListener('mouseup', stopPan);
 });
 
+// 新增：重置 HUD 左右两列的滚动条到底部
+const resetHUDScroll = () => {
+  nextTick(() => {
+    const cols = document.querySelectorAll('.hud-scroll-col');
+    cols.forEach(col => col.scrollTop = 0);
+  });
+};
+
+const openReportModal = () => { 
+  showReportModal.value = true; 
+  currentImageIndex.value = 0; 
+  resetHUDScroll(); // 打开时重置
+};
+const closeReportModal = () => { showReportModal.value = false; clearFiles(); status.value = 'idle'; };
+
 const nextImage = () => { 
   if (currentImageIndex.value < resultImages.value.length - 1) currentImageIndex.value++; 
   else currentImageIndex.value = 0; 
+  resetHUDScroll(); // 切换下一张时重置
 };
 
 const prevImage = () => { 
   if (currentImageIndex.value > 0) currentImageIndex.value--; 
   else currentImageIndex.value = resultImages.value.length - 1; 
+  resetHUDScroll(); // 切换上一张时重置
 };
 
-const setCurrentImage = (idx) => { currentImageIndex.value = idx; };
+const setCurrentImage = (idx) => { 
+  currentImageIndex.value = idx; 
+  resetHUDScroll(); // 点击小圆点切换时重置
+};
 
 const showZoomModal = ref(false);
 const zoomedImageUrl = ref('');
@@ -677,11 +706,9 @@ const startAnalysis = () => {
     resultImages.value = matchedData;
 
     const totalDefects = resultImages.value.reduce((sum, img) => sum + (img.reportData?.total_defect_count || 0), 0);
-    
-    // 🚨 修改：新生成的记录强制命名为“未命名”，由用户在历史记录里自由修改
     const newRecord = {
       id: Date.now(), 
-      taskName: '未命名', 
+      taskName: '未命名',
       detectionTime: new Date().toLocaleString(),
       uploadType: uploadTypeStr,
       defectCount: totalDefects,
@@ -693,17 +720,21 @@ const startAnalysis = () => {
   }, 3000);
 };
 
-const openReportModal = () => { showReportModal.value = true; currentImageIndex.value = 0; };
-const closeReportModal = () => { showReportModal.value = false; clearFiles(); status.value = 'idle'; };
 const toggleAiSummary = () => { showAiSummary.value = !showAiSummary.value; };
 
-// ================= 🚨 恢复：简单的 setTimeout PDF 导出 (因为本地路径无延迟) =================
 const downloadPDF = async () => {
   if (isExporting.value) return;
   isExporting.value = true;
   
+  // 等待 Vue 把隐藏的 PDF 模板和加载动画挂载到真实 DOM 上
+  await nextTick();
+
   setTimeout(() => {
     const element = document.getElementById('pdf-pure-template');
+    if (!element) {
+        isExporting.value = false;
+        return;
+    }
     const opt = {
       margin:       15,
       filename:     `BridgeEye_Diagnostic_Report_${new Date().getTime()}.pdf`,
@@ -719,7 +750,6 @@ const downloadPDF = async () => {
       console.error('PDF Generation Error:', err);
       isExporting.value = false;
     });
-
   }, 800); 
 };
 </script>
@@ -810,6 +840,7 @@ const downloadPDF = async () => {
 .hb-tr { top: -1px; right: -1px; border-top-color: #00e5ff; border-right-color: #00e5ff; }
 .hb-bl { bottom: -1px; left: -1px; border-bottom-color: #00e5ff; border-left-color: #00e5ff; }
 .hb-br { bottom: -1px; right: -1px; border-bottom-color: #00e5ff; border-right-color: #00e5ff; }
+
 .hud-header { position: relative; z-index: 5; display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; border-bottom: 1px solid rgba(0, 229, 255, 0.2); background: linear-gradient(90deg, rgba(0, 229, 255, 0.05), transparent); }
 .hud-header-left { display: flex; align-items: center; gap: 15px; }
 .hud-radar-icon { font-size: 24px; color: #00e5ff; }
@@ -887,6 +918,7 @@ const downloadPDF = async () => {
 .risk-row.medium.active { background: rgba(255, 170, 0, 0.15); border-color: rgba(255, 170, 0, 0.4); box-shadow: inset 0 0 15px rgba(255, 170, 0, 0.2); }
 .risk-row.low { border-left: 4px solid #00ffaa; }
 .risk-row.low.active { background: rgba(0, 255, 170, 0.15); border-color: rgba(0, 255, 170, 0.4); box-shadow: inset 0 0 15px rgba(0, 255, 170, 0.2); }
+
 .r-label { user-select: none; font-family: 'Orbitron', sans-serif; font-size: 14px; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
 .cn-text { font-family: monospace; font-size: 12px; opacity: 0.6; }
 .risk-row.high .r-label { color: #ff3333; }
@@ -931,13 +963,8 @@ const downloadPDF = async () => {
 .zoomed-image { max-width: 90vw; max-height: 90vh; object-fit: contain; box-shadow: 0 0 50px rgba(0, 229, 255, 0.2); border: 1px solid rgba(0, 229, 255, 0.2); cursor: grab; transition: box-shadow 0.3s ease; will-change: transform; }
 .zoomed-image.is-panning { cursor: grabbing; }
 
-/* ================= 🚨 动态导出 PDF 模板样式 ================= */
-.pdf-export-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; }
-.export-loader { text-align: center; color: #00e5ff; font-family: monospace; position: absolute; z-index: 10; }
-.export-loader i { font-size: 50px; margin-bottom: 15px; }
-.export-loader p { font-size: 16px; letter-spacing: 2px; }
-
-/* PDF 隐藏容器（置于屏幕外部），由于包在 v-if 内，它会在点击导出时动态挂载 */
+/* ================= 🚨 隐形 PDF 导出模板样式 (重构为纯公文白底黑字) ================= */
+.pdf-export-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); z-index: 99999; display: flex; align-items: center; justify-content: center; }
 .pdf-hidden-container { position: absolute; top: 0; left: -9999px; width: 850px; }
 
 .formal-pdf { background: #ffffff; color: #000000; padding: 40px; font-family: 'SimSun', 'Songti SC', 'Times New Roman', serif; }
@@ -946,6 +973,7 @@ const downloadPDF = async () => {
 .pdf-doc-meta { display: flex; justify-content: space-between; font-size: 14px; font-family: sans-serif; margin-bottom: 10px; color: #333; }
 .pdf-divider { border-top: 3px solid #000; border-bottom: 1px solid #000; height: 2px; }
 
+/* ✅ 核心修改：pdf-page-break 强行换页属性 */
 .pdf-image-block-official { margin-bottom: 0px; }
 .pdf-page-break { page-break-after: always; break-after: page; height: 0; display: block; clear: both; }
 
@@ -967,6 +995,7 @@ const downloadPDF = async () => {
 
 .official-ai-report { border: 1px solid #000; padding: 20px; background-color: #fdfdfd; min-height: 100px; }
 
+/* 强行覆盖 AI HTML 原有的机甲风 CSS，让它在 PDF 里变成规规矩矩的段落 */
 .formal-pdf :deep(.t-line) { margin: 8px 0; color: #000; font-size: 14px; line-height: 1.6; font-family: 'SimSun', serif; }
 .formal-pdf :deep(.t-prefix) { display: none; }
 .formal-pdf :deep(.text-red), .formal-pdf :deep(.text-orange), .formal-pdf :deep(.text-green) { color: #000 !important; text-shadow: none !important; font-weight: bold; }

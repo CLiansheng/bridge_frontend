@@ -1,15 +1,15 @@
-image_name: d1_B_2450_jpg.rf.1c2e14d4e891c73e2615c54717c32d7f
+image_name: d2_324_jpg.rf.225e52d8d427b5ea8b331302cf138589
 
-process_time：104ms
+process_time：157ms
 
 total_instances: 1
 
 per_class_count:
-  0 (Crack): 1
+  0 (Crack): 0
   1 (Efflorescence): 0
   2 (Exposed_Rebar): 0
-  3 (Spalling): 0
+  3 (Spalling): 1
 
 instance_details:
 instance_id，class_id，class_name，confidence，bbox[x1，y1，x2，y2]，center[cx，cy]，lengh，width
-0，0，Crack，0.854206，[304.32，1.34，367.87，638.62]，[336.09，319.98]，0.83，0.03
+0，3，Spalling，0.928250，[104.47，66.30，536.45，394.05]，[320.46，230.18]，0.49，0.36

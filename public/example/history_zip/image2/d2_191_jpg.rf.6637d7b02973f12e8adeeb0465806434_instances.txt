@@ -1,7 +1,6 @@
-image_name: d1_B_181_jpg.rf.1030f9daa031ae5cff269bacab9b414a
+image_name: d2_191_jpg.rf.6637d7b02973f12e8adeeb0465806434
 
-process_time：141ms
-
+process_time：192ms
 total_instances: 1
 
 per_class_count:
@@ -12,4 +11,4 @@ per_class_count:
 
 instance_details:
 instance_id，class_id，class_name，confidence，bbox[x1，y1，x2，y2]，center[cx，cy]，lengh，width
-0，2，Exposed_Rebar，0.720479，[25.22，0.90，631.92，639.33]，[328.57，320.12]，0.35，0.24
+0，2，Exposed_Rebar，0.761701，[3.73，52.29，639.28，513.29]，[321.50，282.79]，1.62，0.35

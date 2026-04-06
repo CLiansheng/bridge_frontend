@@ -258,7 +258,7 @@
 
 <script setup>
 // 引入 Vue 响应式引用和 Vue Router 实例
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
 
 // 获取路由实例用于跳转
@@ -271,6 +271,13 @@ const isInfoOpen = ref(false);
 
 const toggleInfo = () => {
   isInfoOpen.value = !isInfoOpen.value;
+  // 当面板被打开时，重置滚动条到顶部
+  if (isInfoOpen.value) {
+    nextTick(() => {
+      const infoBody = document.querySelector('.info-body');
+      if (infoBody) infoBody.scrollTop = 0;
+    });
+  }
 };
 
 // 展开页面返回顶部功能

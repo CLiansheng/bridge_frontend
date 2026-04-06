@@ -1,0 +1,16 @@
+image_name: d2_2485.rf.fa3df0c511c6f90d9c0f8ba35d5b073b
+
+process_time：192ms
+
+total_instances: 2
+
+per_class_count:
+  0 (Crack): 2
+  1 (Efflorescence): 0
+  2 (Exposed_Rebar): 0
+  3 (Spalling): 0
+
+instance_details:
+instance_id，class_id，class_name，confidence，bbox[x1，y1，x2，y2]，center[cx，cy]，lengh，width
+0，0，Crack，0.811618，[368.42，159.63，443.04，640.00]，[405.73，399.81]，0.57，0.01
+1，0，Crack，0.885037，[388.87，0.00，419.90，199.40]，[404.39，99.70]，0.24，0.01

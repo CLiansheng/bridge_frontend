@@ -324,7 +324,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue'
 import html2pdf from 'html2pdf.js'
 import { useHistoryStore } from '@/stores/history'
 
@@ -365,15 +365,29 @@ const viewReport = (record) => {
   // 兜底数据兼容历史记录
   const mockImages = [
       { 
-        name: 'IMG_CORE_01.jpg', 
-        url: '/example/history_zip/image1/page.jpg',
-        maskUrl: '/example/history_zip/image1/mask.jpg',
-        featureUrl: '/example/history_zip/image1/feature.jpg',
-        reportData: { 
-          total_defect_count: 2, overall_risk_level: '高危', class_count: { crack: 2 }, risk_distribution: { high: 1, medium: 1, low: 0 },
-          defects_detail: [ { defect_id: 'D-M01', type: 'crack', name: '贯穿性主裂缝', physical_length: 125, max_width: 3.2, severity: 'high' } ]
+       name: 'IMG_01.jpg', 
+        url: '/example/history_many/image1/page.jpg',
+        maskUrl: '/example/history_many/image1/mask.png',
+        featureUrl: '/example/history_many/image1/feature.png',
+        reportData: {
+          total_defect_count: 1, 
+          overall_risk_level: '高危',
+          class_count: { 'exposed rebar': 1 },
+          risk_distribution: { high: 1, medium: 0, low: 0 },
+          defects_detail: [
+            { defect_id: 'D-201', type: 'exposed rebar', name: '钢筋裸露', physical_length: 169, max_width: 83, severity: 'high' }
+          ]
         },
-        aiSummaryHtml: `<p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出严重结构性裂缝，整体评定为高危。</p>`
+        aiSummaryHtml: `
+         <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出核心承重构件灾难性溃散，评估为抗压承载力极度丧失（极高危 / 临界坍塌）。</p>
+      <p class="t-line">  ├─ 核心特征: 目标承重墩柱发生物理尺度达 169x83cm 的巨型爆炸性剥落。内部主筋与箍筋骨架完全外露，且多根受压主筋已发生明显的向外屈曲（Buckling）变形。</p>
+      <p class="t-line">  ├─ 深度推演: 极端的空间缺损表明该构件已遭受典型的轴压/偏心受压脆性破坏。核心区混凝土大面积压碎并退出工作，原有轴向应力传导路径彻底切断，当前竖向荷载已完全由残存的塑性屈服钢筋及周边设置的临时钢支撑勉强维持。</p>
+      <p class="t-line">  └─ 劣化分析: 构件自身的刚度与稳定性已彻底崩溃，系统处于极度脆弱的危态平衡。任何微小的附加活载、风振或临时支撑的轻微侧移，都将瞬间触发上部结构的断崖式整体坍塌。</p>
+      <br/>
+      <p class="t-line"><strong class="text-cyan">[ 抢险响应与结构置换建议 ]</strong></p>
+      <p class="t-line">  1. 最高级别熔断: 立即上报重大结构险情，彻底封锁周边及下方的所有立体交通。严禁任何非抢险特种作业人员靠近，并指派专人 24 小时盯防现有的红色重型钢支撑体系，确保不发生失稳。</p>
+      <p class="t-line">  2. 应力主动卸载: 紧急调派结构专家组制定卸载方案。严禁在受力状态下直接切割残损钢筋，必须通过增设千斤顶等主动顶升设备，
+        `
       }
   ]
 
@@ -383,13 +397,37 @@ const viewReport = (record) => {
       resultImages.value = mockImages;
   }
   
-  currentImageIndex.value = 0; showReportModal.value = true;
+  currentImageIndex.value = 0; 
+  showReportModal.value = true;
+  resetHUDScroll(); // 打开档案时重置滚动
 }
 
+// 新增：重置 HUD 两列滚动条
+const resetHUDScroll = () => {
+  nextTick(() => {
+    const cols = document.querySelectorAll('.hud-scroll-col');
+    cols.forEach(col => col.scrollTop = 0);
+  });
+};
+
 const closeReportModal = () => { showReportModal.value = false }
-const nextImage = () => { if (resultImages.value.length === 0) return; currentImageIndex.value = (currentImageIndex.value + 1) % resultImages.value.length }
-const prevImage = () => { if (resultImages.value.length === 0) return; currentImageIndex.value = (currentImageIndex.value - 1 + resultImages.value.length) % resultImages.value.length }
-const setCurrentImage = (idx) => { currentImageIndex.value = idx }
+
+const nextImage = () => { 
+  if (resultImages.value.length === 0) return; 
+  currentImageIndex.value = (currentImageIndex.value + 1) % resultImages.value.length;
+  resetHUDScroll(); // 切换图片时重置滚动
+}
+
+const prevImage = () => { 
+  if (resultImages.value.length === 0) return; 
+  currentImageIndex.value = (currentImageIndex.value - 1 + resultImages.value.length) % resultImages.value.length;
+  resetHUDScroll(); // 切换图片时重置滚动
+}
+
+const setCurrentImage = (idx) => { 
+  currentImageIndex.value = idx;
+  resetHUDScroll(); // 切换图片时重置滚动
+}
 
 const showZoomModal = ref(false); const zoomedImageUrl = ref(''); const zoomScale = ref(1); const panX = ref(0); const panY = ref(0); const isPanning = ref(false);
 let startMouseX = 0; let startMouseY = 0; let initialPanX = 0; let initialPanY = 0;
