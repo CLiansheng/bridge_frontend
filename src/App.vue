@@ -49,11 +49,11 @@
     <div class="nav-left">
       <div class="logo">
         <div class="logo-wrapper">
-          <img src="../public/BridgeEye.jpg" alt="Logo" class="logo-pic">
+          <img src="/fuchuang.png" alt="Logo" class="logo-pic">
           <div class="logo-halo"></div>
         </div>
         <div class="logo-text-group">
-          <span class="sys-name">BRIDGEEYE</span>
+          <span class="sys-name" > 桥曈</span>
         </div>
       </div>
     </div>
@@ -303,7 +303,7 @@ body, html, #app {
 }
 .logo-text-group { display: flex; flex-direction: column; justify-content: center; line-height: 1.1; }
 .sys-name {
-  font-family: var(--font-tech); font-size: 26px; font-weight: 900; 
+  font-family: "sans-serif"; font-size: 26px; font-weight: 900; 
   text-transform: uppercase; letter-spacing: 3px; 
   background: linear-gradient(180deg, #ffffff 20%, var(--tech-cyan) 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;

@@ -83,9 +83,9 @@
               
               <h1
                 class="glitch-text"
-                data-text="BridgeEye"
+                data-text=" 桥曈"
               >
-                BridgeEye
+                 桥曈
               </h1>
 
               <div class="scanning-status-wrapper">
@@ -139,7 +139,7 @@
         <div class="info-decoration bottom-right"></div>
         
         <div class="info-header">
-          <h2 class="info-title">BridgeEye 桥梁病害诊断系统</h2>
+          <h2 class="info-title"> 桥曈 桥梁病害诊断系统</h2>
           <button class="close-btn" @click="toggleInfo">
               X
           </button>
@@ -154,12 +154,12 @@
             </div>
             <div class="section-content">
               <div class="info-text">
-                <p class="info-text-highlight">BridgeEye 桥梁智能巡检与全息诊断决策基座，是依托先进计算机视觉与多模态大语言模型打造的划时代桥梁基础设施病害检测平台。</p>
+                <p class="info-text-highlight"> 桥曈 桥梁智能巡检与全息诊断决策基座，是依托先进计算机视觉与多模态大语言模型打造的划时代桥梁基础设施病害检测平台。</p>
                 <p>面对传统桥梁巡检中“高危人工作业多、主观误判率高、海量数据追溯难”等行业级痛点，本系统开创性地引入了全新的 AI 专家研判引擎。我们将物理世界的桥梁实体与病害特征精准映射至数字空间，构筑了一条从“高清图像采集、毫秒级特征解析、多维风险定级”到“智能化养护策略生成”的端到端数据闭环。</p>
-                <p>这不仅是一套病害识别工具，更是面向未来交通枢纽的“预防性养护”数字大脑。BridgeEye 致力于打破数据孤岛，赋能交通管理部门实现从“被动抢修”向“主动干预”的战略跨越，实现运维成本的指数级降低与桥梁服役寿命的极限延伸。</p>
+                <p>这不仅是一套病害识别工具，更是面向未来交通枢纽的“预防性养护”数字大脑。 桥曈 致力于打破数据孤岛，赋能交通管理部门实现从“被动抢修”向“主动干预”的战略跨越，实现运维成本的指数级降低与桥梁服役寿命的极限延伸。</p>
               </div>
               <div class="info-image-placeholder large">
-                <img src="../../public/BridgeEye.jpg" alt="BridgeEye" class="feature-img">
+                <img src="/fuchuang.png" alt=" 桥曈" class="feature-img">
               </div>
             </div>
           </section>
@@ -174,7 +174,7 @@
               <div class="feature-grid enhanced">
                 <div class="feature-item feature-item-1">
                   <div class="feature-image">
-                    <img src="../../public/feature1.jpg" alt="多维视觉病害解析" class="feature-img">
+                    <img src=" /feature1.jpg" alt="多维视觉病害解析" class="feature-img">
                   </div>
                   <div class="feature-text">
                     <h4>多维视觉解析引擎</h4>
@@ -183,7 +183,7 @@
                 </div>
                 <div class="feature-item feature-item-2">
                   <div class="feature-image">
-                    <img src="../../public/feature2.png" alt="AI Agent 智能研判" class="feature-img">
+                    <img src=" /feature2.png" alt="AI Agent 智能研判" class="feature-img">
                   </div>
                   <div class="feature-text">
                     <h4>AI 智能研判中枢</h4>
@@ -192,7 +192,7 @@
                 </div>
                 <div class="feature-item feature-item-3">
                   <div class="feature-image">
-                    <img src="../../public/feature3.jpg" alt="全息数字档案管线" class="feature-img">
+                    <img src=" /feature3.jpg" alt="全息数字档案管线" class="feature-img">
                   </div>
                   <div class="feature-text">
                     <h4>全息数字档案管线</h4>
@@ -201,7 +201,7 @@
                 </div>
                 <div class="feature-item feature-item-4">
                   <div class="feature-image">
-                    <img src="../../public/feature4.jpg" alt="标准化评估诊断书" class="feature-img">
+                    <img src=" /feature4.jpg" alt="标准化评估诊断书" class="feature-img">
                   </div>
                   <div class="feature-text">
                     <h4>标准化决策诊断书</h4>
@@ -223,18 +223,18 @@
                 <div class="scenario-item scenario-item-1">
                   <div class="scenario-content">
                     <div class="scenario-image">
-                      <img src="../../public/scenario1.jpg" alt="例行巡检与健康建档" class="scenario-img">
+                      <img src=" /scenario1.jpg" alt="例行巡检与健康建档" class="scenario-img">
                     </div>
                     <div class="scenario-text">
                       <h4>桥梁例行巡检与数字建档</h4>
-                      <p>深度赋能路政及桥梁养护单位的日常巡检业务。依托高并发计算集群，BridgeEye 能够极速吞吐无人机及车载抓拍的海量表观图像，将非结构化的杂乱数据瞬间转化为标准化的病害台账。大幅降低人工登高、下水作业的安全风险与主观漏检率，为每一座桥梁建立伴随其全生命周期的超清数字健康档案。</p>
+                      <p>深度赋能路政及桥梁养护单位的日常巡检业务。依托高并发计算集群， 桥曈 能够极速吞吐无人机及车载抓拍的海量表观图像，将非结构化的杂乱数据瞬间转化为标准化的病害台账。大幅降低人工登高、下水作业的安全风险与主观漏检率，为每一座桥梁建立伴随其全生命周期的超清数字健康档案。</p>
                     </div>
                   </div>
                 </div>
                 <div class="scenario-item scenario-item-2">
                   <div class="scenario-content reverse">
                     <div class="scenario-image">
-                      <img src="../../public/scenario2.jpg" alt="突发灾后结构快速评估" class="scenario-img">
+                      <img src=" /scenario2.jpg" alt="突发灾后结构快速评估" class="scenario-img">
                     </div>
                     <div class="scenario-text">
                       <h4>突发自然灾害后结构快速评估</h4>

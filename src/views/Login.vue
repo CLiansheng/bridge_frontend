@@ -24,7 +24,7 @@
               <span class="badge-icon"></span>
               {{ authStatus === 'success' ? 'ACCESS_GRANTED' : (authStatus === 'error' ? 'ACCESS_DENIED' : 'SYS_LOCKED') }}
             </div>
-            <h1 class="glitch-text" data-text="BridgeEye">BridgeEye</h1>
+            <h1 class="glitch-text" data-text=" 桥曈"> 桥曈</h1>
             <p class="subtitle">桥梁病害诊断系统</p>
             <div class="header-divider"></div>
           </div>

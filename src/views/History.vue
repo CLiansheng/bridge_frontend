@@ -10,7 +10,7 @@
       <div class="panel-inner">
         <div class="panel-header archive-header">
           <div class="header-left">
-            <h2 class="cyber-title">BridgeEye 历史档案库</h2>
+            <h2 class="cyber-title"> 桥曈 历史档案库</h2>
             <p class="subtitle">HISTORY / DIAGNOSTIC_RECORDS</p>
           </div>
           <div class="header-right">
@@ -238,7 +238,7 @@
             <div class="pdf-header-official">
               <h1 class="pdf-doc-title">桥梁外观病害智能检测与诊断报告</h1>
               <div class="pdf-doc-meta">
-                <span>检测平台: BridgeEye桥梁病害诊断系统</span>
+                <span>检测平台:  桥曈桥梁病害诊断系统</span>
                 <span>生成日期: {{ new Date().toLocaleString() }}</span>
               </div>
               <div class="pdf-divider"></div>
