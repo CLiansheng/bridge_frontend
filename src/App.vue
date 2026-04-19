@@ -49,11 +49,11 @@
     <div class="nav-left">
       <div class="logo">
         <div class="logo-wrapper">
-          <img src="/qiaotong.png" alt="Logo" class="logo-pic">
+          <img src="/zhixi.png" alt="Logo" class="logo-pic">
           <div class="logo-halo"></div>
         </div>
         <div class="logo-text-group">
-          <span class="sys-name" > 桥曈</span>
+          <span class="sys-name" > 桥况智析</span>
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@
       <div class="panel-inner">
         <div class="panel-header archive-header">
           <div class="header-left">
-            <h2 class="cyber-title"> 桥曈 历史档案库</h2>
+            <h2 class="cyber-title"> 桥况智析 历史档案库</h2>
             <p class="subtitle">HISTORY / DIAGNOSTIC_RECORDS</p>
           </div>
           <div class="header-right">
@@ -238,7 +238,7 @@
             <div class="pdf-header-official">
               <h1 class="pdf-doc-title">桥梁外观病害智能检测与诊断报告</h1>
               <div class="pdf-doc-meta">
-                <span>检测平台:  桥曈桥梁病害诊断系统</span>
+                <span>检测平台:  桥况智析桥梁病害诊断系统</span>
                 <span>生成日期: {{ new Date().toLocaleString() }}</span>
               </div>
               <div class="pdf-divider"></div>
@@ -448,7 +448,7 @@ const downloadPDF = async () => {
     const element = document.getElementById('pdf-pure-template');
     const opt = {
       margin:       15,
-      filename:     `qiaotong_History_Report_${selectedRecord.value?.taskName || 'Archive'}.pdf`,
+      filename:     `zhixi_History_Report_${selectedRecord.value?.taskName || 'Archive'}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 850 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },

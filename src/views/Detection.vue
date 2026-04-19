@@ -32,7 +32,7 @@
               (status === 'error' ? 'ANALYSIS_FAILED' : 'UPLINK_READY')) 
             }}
           </div>
-          <h2 class="cyber-title"> 桥曈 DETECT</h2>
+          <h2 class="cyber-title"> 桥况智析 DETECT</h2>
           <p class="subtitle">桥 梁 病 害 诊 断 终 端</p>
           <div class="header-divider"></div>
         </div>
@@ -93,7 +93,7 @@
             <div class="btn-bg"></div>
             <span class="btn-text">
               {{ 
-                status === 'analyzing' ? ' 桥曈 正 在 诊 断 中 ' : 
+                status === 'analyzing' ? ' 桥况智析 正 在 诊 断 中 ' : 
                 (status === 'success' ? '诊 断 分 析 已 完 成' : 
                 (status === 'error' ? '数 据 异 常 ，诊 断 失 败' : '点 击 开 始 诊 断')) 
               }}
@@ -117,7 +117,7 @@
             <div class="hud-header">
               <div class="hud-header-left">
                 <i class='bx bx-radar hud-radar-icon'></i>
-                <h2 class="hud-title"> 桥曈 深度诊断结果</h2>
+                <h2 class="hud-title"> 桥况智析 深度诊断结果</h2>
               </div>
               <div class="hud-header-right">
                 <button class="hud-action-btn" @click="downloadPDF">
@@ -273,7 +273,7 @@
             <div class="pdf-header-official">
               <h1 class="pdf-doc-title">桥梁外观病害智能检测与诊断报告</h1>
               <div class="pdf-doc-meta">
-                <span>检测平台:  桥曈桥梁病害诊断系统</span>
+                <span>检测平台:  桥况智析桥梁病害诊断系统</span>
                 <span>生成日期: {{ new Date().toLocaleString() }}</span>
               </div>
               <div class="pdf-divider"></div>
@@ -737,7 +737,7 @@ const downloadPDF = async () => {
     }
     const opt = {
       margin:       15,
-      filename:     `qiaotong_Diagnostic_Report_${new Date().getTime()}.pdf`,
+      filename:     `zhixi_Diagnostic_Report_${new Date().getTime()}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 850 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },

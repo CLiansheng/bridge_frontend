@@ -16,37 +16,37 @@ const router = createRouter({
       path: '/',
       name: 'show',
       component: Show,
-      meta: { title: '桥曈 | 桥梁病害诊断系统' }
+      meta: { title: '桥况智析 | 桥梁病害诊断系统' }
     },
     {
       path: '/login',
       name: 'login',
       component: Login,
-      meta: { title: '系统登录 | 桥曈' }
+      meta: { title: '系统登录 | 桥况智析' }
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       component: Home,
-      meta: { title: '首页 | 桥曈' }
+      meta: { title: '首页 | 桥况智析' }
     },
     {
       path: '/diagnose',
       name: 'diagnose',
       component: Detection,
-      meta: { title: '智能诊断 | 桥曈' }
+      meta: { title: '智能诊断 | 桥况智析' }
     },
     {
       path: '/history',
       name: 'history',
       component: History,
-      meta: { title: '历史档案 | 桥曈' }
+      meta: { title: '历史档案 | 桥况智析' }
     },
     {
       path: '/profile',
       name: 'profile',
       component: System,
-      meta: { title: '用户资料 | 桥曈' }
+      meta: { title: '用户资料 | 桥况智析' }
     }
   ]
 })
