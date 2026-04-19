@@ -159,7 +159,7 @@
                 <p>这不仅是一套病害识别工具，更是面向未来交通枢纽的“预防性养护”数字大脑。 桥曈 致力于打破数据孤岛，赋能交通管理部门实现从“被动抢修”向“主动干预”的战略跨越，实现运维成本的指数级降低与桥梁服役寿命的极限延伸。</p>
               </div>
               <div class="info-image-placeholder large">
-                <img src="/fuchuang.png" alt=" 桥曈" class="feature-img">
+                <img src="/qiaotong.png" alt=" 桥曈" class="feature-img">
               </div>
             </div>
           </section>

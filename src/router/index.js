@@ -16,37 +16,37 @@ const router = createRouter({
       path: '/',
       name: 'show',
       component: Show,
-      meta: { title: 'BridgeEye | 桥梁病害诊断系统' }
+      meta: { title: '桥曈 | 桥梁病害诊断系统' }
     },
     {
       path: '/login',
       name: 'login',
       component: Login,
-      meta: { title: '系统登录 | BridgeEye' }
+      meta: { title: '系统登录 | 桥曈' }
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       component: Home,
-      meta: { title: '首页 | BridgeEye' }
+      meta: { title: '首页 | 桥曈' }
     },
     {
       path: '/diagnose',
       name: 'diagnose',
       component: Detection,
-      meta: { title: '智能诊断 | BridgeEye' }
+      meta: { title: '智能诊断 | 桥曈' }
     },
     {
       path: '/history',
       name: 'history',
       component: History,
-      meta: { title: '历史档案 | BridgeEye' }
+      meta: { title: '历史档案 | 桥曈' }
     },
     {
       path: '/profile',
       name: 'profile',
       component: System,
-      meta: { title: '用户资料 | BridgeEye' }
+      meta: { title: '用户资料 | 桥曈' }
     }
   ]
 })

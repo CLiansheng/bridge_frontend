@@ -448,7 +448,7 @@ const downloadPDF = async () => {
     const element = document.getElementById('pdf-pure-template');
     const opt = {
       margin:       15,
-      filename:     `BridgeEye_History_Report_${selectedRecord.value?.taskName || 'Archive'}.pdf`,
+      filename:     `qiaotong_History_Report_${selectedRecord.value?.taskName || 'Archive'}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 850 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },

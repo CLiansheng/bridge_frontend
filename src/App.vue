@@ -49,7 +49,7 @@
     <div class="nav-left">
       <div class="logo">
         <div class="logo-wrapper">
-          <img src="/fuchuang.png" alt="Logo" class="logo-pic">
+          <img src="/qiaotong.png" alt="Logo" class="logo-pic">
           <div class="logo-halo"></div>
         </div>
         <div class="logo-text-group">
