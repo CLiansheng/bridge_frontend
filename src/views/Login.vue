@@ -31,8 +31,7 @@
 
           <div class="tactical-tabs" v-if="authMode !== 'reset'">
             <div 
-              class="tab-item" 
-              :class="{ active: ['pwd', 'code'].includes(authMode) }"
+              class="tab-item active"
               @click="switchMode('pwd')"
             >
               [ 账号登录 ]
@@ -66,28 +65,7 @@
               <div class="input-corner"></div>
             </div>
 
-            <div class="input-group code-group" v-if="['code', 'register', 'reset'].includes(authMode)">
-              <input 
-                type="text" 
-                id="verifyCode" 
-                v-model="formData.verifyCode" 
-                maxlength="6"
-                placeholder=" "
-                autocomplete="off"
-                @input="clearError()"
-              >
-              <label for="verifyCode">请输入验证码</label>
-              <button 
-                type="button" 
-                class="send-code-btn" 
-                :disabled="countdown > 0 || !isValidEmail"
-                @click="sendCode"
-              >
-                {{ countdown > 0 ? `[ T-${countdown}s ]` : '[ 获取验证码 ]' }}
-              </button>
-              <div class="input-energy-bar"></div>
-              <div class="input-corner"></div>
-            </div>
+
 
             <div class="input-group password-group" v-if="['pwd', 'register', 'reset'].includes(authMode)">
               <input 
@@ -118,10 +96,7 @@
               <div class="input-corner"></div>
             </div>
 
-            <div class="form-actions" v-if="['pwd', 'code'].includes(authMode)">
-              <a href="#" class="cyber-link" @click.prevent="switchMode(authMode === 'pwd' ? 'code' : 'pwd')">
-                >> {{ authMode === 'pwd' ? '验证码登录' : '密码登录' }}
-              </a>
+            <div class="form-actions" v-if="['pwd'].includes(authMode)">
               <a href="#" class="cyber-link alert-link" @click.prevent="switchMode('reset')">
                 忘记密码?
               </a>
@@ -148,7 +123,7 @@
             <span>
               {{ 
                 authStatus === 'error' 
-                  ? (['register', 'reset', 'code'].includes(authMode) ? 'WARNING: 验证码错误' : 'WARNING: 账号或密码错误') 
+                  ? (['register', 'reset'].includes(authMode) ? 'WARNING: 操作失败' : 'WARNING: 账号或密码错误') 
                   : 'AWAITING...' 
               }}
             </span>
@@ -171,8 +146,7 @@ const userStore = useUserStore();
 // ================= 状态管理 =================
 
 const authMode = ref('pwd'); 
-const authStatus = ref('idle'); 
-const countdown = ref(0);
+const authStatus = ref('idle');
 
 // 定时器引用，防止内存泄漏和路由跳转导致的报错
 let timer = null; 
@@ -182,8 +156,7 @@ let actionTimer = null;
 
 const formData = reactive({
   email: '',
-  password: '',
-  verifyCode: ''
+  password: ''
 });
 
 const showPassword = ref(false);
@@ -207,8 +180,7 @@ const submitButtonText = computed(() => {
   if (authStatus.value === 'loading') return 'PROCESSING...';
   if (authStatus.value === 'success') return 'SYSTEM_UNLOCKED';
   switch (authMode.value) {
-    case 'pwd':
-    case 'code': return '登 录 访 问';
+    case 'pwd': return '登 录 访 问';
     case 'register': return '身 份 注 册';
     case 'reset': return 'OVERRIDE PROTOCOL';
     default: return 'SUBMIT';
@@ -218,13 +190,10 @@ const submitButtonText = computed(() => {
 const switchMode = (mode) => {
   authMode.value = mode;
   formData.password = '';
-  formData.verifyCode = '';
   authStatus.value = 'idle';
   showPassword.value = false;
   
-  // 切换模式时重置验证码倒计时和报错状态
-  countdown.value = 0;
-  if (timer) clearInterval(timer);
+  // 切换模式时重置报错状态
   if (errorTimer) clearTimeout(errorTimer);
 };
 
@@ -246,9 +215,8 @@ const handleSubmit = () => {
   // 复用计算属性，消除重复验证逻辑
   const isEmailValid = isValidEmail.value; 
   const isPwdComplete = ['pwd', 'register', 'reset'].includes(authMode.value) ? formData.password.length > 0 : true;
-  const isCodeComplete = ['code', 'register', 'reset'].includes(authMode.value) ? formData.verifyCode.length === 6 : true;
 
-  if (!isEmailValid || !isPwdComplete || !isCodeComplete) {
+  if (!isEmailValid || !isPwdComplete) {
     if (errorTimer) clearTimeout(errorTimer);
     authStatus.value = 'error'; 
     errorTimer = setTimeout(() => {
@@ -268,7 +236,7 @@ const handleSubmit = () => {
 
     authStatus.value = 'success'; 
     
-    if (['pwd', 'code'].includes(authMode.value)) {
+    if (['pwd'].includes(authMode.value)) {
       userStore.login(formData.email);
       actionTimer = setTimeout(() => {
         router.push('/dashboard');
@@ -634,38 +602,6 @@ input::-webkit-credentials-auto-fill-button {
 
 .cyber-eye.is-open .vault-doors {
   border-color: transparent;
-}
-
-/* ================= 验证码按钮 ================= */
-.code-group input {
-  padding-right: 140px;
-}
-
-.send-code-btn {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  color: rgba(0, 229, 255, 0.8);
-  font-family:  monospace;
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
-  padding: 5px;
-}
-
-.send-code-btn:hover:not(:disabled) {
-  color: #fff;
-  text-shadow: 0 0 8px rgba(0, 229, 255, 1);
-}
-
-.send-code-btn:disabled {
-  color: rgba(255, 255, 255, 0.2);
-  cursor: not-allowed;
 }
 
 /* ================= 充能条 & 装饰 ================= */

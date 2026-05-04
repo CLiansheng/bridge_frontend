@@ -391,117 +391,126 @@ const currentImageIndex = ref(0);
 // ================= 数据结构 (Mask和Feature自动匹配 page.jpg) =================
 const resultImages = ref([]);
 
-// 场景 1：单图极速诊断
-const mockDataSingle = [
-  {
-    name: 'IMG_01.jpg',
-    url: '/example/show_one/page.jpg',
-    maskUrl: '/example/show_one/mask.png',
-    featureUrl: '/example/show_one/feature.png',
-    reportData: {
-      total_defect_count: 6,
-      overall_risk_level: '高危',
-      class_count: { 'exposed rebar': 5, 'spalling': 1 },
-      risk_distribution: { high: 4, medium: 0, low: 2 },
-      defects_detail: [
-        { defect_id: 'D-SGL-301', type: 'spalling', name: '剥落', physical_length: 98, max_width: 85, severity: 'high' },
-        { defect_id: 'D-SGL-302', type: 'exposed rebar', name: '钢筋裸露', physical_length: 25, max_width: 3, severity: 'low' },
-        { defect_id: 'D-SGL-303', type: 'exposed rebar', name: '钢筋裸露', physical_length: 21, max_width: 3, severity: 'low' },
-        { defect_id: 'D-SGL-304', type: 'exposed rebar', name: '钢筋裸露', physical_length: 57, max_width: 4, severity: 'high' },
-        { defect_id: 'D-SGL-305', type: 'exposed rebar', name: '钢筋裸露', physical_length: 59, max_width: 4, severity: 'high' },
-        { defect_id: 'D-SGL-306', type: 'exposed rebar', name: '钢筋裸露', physical_length: 76, max_width: 56, severity: 'high' }
-      ]
-    },
-    aiSummaryHtml: `
-      <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出严重结构性病害，整体评定为高危。</p>
-      <p class="t-line">  ├─ 核心特征: 存在大面积混凝土剥落 (最大 98x85cm)，并伴随多处连续的钢筋裸露现象。</p>
-      <p class="t-line">  └─ 劣化分析: 保护层大面积失效将导致钢筋加速锈蚀，显著削弱构件的有效承载截面，直接威胁结构整体安全。</p>
-      <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 响应级别: 建议立即对该桥段实施临时交通限载或封闭管控。</p>
-      <p class="t-line">  2. 深度检测: 安排结构工程师进行现场无损检测，评估内部钢筋锈蚀程度及承载力折减情况。</p>
-      <p class="t-line">  3. 修复方案: 对裸露钢筋进行彻底除锈、涂刷阻锈剂处理；随后使用高强聚合物修补砂浆恢复混凝土截面。</p>
-    `
-  }
-];
+// ================= 数据池：按文件名独立存储的数据 =================
 
-// 场景 2：多图组合抽检
-const mockDataMulti = [
-  {
-    name: 'IMG_01.jpg',
-    url: '/example/show_many/image1/page.jpg',
-    maskUrl: '/example/show_many/image1/mask.png',
-    featureUrl: '/example/show_many/image1/feature.png',
-    reportData: {
-      total_defect_count: 1,
-      overall_risk_level: '高危',
-      class_count: { crack: 1 },
-      risk_distribution: { high: 1, medium: 0, low: 0 },
-      defects_detail: [
-        { defect_id: 'D-MUL-201', type: 'crack', name: '裂缝', physical_length: 153, max_width: 2, severity: 'high' }
-      ]
-    },
-    aiSummaryHtml: `
-      <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出超限裂缝，整体评定为高危。</p>
-      <p class="t-line">  ├─ 核心特征: 发现长度 153cm、最大宽度 2cm 的主裂缝。</p>
-      <p class="t-line">  └─ 劣化分析: 裂缝宽度已超出常规桥梁规范允许值 (通常为 0.2cm)，表现为明显的结构受力裂缝，水分及腐蚀介质极易沿裂缝侵入。</p>
-      <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 响应级别: 优先处理，需启动专项力学验算，分析该裂缝对构件整体刚度的影响。</p>
-      <p class="t-line">  2. 修复方案: 针对超宽裂缝，须采用低粘度环氧树脂进行高压灌浆封闭处理，以恢复结构整体性并阻断水流渗入。</p>
-    `
+// IMG_01.jpg - 多图模式
+const dataImg01 = {
+  name: 'IMG_01.jpg',
+  url: '/example/show_many/image1/page.jpg',
+  maskUrl: '/example/show_many/image1/mask.png',
+  featureUrl: '/example/show_many/image1/feature.png',
+  reportData: {
+    total_defect_count: 1,
+    overall_risk_level: '高危',
+    class_count: { crack: 1 },
+    risk_distribution: { high: 1, medium: 0, low: 0 },
+    defects_detail: [
+      { defect_id: 'D-MUL-201', type: 'crack', name: '裂缝', physical_length: 153, max_width: 2, severity: 'high' }
+    ]
   },
-  {
-    name: 'IMG_02.jpg',
-    url: '/example/show_many/image2/page.jpg',
-    maskUrl: '/example/show_many/image2/mask.png',
-    featureUrl: '/example/show_many/image2/feature.png',
-    reportData: {
-      total_defect_count: 1,
-      overall_risk_level: '中危',
-      class_count: { crack: 1 },
-      risk_distribution: { high: 0, medium: 1, low: 0 },
-      defects_detail: [
-        { defect_id: 'D-MUL-203', type: 'crack', name: '裂缝', physical_length: 45, max_width: 27, severity: 'medium' }
-      ]
-    },
-    aiSummaryHtml: `
-      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出宽幅结构张开，整体评定为中危。</p>
-      <p class="t-line">  ├─ 核心特征: 发现延伸裂隙，局部最大宽度达到 27cm。</p>
-      <p class="t-line">  └─ 劣化分析: 裂缝存在明显的不均匀张开，需警惕水分截留引发冻胀破坏或内部钢筋锈蚀。</p>
-      <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 深度排查: 探明裂缝深度是否触及主筋，排查周边区域是否存在隐性空鼓现象。</p>
-      <p class="t-line">  2. 修复方案: 建议对裂缝进行“V”型扩缝清理后，使用弹性嵌缝胶结合修补砂浆进行深度填补。</p>
-    `
+  aiSummaryHtml: `
+    <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出超限裂缝，整体评定为高危。</p>
+    <p class="t-line">  ├─ 核心特征: 发现长度 153cm、最大宽度 2cm 的主裂缝。</p>
+    <p class="t-line">  └─ 劣化分析: 裂缝宽度已超出常规桥梁规范允许值 (通常为 0.2cm)，表现为明显的结构受力裂缝，水分及腐蚀介质极易沿裂缝侵入。</p>
+    <br/>
+    <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
+    <p class="t-line">  1. 响应级别: 优先处理，需启动专项力学验算，分析该裂缝对构件整体刚度的影响。</p>
+    <p class="t-line">  2. 修复方案: 针对超宽裂缝，须采用低粘度环氧树脂进行高压灌浆封闭处理，以恢复结构整体性并阻断水流渗入。</p>
+  `
+};
+
+// IMG_02.jpg - 多图模式
+const dataImg02 = {
+  name: 'IMG_02.jpg',
+  url: '/example/show_many/image2/page.jpg',
+  maskUrl: '/example/show_many/image2/mask.png',
+  featureUrl: '/example/show_many/image2/feature.png',
+  reportData: {
+    total_defect_count: 1,
+    overall_risk_level: '中危',
+    class_count: { crack: 1 },
+    risk_distribution: { high: 0, medium: 1, low: 0 },
+    defects_detail: [
+      { defect_id: 'D-MUL-203', type: 'crack', name: '裂缝', physical_length: 45, max_width: 27, severity: 'medium' }
+    ]
   },
-  {
-    name: 'IMG_03.jpg',
-    url: '/example/show_many/image3/page.jpg',
-    maskUrl: '/example/show_many/image3/mask.png',
-    featureUrl: '/example/show_many/image3/feature.png',
-    reportData: {
-      total_defect_count: 3,
-      overall_risk_level: '中危',
-      class_count: { spalling: 3 },
-      risk_distribution: { high: 0, medium: 1, low: 2 },
-      defects_detail: [
-        { defect_id: 'D-MUL-204', type: 'spalling', name: '剥落', physical_length: 42, max_width: 35, severity: 'medium' },
-        { defect_id: 'D-MUL-205', type: 'spalling', name: '剥落', physical_length: 17, max_width: 14, severity: 'low' },
-        { defect_id: 'D-MUL-206', type: 'spalling', name: '剥落', physical_length: 6, max_width: 4, severity: 'low' }
-      ]
-    },
-    aiSummaryHtml: `
-      <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出多处表层缺陷，整体评定为中危。</p>
-      <p class="t-line">  ├─ 核心特征: 检出 3 处混凝土剥落，最大尺寸为 42x35cm。</p>
-      <p class="t-line">  └─ 劣化分析: 保护层局部脱落，虽未大规模钢筋裸露，但长期暴露将加速碳化进程。</p>
-      <br/>
-      <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
-      <p class="t-line">  1. 修复准备: 凿除周边松散、劣化的混凝土至坚实基面。</p>
-      <p class="t-line">  2. 修复方案: 清理粉尘并涂刷界面剂后，使用专用修补砂浆进行表面找平，建议补刷防碳化涂层。</p>
-    `
-  }
-];
+  aiSummaryHtml: `
+    <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出宽幅结构张开，整体评定为中危。</p>
+    <p class="t-line">  ├─ 核心特征: 发现延伸裂隙，局部最大宽度达到 27cm。</p>
+    <p class="t-line">  └─ 劣化分析: 裂缝存在明显的不均匀张开，需警惕水分截留引发冻胀破坏或内部钢筋锈蚀。</p>
+    <br/>
+    <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
+    <p class="t-line">  1. 深度排查: 探明裂缝深度是否触及主筋，排查周边区域是否存在隐性空鼓现象。</p>
+    <p class="t-line">  2. 修复方案: 建议对裂缝进行"V"型扩缝清理后，使用弹性嵌缝胶结合修补砂浆进行深度填补。</p>
+  `
+};
+
+// IMG_03.jpg - 多图模式
+const dataImg03 = {
+  name: 'IMG_03.jpg',
+  url: '/example/show_many/image3/page.jpg',
+  maskUrl: '/example/show_many/image3/mask.png',
+  featureUrl: '/example/show_many/image3/feature.png',
+  reportData: {
+    total_defect_count: 3,
+    overall_risk_level: '中危',
+    class_count: { spalling: 3 },
+    risk_distribution: { high: 0, medium: 1, low: 2 },
+    defects_detail: [
+      { defect_id: 'D-MUL-204', type: 'spalling', name: '剥落', physical_length: 42, max_width: 35, severity: 'medium' },
+      { defect_id: 'D-MUL-205', type: 'spalling', name: '剥落', physical_length: 17, max_width: 14, severity: 'low' },
+      { defect_id: 'D-MUL-206', type: 'spalling', name: '剥落', physical_length: 6, max_width: 4, severity: 'low' }
+    ]
+  },
+  aiSummaryHtml: `
+    <p class="t-line text-orange"><span class="t-prefix">></span> [ 综合研判 ] 检出多处表层缺陷，整体评定为中危。</p>
+    <p class="t-line">  ├─ 核心特征: 检出 3 处混凝土剥落，最大尺寸为 42x35cm。</p>
+    <p class="t-line">  └─ 劣化分析: 保护层局部脱落，虽未大规模钢筋裸露，但长期暴露将加速碳化进程。</p>
+    <br/>
+    <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
+    <p class="t-line">  1. 修复准备: 凿除周边松散、劣化的混凝土至坚实基面。</p>
+    <p class="t-line">  2. 修复方案: 清理粉尘并涂刷界面剂后，使用专用修补砂浆进行表面找平，建议补刷防碳化涂层。</p>
+  `
+};
+// IMG_04.jpg - 单图模式
+const dataImg04 = {
+  name: 'IMG_04.jpg',
+  url: '/example/show_one/page.jpg',
+  maskUrl: '/example/show_one/mask.png',
+  featureUrl: '/example/show_one/feature.png',
+  reportData: {
+    total_defect_count: 6,
+    overall_risk_level: '高危',
+    class_count: { 'exposed rebar': 5, 'spalling': 1 },
+    risk_distribution: { high: 4, medium: 0, low: 2 },
+    defects_detail: [
+      { defect_id: 'D-SGL-301', type: 'spalling', name: '剥落', physical_length: 98, max_width: 85, severity: 'high' },
+      { defect_id: 'D-SGL-302', type: 'exposed rebar', name: '钢筋裸露', physical_length: 25, max_width: 3, severity: 'low' },
+      { defect_id: 'D-SGL-303', type: 'exposed rebar', name: '钢筋裸露', physical_length: 21, max_width: 3, severity: 'low' },
+      { defect_id: 'D-SGL-304', type: 'exposed rebar', name: '钢筋裸露', physical_length: 57, max_width: 4, severity: 'high' },
+      { defect_id: 'D-SGL-305', type: 'exposed rebar', name: '钢筋裸露', physical_length: 59, max_width: 4, severity: 'high' },
+      { defect_id: 'D-SGL-306', type: 'exposed rebar', name: '钢筋裸露', physical_length: 76, max_width: 56, severity: 'high' }
+    ]
+  },
+  aiSummaryHtml: `
+    <p class="t-line text-red"><span class="t-prefix">></span> [ 综合研判 ] 检出严重结构性病害，整体评定为高危。</p>
+    <p class="t-line">  ├─ 核心特征: 存在大面积混凝土剥落 (最大 98x85cm)，并伴随多处连续的钢筋裸露现象。</p>
+    <p class="t-line">  └─ 劣化分析: 保护层大面积失效将导致钢筋加速锈蚀，显著削弱构件的有效承载截面，直接威胁结构整体安全。</p>
+    <br/>
+    <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
+    <p class="t-line">  1. 响应级别: 建议立即对该桥段实施临时交通限载或封闭管控。</p>
+    <p class="t-line">  2. 深度检测: 安排结构工程师进行现场无损检测，评估内部钢筋锈蚀程度及承载力折减情况。</p>
+    <p class="t-line">  3. 修复方案: 对裸露钢筋进行彻底除锈、涂刷阻锈剂处理；随后使用高强聚合物修补砂浆恢复混凝土截面。</p>
+  `
+};
+
+// ================= 文件名映射表（单图/多图模式）==================
+const imageDataMap = {
+  'IMG_01.JPG': dataImg01,
+  'IMG_02.JPG': dataImg02,
+  'IMG_03.JPG': dataImg03,
+  'IMG_04.JPG': dataImg04
+};
 
 // 场景 3：ZIP批量航拍
 const mockDataZip = [
@@ -663,22 +672,41 @@ const startAnalysis = () => {
   const fileCount = uploadedFiles.value.length;
   const zipCount = uploadedFiles.value.filter(f => f.name.toLowerCase().endsWith('.zip')).length;
   const imgCount = fileCount - zipCount;
-  let matchedData = null; let uploadTypeStr = '';
+  let matchedData = null;
+  let uploadTypeStr = '';
 
-  if (fileCount === 1 && zipCount === 1) { matchedData = mockDataZip; uploadTypeStr = 'ZIP 批量传输'; } 
-  else if (fileCount === 1 && imgCount === 1) { matchedData = mockDataSingle; uploadTypeStr = '单文件侦测'; } 
-  else if (fileCount === 3 && imgCount === 3) { matchedData = mockDataMulti; uploadTypeStr = '多图组合上传'; }
+  if (fileCount === 1 && zipCount === 1) {
+    matchedData = mockDataZip;
+    uploadTypeStr = 'ZIP 批量传输';
+  } else if (imgCount > 0 && zipCount === 0) {
+    const uploadedFileNames = uploadedFiles.value.map(f => f.name);
+    matchedData = uploadedFileNames
+      .map(fileName => {
+        const upperName = fileName.toUpperCase();
+        return imageDataMap[upperName] || null;
+      })
+      .filter(data => data !== null);
+
+    if (imgCount === 1) {
+      uploadTypeStr = '单文件侦测';
+    } else {
+      uploadTypeStr = '多图组合上传';
+    }
+  }
   
   analyzeTimer = setTimeout(() => {
     if (isLeaving.value) return;
-    if (!matchedData) { status.value = 'error'; setTimeout(() => { if (status.value === 'error') status.value = 'idle'; }, 3000); return; }
+    if (!matchedData || matchedData.length === 0) {
+      status.value = 'error';
+      setTimeout(() => { if (status.value === 'error') status.value = 'idle'; }, 3000);
+      return;
+    }
 
     status.value = 'success';
     resultImages.value = matchedData;
 
     const totalDefects = resultImages.value.reduce((sum, img) => sum + (img.reportData?.total_defect_count || 0), 0);
     
-    // 🚨 修改：新生成的记录强制命名为“未命名”，由用户在历史记录里自由修改
     const newRecord = {
       id: Date.now(), 
       taskName: '未命名', 

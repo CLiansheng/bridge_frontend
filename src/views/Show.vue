@@ -174,7 +174,7 @@
               <div class="feature-grid enhanced">
                 <div class="feature-item feature-item-1">
                   <div class="feature-image">
-                    <img src="../../public/feature1.jpg" alt="多维视觉病害解析" class="feature-img">
+                    <img src="/feature1.jpg" alt="多维视觉病害解析" class="feature-img">
                   </div>
                   <div class="feature-text">
                     <h4>多维视觉解析引擎</h4>
@@ -183,7 +183,7 @@
                 </div>
                 <div class="feature-item feature-item-2">
                   <div class="feature-image">
-                    <img src="../../public/feature2.png" alt="AI Agent 智能研判" class="feature-img">
+                    <img src="/feature2.png" alt="AI Agent 智能研判" class="feature-img">
                   </div>
                   <div class="feature-text">
                     <h4>AI 智能研判中枢</h4>
@@ -192,7 +192,7 @@
                 </div>
                 <div class="feature-item feature-item-3">
                   <div class="feature-image">
-                    <img src="../../public/feature3.jpg" alt="全息数字档案管线" class="feature-img">
+                    <img src="/feature3.jpg" alt="全息数字档案管线" class="feature-img">
                   </div>
                   <div class="feature-text">
                     <h4>全息数字档案管线</h4>
@@ -201,7 +201,7 @@
                 </div>
                 <div class="feature-item feature-item-4">
                   <div class="feature-image">
-                    <img src="../../public/feature4.jpg" alt="标准化评估诊断书" class="feature-img">
+                    <img src="/feature4.jpg" alt="标准化评估诊断书" class="feature-img">
                   </div>
                   <div class="feature-text">
                     <h4>标准化决策诊断书</h4>
@@ -223,7 +223,7 @@
                 <div class="scenario-item scenario-item-1">
                   <div class="scenario-content">
                     <div class="scenario-image">
-                      <img src="../../public/scenario1.jpg" alt="例行巡检与健康建档" class="scenario-img">
+                      <img src="/scenario1.jpg" alt="例行巡检与健康建档" class="scenario-img">
                     </div>
                     <div class="scenario-text">
                       <h4>桥梁例行巡检与数字建档</h4>
@@ -234,7 +234,7 @@
                 <div class="scenario-item scenario-item-2">
                   <div class="scenario-content reverse">
                     <div class="scenario-image">
-                      <img src="../../public/scenario2.jpg" alt="突发灾后结构快速评估" class="scenario-img">
+                      <img src="/scenario2.jpg" alt="突发灾后结构快速评估" class="scenario-img">
                     </div>
                     <div class="scenario-text">
                       <h4>突发自然灾害后结构快速评估</h4>
