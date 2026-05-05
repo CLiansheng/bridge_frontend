@@ -393,7 +393,7 @@ const resultImages = ref([]);
 
 // ================= 数据池：按文件名独立存储的数据 =================
 
-// IMG_01.jpg - 多图模式
+// IMG_01.jpg
 const dataImg01 = {
   name: 'IMG_01.jpg',
   url: '/example/show_many/image1/page.jpg',
@@ -416,10 +416,12 @@ const dataImg01 = {
     <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
     <p class="t-line">  1. 响应级别: 优先处理，需启动专项力学验算，分析该裂缝对构件整体刚度的影响。</p>
     <p class="t-line">  2. 修复方案: 针对超宽裂缝，须采用低粘度环氧树脂进行高压灌浆封闭处理，以恢复结构整体性并阻断水流渗入。</p>
+    <br/>
+    <p class="t-line">  诊断时间：${new Date().toLocaleString()}  </p>
   `
 };
 
-// IMG_02.jpg - 多图模式
+// IMG_02.jpg
 const dataImg02 = {
   name: 'IMG_02.jpg',
   url: '/example/show_many/image2/page.jpg',
@@ -442,10 +444,12 @@ const dataImg02 = {
     <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
     <p class="t-line">  1. 深度排查: 探明裂缝深度是否触及主筋，排查周边区域是否存在隐性空鼓现象。</p>
     <p class="t-line">  2. 修复方案: 建议对裂缝进行"V"型扩缝清理后，使用弹性嵌缝胶结合修补砂浆进行深度填补。</p>
+    <br/>
+    <p class="t-line">  诊断时间：${new Date().toLocaleString()}  </p>
   `
 };
 
-// IMG_03.jpg - 多图模式
+// IMG_03.jpg
 const dataImg03 = {
   name: 'IMG_03.jpg',
   url: '/example/show_many/image3/page.jpg',
@@ -470,9 +474,11 @@ const dataImg03 = {
     <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
     <p class="t-line">  1. 修复准备: 凿除周边松散、劣化的混凝土至坚实基面。</p>
     <p class="t-line">  2. 修复方案: 清理粉尘并涂刷界面剂后，使用专用修补砂浆进行表面找平，建议补刷防碳化涂层。</p>
+    <br/>
+    <p class="t-line">  诊断时间：${new Date().toLocaleString()}  </p>
   `
 };
-// IMG_04.jpg - 单图模式
+// IMG_04.jpg
 const dataImg04 = {
   name: 'IMG_04.jpg',
   url: '/example/show_one/page.jpg',
@@ -501,6 +507,8 @@ const dataImg04 = {
     <p class="t-line">  1. 响应级别: 建议立即对该桥段实施临时交通限载或封闭管控。</p>
     <p class="t-line">  2. 深度检测: 安排结构工程师进行现场无损检测，评估内部钢筋锈蚀程度及承载力折减情况。</p>
     <p class="t-line">  3. 修复方案: 对裸露钢筋进行彻底除锈、涂刷阻锈剂处理；随后使用高强聚合物修补砂浆恢复混凝土截面。</p>
+    <br/>
+    <p class="t-line">  诊断时间：${new Date().toLocaleString()}  </p>
   `
 };
 
@@ -536,6 +544,8 @@ const mockDataZip = [
       <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
       <p class="t-line">  1. 响应级别: 结构面临失稳风险，建议立即封锁交通并搭建临时支撑架。</p>
       <p class="t-line">  2. 修复方案: 实施体外预应力加固或粘贴碳纤维板补强；裂缝本体进行高压注浆封闭。</p>
+      <br/>
+      <p class="t-line">  诊断时间：${new Date().toLocaleString()}  </p>
     `
   },
   {
@@ -561,6 +571,8 @@ const mockDataZip = [
       <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
       <p class="t-line">  1. 源头治理: 优先查明并切断渗水源头（如桥面排水系统不畅、伸缩缝老化漏水等）。</p>
       <p class="t-line">  2. 修复方案: 清除表面结晶体，待基面干燥后，大面积涂刷硅烷浸渍剂防水。</p>
+      <br/>
+      <p class="t-line">  诊断时间：${new Date().toLocaleString()}  </p>
     `
   },
   {
@@ -587,6 +599,8 @@ const mockDataZip = [
       <p class="t-line"><span class="t-prefix">></span> <strong class="text-cyan">[ 修复与干预建议 ]</strong></p>
       <p class="t-line">  1. 响应级别: 暂不影响正常安全运营，建议纳入常规养护计划统一处理。</p>
       <p class="t-line">  2. 预防性养护: 对点状裸露钢筋进行打磨防锈，并用普通水泥砂浆封闭表面。</p>
+      <br/>
+      <p class="t-line">  诊断时间：${new Date().toLocaleString()}  </p>
     `
   }
 ];
