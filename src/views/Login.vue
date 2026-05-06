@@ -24,14 +24,15 @@
               <span class="badge-icon"></span>
               {{ authStatus === 'success' ? 'ACCESS_GRANTED' : (authStatus === 'error' ? 'ACCESS_DENIED' : 'SYS_LOCKED') }}
             </div>
-            <h1 class="glitch-text" data-text="BridgeEye">BridgeEye</h1>
+            <h1 class="glitch-text" data-text=" BridgeEye"> BridgeEye</h1>
             <p class="subtitle">桥梁病害诊断系统</p>
             <div class="header-divider"></div>
           </div>
 
           <div class="tactical-tabs" v-if="authMode !== 'reset'">
             <div 
-              class="tab-item active"
+              class="tab-item" 
+              :class="{ active: authMode === 'pwd' }"
               @click="switchMode('pwd')"
             >
               [ 账号登录 ]
@@ -41,12 +42,12 @@
               :class="{ active: authMode === 'register' }"
               @click="switchMode('register')"
             >
-              [ 注册 ]
+              [ 账号注册 ]
             </div>
           </div>
           
           <div class="reset-header" v-else>
-            <span class="warning-text">>> 密码重置</span>
+            <span class="warning-text">>> 本地档案覆写 (密码重置)</span>
           </div>
 
           <form class="auth-form" @submit.prevent="handleSubmit">
@@ -65,9 +66,8 @@
               <div class="input-corner"></div>
             </div>
 
-
-
-            <div class="input-group password-group" v-if="['pwd', 'register', 'reset'].includes(authMode)">
+            <!-- 密码输入框 -->
+            <div class="input-group password-group">
               <input 
                 :type="showPassword ? 'text' : 'password'" 
                 id="password" 
@@ -76,7 +76,7 @@
                 @input="formData.password = formData.password.replace(/[^\x21-\x7E]/g, ''); clearError()"
               >
               <label for="password">
-                {{ authMode === 'reset' ? '请输入新密码' : '请输入访问密码' }}
+                {{ authMode === 'reset' ? '请输入新访问密码' : '请输入访问密码' }}
               </label>
               
               <div 
@@ -96,13 +96,44 @@
               <div class="input-corner"></div>
             </div>
 
-            <div class="form-actions" v-if="['pwd'].includes(authMode)">
+            <!-- 确认密码输入框 (仅注册和重置时显示) -->
+            <div class="input-group password-group" v-if="['register', 'reset'].includes(authMode)">
+              <input 
+                :type="showConfirmPassword ? 'text' : 'password'" 
+                id="confirmPassword" 
+                v-model="formData.confirmPassword" 
+                placeholder=" "
+                @input="formData.confirmPassword = formData.confirmPassword.replace(/[^\x21-\x7E]/g, ''); clearError()"
+              >
+              <label for="confirmPassword">
+                请再次确认密码
+              </label>
+              
+              <div 
+                class="cyber-eye" 
+                :class="{ 'is-open': showConfirmPassword }" 
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <div class="eye-ring"></div>
+                <div class="eye-lens"></div>
+                <div class="vault-doors">
+                  <div class="door door-top"></div>
+                  <div class="door door-bottom"></div>
+                </div>
+              </div>
+
+              <div class="input-energy-bar"></div>
+              <div class="input-corner"></div>
+            </div>
+
+            <div class="form-actions" v-if="authMode === 'pwd'">
+              <span></span>
               <a href="#" class="cyber-link alert-link" @click.prevent="switchMode('reset')">
                 忘记密码?
               </a>
             </div>
 
-            <div class="form-actions single-action" v-else>
+            <div class="form-actions single-action" v-if="['register', 'reset'].includes(authMode)">
               <a href="#" class="cyber-link" @click.prevent="switchMode('pwd')">
                 << 返回接入模块
               </a>
@@ -123,7 +154,7 @@
             <span>
               {{ 
                 authStatus === 'error' 
-                  ? (['register', 'reset'].includes(authMode) ? 'WARNING: 操作失败' : 'WARNING: 账号或密码错误') 
+                  ? sysWarningMsg 
                   : 'AWAITING...' 
               }}
             </span>
@@ -132,6 +163,31 @@
         </div>
       </section>
     </div>
+
+    <!-- 轻量化悬浮通知面板 -->
+    <teleport to="body">
+      <transition name="hud-fade">
+        <div v-if="isAlertVisible" class="light-alert-overlay">
+          <div class="light-alert-box">
+            
+            <div class="alert-header">
+              <i class='bx bx-check-circle success-icon'></i>
+              <span class="alert-title">SYS_MSG</span>
+            </div>
+            
+            <div class="alert-body">
+              <p class="alert-msg-text">{{ alertMessage }}</p>
+            </div>
+            
+            <button class="cyber-btn-light" @click="handleAlertConfirm">
+              <span class="btn-text">确 认</span>
+            </button>
+            
+          </div>
+        </div>
+      </transition>
+    </teleport>
+
   </main>
 </template>
 
@@ -146,31 +202,47 @@ const userStore = useUserStore();
 // ================= 状态管理 =================
 
 const authMode = ref('pwd'); 
-const authStatus = ref('idle');
+const authStatus = ref('idle'); 
 
-// 定时器引用，防止内存泄漏和路由跳转导致的报错
-let timer = null; 
 let errorTimer = null;
 let loadingTimer = null;
 let actionTimer = null;
 
 const formData = reactive({
   email: '',
-  password: ''
+  password: '',
+  confirmPassword: ''
 });
 
 const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+const sysWarningMsg = ref('');
+
+// 定制弹窗状态
+const isAlertVisible = ref(false);
+const alertMessage = ref('');
 
 // ================= 核心业务方法 =================
 
 const clearError = () => {
-  // 清除未执行完的错误恢复定时器，防止状态竞态闪烁
   if (errorTimer) clearTimeout(errorTimer);
   if (authStatus.value === 'error') {
     authStatus.value = 'idle';
+    sysWarningMsg.value = '';
   }
 };
 
+const triggerError = (msg) => {
+  if (errorTimer) clearTimeout(errorTimer);
+  sysWarningMsg.value = msg;
+  authStatus.value = 'error';
+  errorTimer = setTimeout(() => {
+    authStatus.value = 'idle';
+    sysWarningMsg.value = '';
+  }, 1500); 
+};
+
+// 严谨的邮箱正则结构校验
 const isValidEmail = computed(() => {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return emailRegex.test(formData.email);
@@ -190,71 +262,101 @@ const submitButtonText = computed(() => {
 const switchMode = (mode) => {
   authMode.value = mode;
   formData.password = '';
+  formData.confirmPassword = '';
   authStatus.value = 'idle';
   showPassword.value = false;
-  
-  // 切换模式时重置报错状态
+  showConfirmPassword.value = false;
+  sysWarningMsg.value = '';
   if (errorTimer) clearTimeout(errorTimer);
 };
 
-const sendCode = () => {
-  if (countdown.value > 0 || !isValidEmail.value) return;
-  
-  console.log('Sending code to:', formData.email); 
-  
-  countdown.value = 60;
-  timer = setInterval(() => {
-    countdown.value--;
-    if (countdown.value <= 0) {
-      clearInterval(timer);
-    }
-  }, 1000);
+// 触发轻量化弹窗
+const showCustomAlert = (msg) => {
+  alertMessage.value = msg;
+  isAlertVisible.value = true;
+};
+
+// 确认弹窗并重置状态
+const handleAlertConfirm = () => {
+  isAlertVisible.value = false;
+  switchMode('pwd');
+  authStatus.value = 'idle';
 };
 
 const handleSubmit = () => {
-  // 复用计算属性，消除重复验证逻辑
   const isEmailValid = isValidEmail.value; 
-  const isPwdComplete = ['pwd', 'register', 'reset'].includes(authMode.value) ? formData.password.length > 0 : true;
+  const isPwdComplete = formData.password.length > 0;
+  const isConfirmPwdComplete = ['register', 'reset'].includes(authMode.value) ? formData.confirmPassword.length > 0 : true;
 
-  if (!isEmailValid || !isPwdComplete) {
-    if (errorTimer) clearTimeout(errorTimer);
-    authStatus.value = 'error'; 
-    errorTimer = setTimeout(() => {
-      authStatus.value = 'idle'; 
-    }, 1000);
+  // 1. 独立校验邮箱格式
+  if (!isEmailValid) {
+    triggerError('WARNING: 电子邮箱格式无效或不合规');
+    return;
+  }
+
+  // 2. 凭证完整性校验
+  if (!isPwdComplete || !isConfirmPwdComplete) {
+    triggerError('WARNING: 必须填写完整的访问凭证');
     return; 
+  }
+
+  // 3. 密码一致性校验
+  if (['register', 'reset'].includes(authMode.value) && formData.password !== formData.confirmPassword) {
+    triggerError('WARNING: 两次输入的密码验证不一致');
+    return;
   }
 
   authStatus.value = 'loading';
   
   loadingTimer = setTimeout(() => {
     
-    if (formData.password === 'error') {
-      authStatus.value = 'error';
-      return; 
-    }
+    const localAccountStr = localStorage.getItem('spansLocalAccount');
+    let localAccount = localAccountStr ? JSON.parse(localAccountStr) : null;
 
-    authStatus.value = 'success'; 
+    // === 【注册分支】 ===
+    if (authMode.value === 'register') {
+      localStorage.setItem('spansLocalAccount', JSON.stringify({
+        email: formData.email,
+        password: formData.password
+      }));
+      authStatus.value = 'success';
+      actionTimer = setTimeout(() => {
+        showCustomAlert('注册成功，请登录。'); 
+      }, 300);
+    } 
     
-    if (['pwd'].includes(authMode.value)) {
-      userStore.login(formData.email);
-      actionTimer = setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000);
-    } else {
-      actionTimer = setTimeout(() => {
-        alert("操作指令已确立执行。");
-        switchMode('pwd');
-      }, 1000);
+    // === 【登录分支】 ===
+    else if (authMode.value === 'pwd') {
+      if (localAccount && localAccount.email === formData.email && localAccount.password === formData.password) {
+        authStatus.value = 'success'; 
+        userStore.login(formData.email);
+        actionTimer = setTimeout(() => {
+          router.push('/dashboard');
+        }, 400);
+      } else {
+        triggerError('WARNING: 本地档案未找到或凭证拒绝访问');
+      }
+    } 
+    
+    // === 【重置密码分支】 ===
+    else if (authMode.value === 'reset') {
+      if (localAccount && localAccount.email === formData.email) {
+        localAccount.password = formData.password;
+        localStorage.setItem('spansLocalAccount', JSON.stringify(localAccount));
+        authStatus.value = 'success';
+        actionTimer = setTimeout(() => {
+          showCustomAlert('密码覆写完毕，请重新登录。');
+        }, 300);
+      } else {
+        triggerError('WARNING: 目标邮箱与本地档案不匹配');
+      }
     }
 
-  }, 1500);
+  }, 600);
 };
 
 // ================= 生命周期钩子 =================
-// 组件销毁前彻底清理所有后台跑动的定时器
 onUnmounted(() => {
-  if (timer) clearInterval(timer);
   if (errorTimer) clearTimeout(errorTimer);
   if (loadingTimer) clearTimeout(loadingTimer);
   if (actionTimer) clearTimeout(actionTimer);
@@ -270,7 +372,6 @@ input[type="password"]::-ms-clear {
   height: 0;
 }
 
-/* 针对部分 WebKit 浏览器的额外重置 */
 input::-webkit-credentials-auto-fill-button {
   display: none !important;
   visibility: hidden;
@@ -294,7 +395,7 @@ input::-webkit-credentials-auto-fill-button {
 
 /* ================= 核心认证终端面板 ================= */
 .terminal-deploy-wrapper {
-  animation: terminalDeploy 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: terminalDeploy 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   z-index: 10;
 }
 
@@ -317,33 +418,10 @@ input::-webkit-credentials-auto-fill-button {
   transition: border-color 0.3s ease;
 }
 
-.tb-tl {
-  top: -2px;
-  left: -2px;
-  border-top-color: rgba(0, 229, 255, 1);
-  border-left-color: rgba(0, 229, 255, 1);
-}
-
-.tb-tr {
-  top: -2px;
-  right: -2px;
-  border-top-color: rgba(0, 229, 255, 1);
-  border-right-color: rgba(0, 229, 255, 1);
-}
-
-.tb-bl {
-  bottom: -2px;
-  left: -2px;
-  border-bottom-color: rgba(0, 229, 255, 1);
-  border-left-color: rgba(0, 229, 255, 1);
-}
-
-.tb-br {
-  bottom: -2px;
-  right: -2px;
-  border-bottom-color: rgba(0, 229, 255, 1);
-  border-right-color: rgba(0, 229, 255, 1);
-}
+.tb-tl { top: -2px; left: -2px; border-top-color: rgba(0, 229, 255, 1); border-left-color: rgba(0, 229, 255, 1); }
+.tb-tr { top: -2px; right: -2px; border-top-color: rgba(0, 229, 255, 1); border-right-color: rgba(0, 229, 255, 1); }
+.tb-bl { bottom: -2px; left: -2px; border-bottom-color: rgba(0, 229, 255, 1); border-left-color: rgba(0, 229, 255, 1); }
+.tb-br { bottom: -2px; right: -2px; border-bottom-color: rgba(0, 229, 255, 1); border-right-color: rgba(0, 229, 255, 1); }
 
 .terminal-inner {
   padding: 45px 40px;
@@ -366,7 +444,7 @@ input::-webkit-credentials-auto-fill-button {
   color: #ff3333;
   padding: 4px 12px;
   font-size: 12px;
-  font-family:  monospace;
+  font-family: monospace;
   letter-spacing: 2px;
   margin-bottom: 15px;
   transition: all 0.3s ease;
@@ -411,7 +489,7 @@ input::-webkit-credentials-auto-fill-button {
   justify-content: center;
   gap: 20px;
   margin-bottom: 30px;
-  font-family:  monospace;
+  font-family: monospace;
 }
 
 .tab-item {
@@ -423,9 +501,7 @@ input::-webkit-credentials-auto-fill-button {
   padding: 5px 10px;
 }
 
-.tab-item:hover {
-  color: rgba(0, 229, 255, 0.8);
-}
+.tab-item:hover { color: rgba(0, 229, 255, 0.8); }
 
 .tab-item.active {
   color: rgba(0, 229, 255, 1);
@@ -436,7 +512,7 @@ input::-webkit-credentials-auto-fill-button {
 .reset-header {
   text-align: center;
   margin-bottom: 30px;
-  font-family:  monospace;
+  font-family: monospace;
 }
 
 .warning-text {
@@ -459,20 +535,19 @@ input::-webkit-credentials-auto-fill-button {
   padding: 15px 15px 15px 20px;
   color: #fff;
   font-size: 16px;
-  font-family:  monospace;
+  font-family: monospace;
   outline: none;
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
   box-sizing: border-box;
 }
 
-/* ================= 极品输入框悬浮标签 ================= */
 .input-group label {
   position: absolute;
   top: 16px;
   left: 20px;
   color: rgba(255, 255, 255, 0.4);
   font-size: 13px;
-  font-family:  monospace;
+  font-family: monospace;
   letter-spacing: 1px;
   pointer-events: none;
   transform-origin: left top;
@@ -585,57 +660,32 @@ input::-webkit-credentials-auto-fill-button {
 }
 
 /* 光圈开合状态控制 */
-.cyber-eye.is-open .eye-lens {
-  transform: scale(1);
-  opacity: 1;
-}
-
-.cyber-eye.is-open .door-top {
-  transform: translateY(-150%);
-  opacity: 0;
-}
-
-.cyber-eye.is-open .door-bottom {
-  transform: translateY(150%);
-  opacity: 0;
-}
-
-.cyber-eye.is-open .vault-doors {
-  border-color: transparent;
-}
+.cyber-eye.is-open .eye-lens { transform: scale(1); opacity: 1; }
+.cyber-eye.is-open .door-top { transform: translateY(-150%); opacity: 0; }
+.cyber-eye.is-open .door-bottom { transform: translateY(150%); opacity: 0; }
+.cyber-eye.is-open .vault-doors { border-color: transparent; }
 
 /* ================= 充能条 & 装饰 ================= */
 .input-energy-bar {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  width: 0%;
+  bottom: 0; left: 0; height: 2px; width: 0%;
   background: rgba(0, 229, 255, 1);
   box-shadow: 0 0 10px rgba(0, 229, 255, 0.8);
   transition: width 0.4s ease;
 }
 
 .input-group input:focus ~ .input-energy-bar,
-.input-group input:not(:placeholder-shown) ~ .input-energy-bar {
-  width: 100%;
-}
+.input-group input:not(:placeholder-shown) ~ .input-energy-bar { width: 100%; }
 
 .input-corner {
   position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 10px;
-  height: 10px;
+  bottom: -1px; right: -1px; width: 10px; height: 10px;
   border-bottom: 2px solid rgba(0, 229, 255, 1);
   border-right: 2px solid rgba(0, 229, 255, 1);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  opacity: 0; transition: opacity 0.3s ease;
 }
 
-.input-group input:focus ~ .input-corner {
-  opacity: 1;
-}
+.input-group input:focus ~ .input-corner { opacity: 1; }
 
 /* ================= 辅助选项链接 ================= */
 .form-actions {
@@ -644,12 +694,10 @@ input::-webkit-credentials-auto-fill-button {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-  font-family:  monospace;
+  font-family: monospace;
 }
 
-.form-actions.single-action {
-  justify-content: flex-start;
-}
+.form-actions.single-action { justify-content: flex-start; }
 
 .cyber-link {
   color: rgba(255, 255, 255, 0.5);
@@ -685,23 +733,18 @@ input::-webkit-credentials-auto-fill-button {
 
 .btn-bg {
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
+  top: 0; left: -100%; width: 100%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.2), transparent);
   transition: left 0.4s ease;
 }
 
-.cyber-submit-btn:hover .btn-bg {
-  left: 100%;
-}
+.cyber-submit-btn:hover .btn-bg { left: 100%; }
 
 .btn-text {
   position: relative;
   z-index: 2;
   color: rgba(0, 229, 255, 1);
-  font-family:  monospace;
+  font-family: monospace;
   font-size: 16px;
   font-weight: 900;
   letter-spacing: 4px;
@@ -714,26 +757,10 @@ input::-webkit-credentials-auto-fill-button {
   box-shadow: 0 0 30px rgba(0, 229, 255, 0.3), inset 0 0 15px rgba(0, 229, 255, 0.2);
 }
 
-.cyber-submit-btn:hover .btn-text {
-  color: #fff;
-  text-shadow: 0 0 10px #fff;
-}
-
-.cyber-submit-btn:active {
-  transform: scale(0.98);
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-}
-
-.cyber-submit-btn:disabled {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
-  cursor: not-allowed;
-}
-
-.cyber-submit-btn:disabled .btn-text {
-  color: rgba(255, 255, 255, 0.5);
-  animation: pulseOpacity 1s infinite alternate;
-}
+.cyber-submit-btn:hover .btn-text { color: #fff; text-shadow: 0 0 10px #fff; }
+.cyber-submit-btn:active { transform: scale(0.98); box-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
+.cyber-submit-btn:disabled { border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); cursor: not-allowed; }
+.cyber-submit-btn:disabled .btn-text { color: rgba(255, 255, 255, 0.5); animation: pulseOpacity 1s infinite alternate; }
 
 /* ================= 状态指示灯 ================= */
 .terminal-footer {
@@ -743,15 +770,14 @@ input::-webkit-credentials-auto-fill-button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family:  monospace;
+  font-family: monospace;
   font-size: 10px;
   color: rgba(255, 255, 255, 0.3);
   transition: color 0.3s ease;
 }
 
 .status-dot {
-  width: 6px;
-  height: 6px;
+  width: 6px; height: 6px;
   background: rgba(0, 229, 255, 0.5);
   border-radius: 50%;
   animation: pulseScale 2s infinite alternate;
@@ -759,8 +785,6 @@ input::-webkit-credentials-auto-fill-button {
 }
 
 /* ================= 认证状态动效 ================= */
-
-/* 当系统识别为 error 状态时，全局强制染红所有输入框 */
 .auth-terminal.is-error .input-group input {
   border-color: #ff3333 !important;
   background: rgba(255, 0, 0, 0.05) !important;
@@ -768,180 +792,139 @@ input::-webkit-credentials-auto-fill-button {
   color: #ff3333 !important;
 }
 
-.auth-terminal.is-error .input-group label {
-  color: #ff3333 !important;
-  text-shadow: none !important;
-}
-
+.auth-terminal.is-error .input-group label { color: #ff3333 !important; text-shadow: none !important; }
 .auth-terminal.is-error .input-energy-bar,
-.auth-terminal.is-error .input-corner {
-  background: #ff3333 !important;
-  border-color: #ff3333 !important;
-  box-shadow: 0 0 10px #ff3333 !important;
-}
+.auth-terminal.is-error .input-corner { background: #ff3333 !important; border-color: #ff3333 !important; box-shadow: 0 0 10px #ff3333 !important; }
 
-/* 错误红屏时的光圈小眼睛变色同步 */
-.auth-terminal.is-error .eye-ring {
-  border-color: rgba(255, 51, 51, 0.6);
-}
+.auth-terminal.is-error .eye-ring { border-color: rgba(255, 51, 51, 0.6); }
+.auth-terminal.is-error .cyber-eye:hover .eye-ring { border-color: #ff3333; box-shadow: 0 0 8px rgba(255, 51, 51, 0.5); }
+.auth-terminal.is-error .vault-doors { border-color: rgba(255, 51, 51, 0.2); }
+.auth-terminal.is-error .door-top { border-bottom-color: #ff3333; }
+.auth-terminal.is-error .door-top::after { background: #ff3333; }
+.auth-terminal.is-error .door-bottom { border-top-color: #ff3333; }
+.auth-terminal.is-error .eye-lens { background: #ff3333; box-shadow: 0 0 10px #ff3333; }
 
-.auth-terminal.is-error .cyber-eye:hover .eye-ring {
-  border-color: #ff3333;
-  box-shadow: 0 0 8px rgba(255, 51, 51, 0.5);
-}
-
-.auth-terminal.is-error .vault-doors {
-  border-color: rgba(255, 51, 51, 0.2);
-}
-
-.auth-terminal.is-error .door-top {
-  border-bottom-color: #ff3333;
-}
-
-.auth-terminal.is-error .door-top::after {
-  background: #ff3333;
-}
-
-.auth-terminal.is-error .door-bottom {
-  border-top-color: #ff3333;
-}
-
-.auth-terminal.is-error .eye-lens {
-  background: #ff3333;
-  box-shadow: 0 0 10px #ff3333;
-}
-
-/* 1. 成功 绿屏状态 (常态保持，不跳动) */
 .auth-terminal.is-success {
   border-color: rgba(0, 255, 170, 0.8);
   box-shadow: 0 0 50px rgba(0, 255, 170, 0.2), inset 0 0 20px rgba(0, 255, 170, 0.1);
 }
-
-.auth-terminal.is-success .terminal-bracket {
-  border-color: rgba(0, 255, 170, 1);
-}
-
-.auth-terminal.is-success .sys-badge {
-  background: rgba(0, 255, 170, 0.1);
-  border-color: rgba(0, 255, 170, 0.5);
-  color: #00ffaa;
-}
-
+.auth-terminal.is-success .terminal-bracket { border-color: rgba(0, 255, 170, 1); }
+.auth-terminal.is-success .sys-badge { background: rgba(0, 255, 170, 0.1); border-color: rgba(0, 255, 170, 0.5); color: #00ffaa; }
 .auth-terminal.is-success .badge-icon,
-.auth-terminal.is-success .status-dot {
-  background: #00ffaa;
-  box-shadow: 0 0 10px #00ffaa;
-}
+.auth-terminal.is-success .status-dot { background: #00ffaa; box-shadow: 0 0 10px #00ffaa; }
+.auth-terminal.is-success .terminal-footer { color: #00ffaa; }
 
-.auth-terminal.is-success .terminal-footer {
-  color: #00ffaa;
-}
-
-/* 2. 失败 红色警戒态 + 左右物理跳动受击反馈 */
 .auth-terminal.is-error {
   animation: terminalErrorShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   border-color: #ff3333;
   box-shadow: 0 0 50px rgba(255, 51, 51, 0.3), inset 0 0 30px rgba(255, 51, 51, 0.15);
 }
-
-.auth-terminal.is-error .terminal-bracket {
-  border-color: #ff3333;
-}
-
-.auth-terminal.is-error .sys-badge {
-  background: rgba(255, 51, 51, 0.1);
-  border-color: rgba(255, 51, 51, 0.5);
-  color: #ff3333;
-}
-
+.auth-terminal.is-error .terminal-bracket { border-color: #ff3333; }
+.auth-terminal.is-error .sys-badge { background: rgba(255, 51, 51, 0.1); border-color: rgba(255, 51, 51, 0.5); color: #ff3333; }
 .auth-terminal.is-error .badge-icon,
-.auth-terminal.is-error .status-dot {
-  background: #ff3333;
-  box-shadow: 0 0 10px #ff3333;
+.auth-terminal.is-error .status-dot { background: #ff3333; box-shadow: 0 0 10px #ff3333; }
+.auth-terminal.is-error .terminal-footer { color: #ff3333; font-weight: bold; }
+
+/* ================= 轻量化赛博定制通知面板 ================= */
+.light-alert-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  /* 背景透明度降低，增加呼吸感 */
+  background: rgba(0, 8, 20, 0.4); 
+  backdrop-filter: blur(5px);
+  z-index: 99999; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.auth-terminal.is-error .terminal-footer {
-  color: #ff3333;
-  font-weight: bold;
+.light-alert-box {
+  position: relative;
+  width: 340px; /* 收窄体积，更显精致 */
+  /* 去除纯黑，使用渐变半透明，边缘增加轻微圆角 */
+  background: linear-gradient(135deg, rgba(6, 14, 28, 0.85), rgba(2, 6, 12, 0.95));
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 12px; 
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 229, 255, 0.05);
+  padding: 30px 25px;
+  text-align: center;
+  animation: alertDeploy 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+.alert-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.success-icon {
+  font-size: 40px;
+  color: #00e5ff;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.alert-title {
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.alert-body {
+  margin-bottom: 25px;
+}
+
+.alert-msg-text {
+  color: #fff;
+  font-size: 15px;
+  letter-spacing: 1px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cyber-btn-light {
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 6px; /* 更柔和的按钮边框 */
+  color: #00e5ff;
+  padding: 10px 30px;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+  transition: all 0.3s;
+}
+
+.cyber-btn-light:hover {
+  background: rgba(0, 229, 255, 0.2);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.hud-fade-enter-active, .hud-fade-leave-active { transition: opacity 0.3s; }
+.hud-fade-enter-from, .hud-fade-leave-to { opacity: 0; }
 
 /* ================= 动画关键帧 ================= */
 @keyframes terminalDeploy {
-  0% {
-    transform: scale(0.9) translateY(30px);
-    opacity: 0;
-    filter: blur(10px);
-  }
-  100% {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-    filter: blur(0px);
-  }
+  0% { transform: scale(0.9) translateY(30px); opacity: 0; filter: blur(10px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px); }
 }
-
-@keyframes gridMove {
-  100% {
-    transform: perspective(500px) rotateX(60deg) translateY(40px);
-  }
+@keyframes alertDeploy {
+  0% { transform: scale(0.9) translateY(-10px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
 }
-
-@keyframes radarSpin {
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-@keyframes eyeSpin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes blink {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
-}
-
-@keyframes pulseOpacity {
-  0% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes pulseScale {
-  0% {
-    transform: scale(1);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 1;
-    box-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
-  }
-}
-
+@keyframes eyeSpin { 100% { transform: rotate(360deg); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes pulseOpacity { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+@keyframes pulseScale { 0% { transform: scale(1); opacity: 0.3; } 100% { transform: scale(1.5); opacity: 1; box-shadow: 0 0 8px rgba(0, 229, 255, 0.8); } }
 @keyframes terminalErrorShake {
-  0%, 100% {
-    transform: translate3d(0, 0, 0);
-  }
-  10%, 90% {
-    transform: translate3d(-2px, 0, 0);
-  }
-  20%, 80% {
-    transform: translate3d(5px, 0, 0);
-  }
-  30%, 50%, 70% {
-    transform: translate3d(-10px, 0, 0);
-  }
-  40%, 60% {
-    transform: translate3d(10px, 0, 0);
-  }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(5px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-10px, 0, 0); }
+  40%, 60% { transform: translate3d(10px, 0, 0); }
 }
 </style>
